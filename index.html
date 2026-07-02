@@ -38,16 +38,20 @@
   .feedback{margin-top:12px;font-weight:bold;min-height:24px}
   .correct{color:#0f6;text-shadow:0 0 8px #0f6}.wrong{color:#f36;text-shadow:0 0 8px #f36}
   .code-box{background:#020410;border:1px solid var(--neon-purple);padding:14px;border-radius:10px;word-break:break-all;font-family:monospace;color:var(--neon-cyan);font-size:.8rem;box-shadow:0 0 10px rgba(123,47,247,.4)}
-  footer{text-align:center;padding:30px;color:#4a6a8a;font-size:.8rem}
+  footer{text-align:center;padding:30px;color:#4a6a8a;font-size:.7rem;letter-spacing:.5px}
   .drag-item{display:inline-block;background:rgba(0,229,255,.15);border:2px solid var(--neon-cyan);padding:8px 16px;margin:6px;border-radius:10px;cursor:grab;font-size:1.1rem;box-shadow:0 0 8px rgba(0,229,255,.4);user-select:none}
   .drag-item.dragging{opacity:.4}
   .basket{min-height:80px;border:2px dashed var(--neon-purple);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 0 10px rgba(123,47,247,.3)}
   .basket h4{color:var(--neon-purple);text-shadow:0 0 8px var(--neon-purple);margin-bottom:8px}
   .basket.over{background:rgba(123,47,247,.15)}
   .pool{display:flex;flex-wrap:wrap;justify-content:center;padding:14px;border:1px solid rgba(0,229,255,.3);border-radius:12px;margin-bottom:14px;min-height:60px}
-  .badge{display:inline-block;background:rgba(0,229,255,.1);border:1px solid var(--neon-cyan);border-radius:20px;padding:6px 14px;margin:6px;font-size:.85rem;opacpx;border:2px solid var(--neon-cyan);box-shadow:0 0 16px var(--neon-blue);margin:10px}
+  .badge{display:inline-block;background:rgba(0,229,255,.1);border:1px solid var(--neon-cyan);border-radius:20px;padding:6px 14px;margin:6px;font-size:.85rem;opacity:.35;transition:.3s}
+  .badge.unlocked{opacity:1;box-shadow:0 0 12px var(--neon-blue);animation:pop .5s}
+  @keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .toast{position:fixed;top:20px;right:20px;background:var(--panel);border:1px solid var(--neon-cyan);border-radius:12px;padding:14px 20px;box-shadow:0 0 20px var(--neon-blue);z-index:99;animation:slideIn .4s;color:#fff}
+  @keyframes slideIn{from{transform:translateX(120%)}to{transform:translateX(0)}}
+  .pic-quiz img{max-width:220px;border-radius:14px;border:2px solid var(--neon-cyan);box-shadow:0 0 16px var(--neon-blue);margin:10px}
   .pic-emoji{font-size:5rem;margin:10px}
-  /* список добавленных заданий у учителя */
   .task-list{list-style:none;margin:14px 0}
   .task-list li{background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;justify-content:space-between;align-items:center}
   .task-list li span{color:#dff6ff}
@@ -70,7 +74,6 @@
   </div>
 </header>
 
-<!-- МЕНЮ (только вход, ученик сюда не попадает по ссылке) -->
 <section class="screen active" id="menu">
   <div class="grid">
     <div class="card" onclick="show('teacher')"><div class="icon">👨‍🔬</div><h3>Режим учителя</h3><p>Собери набор заданий и получи ссылку</p></div>
@@ -78,11 +81,9 @@
   </div>
 </section>
 
-<!-- УЧИТЕЛЬ -->
 <section class="screen" id="teacher">
   <button class="btn small" onclick="show('menu')">⬅ Назад</button>
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:16px">Конструктор урока</h2>
-
   <div class="task-box">
     <label>Выбери тип задания:</label>
     <div class="grid" style="margin:6px 0">
@@ -101,7 +102,6 @@
       <br><button class="btn" onclick="addTaskToLesson()">➕ Добавить в урок</button>
     </div>
   </div>
-
   <div class="task-box">
     <h3 style="color:#fff;text-shadow:0 0 8px var(--neon-blue)">📋 Задания урока (<span id="taskCount">0</span>)</h3>
     <ul class="task-list" id="lessonList"></ul>
@@ -110,7 +110,6 @@
   </div>
 </section>
 
-<!-- УЧЕНИК (открывается по ссылке автоматически) -->
 <section class="screen" id="student">
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:16px">🎓 Тренажёр</h2>
   <div class="progress-bar"><div id="lessonProgress"></div></div>
@@ -119,7 +118,6 @@
   <div style="text-align:center" id="navBtns"></div>
 </section>
 
-<!-- ДОСТИЖЕНИЯ -->
 <section class="screen" id="achieveScreen">
   <button class="btn small" onclick="show('menu')">⬅ Назад</button>
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:16px">🏆 Достижения</h2>
@@ -127,13 +125,11 @@
   <div style="text-align:center"><button class="btn small" onclick="resetProgress()">🗑️ Сбросить прогресс</button></div>
 </section>
 
-<footer>НейроРусский • Лаборатория языка • v0.3</footer>
+<footer>© Все права принадлежат Гальмиз Марии Александровне • НейроРусский</footer>
 
 <script>
-/* ═══ НАВИГАЦИЯ ═══ */
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);stopTimer();}
 
-/* ═══ ЗВУК ═══ */
 let soundOn=true,audioCtx=null;
 function toggleSound(){soundOn=!soundOn;document.getElementById('soundBtn').classList.toggle('on',soundOn);document.getElementById('soundBtn').textContent=soundOn?'🔊 Звук':'🔇 Выкл';}
 function beep(freq,dur,type='sine'){if(!soundOn)return;if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(.15,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.start();o.stop(audioCtx.currentTime+dur);}
@@ -141,7 +137,6 @@ const sndOK=()=>{beep(660,.12);setTimeout(()=>beep(880,.15),90)};
 const sndBad=()=>beep(160,.3,'sawtooth');
 const sndWin=()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.2),i*100))};
 
-/* ═══ ГЕЙМИФИКАЦИЯ + LOCALSTORAGE ═══ */
 let state=JSON.parse(localStorage.getItem('nr_state')||'{}');
 let energy=state.energy||0, combo=0, totalCorrect=state.totalCorrect||0;
 let achievements=state.achievements||{};
@@ -151,7 +146,7 @@ function addEnergy(n){combo++;energy+=n*combo;totalCorrect++;sndOK();updateHUD()
 function resetCombo(){combo=0;updateHUD();sndBad();}
 updateHUD();
 
-/* ═══ ДОСТИЖЕНИЯ ═══ */
+let lessonDone=false;
 const BADGES=[
   {id:'first',name:'🧬 Первый эксперимент',cond:()=>totalCorrect>=1},
   {id:'ten',name:'⚗️ 10 верных',cond:()=>totalCorrect>=10},
@@ -161,21 +156,16 @@ const BADGES=[
   {id:'energy500',name:'⚡ 500 энергии',cond:()=>energy>=500},
   {id:'lesson',name:'🎓 Урок пройден',cond:()=>lessonDone},
 ];
-let lessonDone=false;
 function checkAchievements(){BADGES.forEach(b=>{if(!achievements[b.id]&&b.cond()){achievements[b.id]=true;saveState();toast('🏆 '+b.name);sndWin();}});}
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
 function renderBadges(){document.getElementById('badgeList').innerHTML=BADGES.map(b=>`<span class="badge ${achievements[b.id]?'unlocked':''}">${b.name}</span>`).join('');}
 function resetProgress(){if(confirm('Сбросить весь прогресс?')){localStorage.removeItem('nr_state');energy=0;combo=0;totalCorrect=0;achievements={};updateHUD();renderBadges();}}
 
-/* ═══ ТАЙМЕР ═══ */
 let timerInt=null;
 function startTimer(sec){stopTimer();if(!sec||sec<=0){document.getElementById('timer').textContent='—';return;}let t=sec;document.getElementById('timer').textContent=t;timerInt=setInterval(()=>{t--;document.getElementById('timer').textContent=t;if(t<=0){stopTimer();toast('⏱️ Время вышло!');sndBad();}},1000);}
 function stopTimer(){if(timerInt){clearInterval(timerInt);timerInt=null;}}
 
-/* ═══════════════ УЧИТЕЛЬ: КОНСТРУКТОР УРОКА ═══════════════ */
-let lesson=[];              // массив заданий урока
-let currentType=null;
-
+let lesson=[], currentType=null;
 function showTeacherType(type){
   currentType=type;
   const f=document.getElementById('teacherFields');
@@ -191,7 +181,6 @@ function showTeacherType(type){
   };
   f.innerHTML=forms[type];
 }
-
 function collectTask(){
   const type=currentType;
   const timer=parseInt(document.getElementById('fTimer').value)||0;
@@ -202,17 +191,14 @@ function collectTask(){
   if(type==='trop'){obj.d=g('fData');obj.a=g('fAns');}
   if(type==='basket'){obj.cats=g('fCats');obj.d=g('fData');}
   if(type==='scheme'){obj.d=g('fData');obj.hint=g('fHint');}
-  if(type==='pic'){obj.pic=g('fPic');obj.a=g('fAns');obj.hint=g  if(type==='pic'){obj.pic=g('fPic');obj.a=g('fAns');obj.hint=g('fHint');}
+  if(type==='pic'){obj.pic=g('fPic');obj.a=g('fAns');obj.hint=g('fHint');}
   if(type==='complex'){obj.d=g('fData');obj.q=g('fQ');}
   return obj;
 }
-
 function addTaskToLesson(){
   if(!currentType){alert('Выбери тип задания!');return;}
   const task=collectTask();
-  // простая проверка что данные введены
-  if((task.t!=='pic'&&!task.d)||(task.t==='pic'&&!task.pic)){alert('Заполни поля задания!');return;}
-  lesson.push(task);
+    lesson.push(task);
   renderLessonList();
   document.getElementById('teacherFields').innerHTML='';
   document.getElementById('teacherFieldsWrap').style.display='none';
@@ -226,54 +212,50 @@ function renderLessonList(){
   document.getElementById('taskCount').textContent=lesson.length;
   const ul=document.getElementById('lessonList');
   ul.innerHTML=lesson.map((t,i)=>{
-    let preview=t.d||t.pic||'';
-    preview=preview.replace(/\n/g,' ').slice(0,40);
-    return `<li><span>${i+1}. ${TYPE_NAMES[t.t]} — ${preview}${preview.length>=40?'…':''}</span>
-    <button onclick="removeTask(${i})">✕</button></li>`;
+    let preview=(t.d||t.pic||'').replace(/\n/g,' ').slice(0,40);
+    return `<li><span>${i+1}. ${TYPE_NAMES[t.t]} — ${preview}${preview.length>=40?'…':''}</span><button onclick="removeTask(${i})">✕</button></li>`;
   }).join('');
 }
 function removeTask(i){lesson.splice(i,1);renderLessonList();}
 
-/* ═══ СОЗДАНИЕ ССЫЛКИ (код в hash) ═══ */
+/* ═══ СОЗДАНИЕ ССЫЛКИ (адрес сайта скрыт) ═══ */
 function buildLink(){
   if(lesson.length===0){alert('Добавь хотя бы одно задание!');return;}
   const code=btoa(unescape(encodeURIComponent(JSON.stringify(lesson))));
   const base=location.href.split('#')[0];
   const link=base+'#'+code;
   document.getElementById('linkResult').innerHTML=`
-    <p style="margin-top:14px;color:var(--neon-cyan)">✅ Ссылка для учеников:</p>
-    <div class="code-box">${link}</div>
-    <button class="btn small" onclick="navigator.clipboard.writeText('${link}');toast('📋 Ссылка скопирована!')">📋 Копировать ссылку</button>
-    <button class="btn small" onclick="window.open('${link}','_blank')">👁️ Проверить (открыть)</button>`;
+    <p style="margin-top:14px;color:var(--neon-cyan)">✅ Готовая ссылка для учеников:</p>
+    <div class="code-box" id="linkBox">${link}</div>
+    <button class="btn small" onclick="copyLink()">📋 Копировать ссылку</button>
+    <button class="btn small" onclick="window.open(document.getElementById('linkBox').textContent,'_blank')">👁️ Проверить</button>`;
+}
+function copyLink(){
+  const txt=document.getElementById('linkBox').textContent;
+  navigator.clipboard.writeText(txt).then(()=>toast('📋 Ссылка скопирована!'));
 }
 
 /* ═══════════════ УЧЕНИК: ПРОХОЖДЕНИЕ УРОКА ═══════════════ */
-let studentLesson=[], curIdx=0, doneCount=0;
-
+let studentLesson=[], curIdx=0;
 function startStudentMode(tasks){
-  studentLesson=tasks; curIdx=0; doneCount=0; lessonDone=false;
+  studentLesson=tasks; curIdx=0; lessonDone=false;
   document.getElementById('totNum').textContent=tasks.length;
-  // прячем меню/учителя, показываем только тренажёр
   show('student');
   renderCurrentTask();
 }
-
 function renderCurrentTask(){
   combo=0; updateHUD();
   const task=studentLesson[curIdx];
   document.getElementById('curNum').textContent=curIdx+1;
-  document.getElementById('lessonProgress').style.width=((curIdx)/studentLesson.length*100)+'%';
-  const area=document.getElementById('studentArea');
-  area.innerHTML='';
+  document.getElementById('lessonProgress').style.width=(curIdx/studentLesson.length*100)+'%';
+  const area=document.getElementById('studentArea'); area.innerHTML='';
   const render={orf:renderOrf,punct:renderPunct,trop:renderTrop,basket:renderBasket,scheme:renderScheme,pic:renderPic,complex:renderComplex};
   if(render[task.t])render[task.t](task,area);
   startTimer(task.timer);
   renderNavButtons();
 }
-
 function renderNavButtons(){
-  const nav=document.getElementById('navBtns');
-  let html='';
+  const nav=document.getElementById('navBtns'); let html='';
   if(curIdx>0)html+=`<button class="btn small" onclick="prevTask()">⬅ Назад</button>`;
   if(curIdx<studentLesson.length-1)html+=`<button class="btn" onclick="nextTask()">Далее ➡</button>`;
   else html+=`<button class="btn" onclick="finishLesson()">🏁 Завершить урок</button>`;
@@ -281,27 +263,20 @@ function renderNavButtons(){
 }
 function nextTask(){if(curIdx<studentLesson.length-1){curIdx++;renderCurrentTask();}}
 function prevTask(){if(curIdx>0){curIdx--;renderCurrentTask();}}
-
 function finishLesson(){
-  stopTimer();
-  lessonDone=true; checkAchievements();
+  stopTimer(); lessonDone=true; checkAchievements();
   document.getElementById('lessonProgress').style.width='100%';
-  const area=document.getElementById('studentArea');
-  area.innerHTML=`<div class="task-box" style="text-align:center">
+  document.getElementById('studentArea').innerHTML=`<div class="task-box" style="text-align:center">
     <h2 style="color:#fff;text-shadow:0 0 12px var(--neon-blue)">🏁 Урок завершён!</h2>
     <p style="font-size:1.3rem;margin:16px">⚡ Итоговая энергия: <b>${energy}</b></p>
     <div class="tube" style="width:60px;height:140px;margin:20px auto"><div class="liquid" style="height:100%"></div></div>
     <p style="color:var(--neon-cyan)">Отличная работа, юный учёный! 🧪</p>
-    <button class="btn" onclick="restartLesson()">🔄 Пройти заново</button>
-  </div>`;
-  document.getElementById('navBtns').innerHTML='';
-  sndWin();
+    <button class="btn" onclick="restartLesson()">🔄 Пройти заново</button></div>`;
+  document.getElementById('navBtns').innerHTML=''; sndWin();
 }
 function restartLesson(){startStudentMode(studentLesson);}
 
 /* ═══════════════ РЕНДЕРЫ ЗАДАНИЙ ═══════════════ */
-
-/* ─── Орфография ─── */
 function renderOrf(obj,area){
   let words=obj.d.split('\n').filter(x=>x.trim());
   let html='<div class="task-box"><h3>✏️ Вставь пропущенную букву</h3>';
@@ -320,15 +295,13 @@ function checkLetter(el){
   }else if(el.value){el.style.color='#f36';el.style.borderColor='#f36';resetCombo();}
 }
 
-/* ─── Пунктуация ─── */
 function renderPunct(obj,area){
   let ans=obj.a.split(',').map(x=>x.trim());
   let parts=obj.d.split('¤');
   let html='<div class="task-box"><h3>❗ Расставь знаки препинания</h3><p style="font-size:1.3rem;line-height:2">';
   parts.forEach((p,i)=>{
     html+=p;
-    if(i<parts.length-1&&i<ans.length)
-      html+=`<input style="width:45px;text-align:center;display:inline" data-a="${ans[i]}" onkeyup="checkPunct(this)">`;
+    if(i<parts.length-1&&i<ans.length)html+=`<input style="width:45px;text-align:center;display:inline" data-a="${ans[i]}" onkeyup="checkPunct(this)">`;
   });
   html+='</p><div class="feedback" id="fb"></div></div>';
   area.innerHTML=html;
@@ -340,7 +313,6 @@ function checkPunct(el){
   }else if(el.value){el.style.color='#f36';resetCombo();}
 }
 
-/* ─── Тропы ─── */
 function renderTrop(obj,area){
   let opts=['Метафора','Эпитет','Олицетворение','Сравнение','Гипербола','Метонимия'];
   let html=`<div class="task-box"><h3>🎭 Определи средство выразительности</h3><p style="font-size:1.3rem;font-style:italic;margin:14px 0">«${obj.d}»</p>`;
@@ -354,7 +326,6 @@ function checkTrop(btn,correct){
   else{btn.style.background='rgba(255,50,80,.2)';resetCombo();fb.innerHTML='<span class="wrong">Попробуй ещё! 🔄</span>';}
 }
 
-/* ─── КОРЗИНКИ ─── */
 let dragEl=null;
 function renderBasket(obj,area){
   let cats=obj.cats.split(';').map(x=>x.trim()).filter(x=>x);
@@ -365,8 +336,7 @@ function renderBasket(obj,area){
   html+='</div>';
   cats.forEach(c=>html+=`<div class="basket" data-cat="${c}"><h4>${c}</h4></div>`);
   html+='<div class="feedback" id="fb"></div><button class="btn small" onclick="checkBasket()">✅ Проверить</button></div>';
-  area.innerHTML=html;
-  initDrag();
+  area.innerHTML=html; initDrag();
 }
 function initDrag(){
   document.querySelectorAll('.drag-item').forEach(el=>{
@@ -386,8 +356,7 @@ function checkBasket(){
   document.querySelectorAll('.basket').forEach(b=>{
     b.querySelectorAll('.drag-item').forEach(it=>{
       total++;
-      if(it.dataset.c===b.dataset.cat){it.style.borderColor='#0f6';ok++;}
-      else{it.style.borderColor='#f36';}
+      if(it.dataset.c===b.dataset.cat){it.style.borderColor='#0f6';ok++;}else{it.style.borderColor='#f36';}
     });
   });
   const fb=document.getElementById('fb');
@@ -395,19 +364,16 @@ function checkBasket(){
   else{resetCombo();fb.innerHTML=`<span class="wrong">Верно ${ok}/${total}. Исправь ошибки!</span>`;}
 }
 
-/* ─── СХЕМА ПРЕДЛОЖЕНИЯ ─── */
 function renderScheme(obj,area){
   let correct=obj.d.split(';').map(x=>x.trim()).filter(x=>x);
   let shuffled=[...correct].sort(()=>Math.random()-0.5);
   let html=`<div class="task-box"><h3>📐 Собери схему предложения</h3>`;
   if(obj.hint)html+=`<p style="color:var(--neon-cyan);margin-bottom:10px">💡 «${obj.hint}»</p>`;
-  html+='<p style="font-size:.85rem;color:#a9d8e8">Перетащи блоки в правильном порядке:</p>';
-  html+='<div class="pool" id="schemePool">';
+  html+='<p style="font-size:.85rem;color:#a9d8e8">Перетащи блоки в правильном порядке:</p><div class="pool" id="schemePool">';
   shuffled.forEach((b,i)=>html+=`<span class="drag-item" draggable="true" id="sb${i}">${b}</span>`);
   html+='</div>';
   html+=`<div class="feedback" id="fb"></div><button class="btn small" onclick='checkScheme(${JSON.stringify(correct)})'>✅ Проверить</button></div>`;
-  area.innerHTML=html;
-  initSchemeDrag();
+  area.innerHTML=html; initSchemeDrag();
 }
 function initSchemeDrag(){
   const pool=document.getElementById('schemePool');
@@ -440,7 +406,6 @@ function checkScheme(correct){
   }else{resetCombo();fb.innerHTML='<span class="wrong">Порядок неверный. Попробуй ещё! 🔄</span>';}
 }
 
-/* ─── ПО КАРТИНКЕ ─── */
 function renderPic(obj,area){
   let media=obj.pic.startsWith('http')?`<img src="${obj.pic}" alt="картинка">`:`<div class="pic-emoji">${obj.pic}</div>`;
   let html=`<div class="task-box pic-quiz" style="text-align:center"><h3>🖼️ Отгадай по картинке</h3>`;
@@ -457,16 +422,12 @@ function checkPic(correct){
   else{resetCombo();fb.innerHTML='<span class="wrong">Не угадал. Попробуй ещё! 🔄</span>';}
 }
 
-/* ─── КОМПЛЕКСНОЕ ПОВТОРЕНИЕ ─── */
 function renderComplex(obj,area){
   let questions=obj.q.split('\n').filter(x=>x.includes('|')).map(l=>{let[q,a]=l.split('|');return{q:q.trim(),a:a.trim()}});
   let html=`<div class="task-box"><h3>📚 Комплексное повторение</h3>`;
   html+=`<div style="background:rgba(0,229,255,.08);border-radius:10px;padding:14px;margin:10px 0;line-height:1.6">${obj.d.replace(/\n/g,'<br>')}</div>`;
   questions.forEach((qq,i)=>{
-    html+=`<label>${i+1}. ${qq.q}</label>
-    <div style="display:flex;gap:8px"><input id="cq${i}" placeholder="Ответ...">
-    <button class="btn small" onclick='checkComplex(${i},${JSON.stringify(qq.a)})'>✓</button></div>
-    <div class="feedback" id="cfb${i}"></div>`;
+    html+=`<label>${i+1}. ${qq.q}</label><div style="display:flex;gap:8px"><input id="cq${i}" placeholder="Ответ..."><button class="btn small" onclick='checkComplex(${i},${JSON.stringify(qq.a)})'>✓</button></div><div class="feedback" id="cfb${i}"></div>`;
   });
   html+='</div>';
   area.innerHTML=html;
@@ -478,24 +439,23 @@ function checkComplex(i,correct){
   else{resetCombo();fb.innerHTML='<span class="wrong">❌ Неверно</span>';}
 }
 
-/* ─── общий фидбек ─── */
 function fbOK(){const fb=document.getElementById('fb');if(fb)fb.innerHTML='<span class="correct">Верно! ⚡</span>';}
 
-/* ═══════════════ АВТО-РЕЖИМ ПО ССЫЛКЕ ═══════════════ */
+/* ═══ АВТО-РЕЖИМ ПО ССЫЛКЕ (скрывает адрес сайта от ученика) ═══ */
 window.addEventListener('load',()=>{
   const hash=location.hash.slice(1);
   if(hash){
     try{
       const tasks=JSON.parse(decodeURIComponent(escape(atob(hash))));
       if(Array.isArray(tasks)&&tasks.length){
-        // прячем меню учителя от ученика
         document.getElementById('menu').innerHTML='';
+        document.getElementById('teacher').innerHTML='';
         startStudentMode(tasks);
-        return;
       }
-    }catch(e){console.warn('Не удалось прочитать задание из ссылки',e);}
+    }catch(e){console.warn('Ошибка чтения задания из ссылки',e);}
   }
 });
 </script>
 </body>
-</html>
+</html>((task.t!=='pic'&&!task.d)||(task.t==='pic'&&!task.pic)){alert('Заполни поля задания!');return;}
+  
