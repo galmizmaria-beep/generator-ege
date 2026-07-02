@@ -9,45 +9,27 @@
   *{margin:0;padding:0;box-sizing:border-box;font-family:'Trebuchet MS',sans-serif}
   body{background:radial-gradient(circle at 20% 10%,rgba(123,47,247,.25),transparent 40%),radial-gradient(circle at 80% 90%,rgba(0,229,255,.20),transparent 40%),#050818;color:#dff6ff;min-height:100vh;overflow-x:hidden}
   header{text-align:center;padding:40px 20px 30px}
-  
-  h1.logo{
-    font-size: 2.8rem;
-    letter-spacing: 2px;
-    color: #fff;
-    text-transform: uppercase;
-    text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-    animation: pulse 2s infinite ease-in-out;
-  }
-  @keyframes pulse{
-    0%{transform:scale(1); text-shadow:0 0 10px var(--neon-blue), 0 0 20px var(--neon-cyan);}
-    50%{transform:scale(1.05); text-shadow:0 0 20px var(--neon-blue), 0 0 40px var(--neon-purple), 0 0 60px var(--neon-cyan);}
-    100%{transform:scale(1); text-shadow:0 0 10px var(--neon-blue), 0 0 20px var(--neon-cyan);}
-  }
-  
-  .subtitle{color:var(--neon-cyan); margin-top:12px; font-size: 1.1rem; letter-spacing: 1.5px; opacity: 0.9;}
-  
+  h1.logo{font-size:2.8rem;letter-spacing:2px;color:#fff;text-transform:uppercase;text-shadow:0 0 10px var(--neon-blue),0 0 20px var(--neon-blue);animation:pulse 2s infinite ease-in-out}
+  @keyframes pulse{0%{transform:scale(1);text-shadow:0 0 10px var(--neon-blue),0 0 20px var(--neon-cyan)}50%{transform:scale(1.05);text-shadow:0 0 20px var(--neon-blue),0 0 40px var(--neon-purple),0 0 60px var(--neon-cyan)}100%{transform:scale(1);text-shadow:0 0 10px var(--neon-blue),0 0 20px var(--neon-cyan)}}
+  .subtitle{color:var(--neon-cyan);margin-top:12px;font-size:1.1rem;letter-spacing:1.5px;opacity:.9}
   .btn{background:transparent;border:2px solid var(--neon-blue);color:var(--neon-cyan);padding:14px 28px;margin:8px;border-radius:14px;font-size:1rem;cursor:pointer;letter-spacing:1px;transition:.3s;box-shadow:0 0 6px var(--neon-blue),inset 0 0 6px rgba(0,229,255,.3);text-shadow:0 0 6px var(--neon-blue)}
   .btn:hover{background:rgba(0,229,255,.15);box-shadow:0 0 18px var(--neon-blue),inset 0 0 12px var(--neon-blue);transform:translateY(-3px)}
   .btn.small{padding:8px 16px;font-size:.85rem}
   .btn.on{background:rgba(0,229,255,.25)}
-  
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;max-width:1000px;margin:20px auto;padding:0 20px}
   .card{background:var(--panel);border:1px solid rgba(0,229,255,.4);border-radius:18px;padding:22px;backdrop-filter:blur(6px);box-shadow:0 0 14px rgba(0,229,255,.25);transition:.3s;cursor:pointer}
   .card:hover{box-shadow:0 0 26px rgba(0,229,255,.5);transform:scale(1.03)}
   .card h3{color:#fff;text-shadow:0 0 8px var(--neon-blue);margin-bottom:8px;font-size:1.05rem}
   .card p{font-size:.85rem;color:#a9d8e8;line-height:1.4}
   .card .icon{font-size:2.2rem;margin-bottom:8px}
-  
   .screen{display:none;max-width:1000px;margin:0 auto;padding:20px}
   .screen.active{display:block;animation:fadeIn .5s}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-  
   .hud{display:flex;justify-content:center;gap:24px;align-items:center;margin:20px auto 10px;flex-wrap:wrap}
   .tube{width:24px;height:70px;border:2px solid var(--neon-cyan);border-radius:12px;position:relative;overflow:hidden;box-shadow:0 0 10px var(--neon-cyan)}
   .tube .liquid{position:absolute;bottom:0;width:100%;height:0%;background:linear-gradient(var(--neon-blue),var(--neon-purple));transition:height .5s;box-shadow:0 0 12px var(--neon-blue)}
   .energy{font-size:1.05rem;color:#fff;text-shadow:0 0 8px var(--neon-blue)}
   #timer{color:#ff5b7f;text-shadow:0 0 8px #ff5b7f}
-  
   textarea,input,select{width:100%;background:rgba(5,10,30,.8);border:1px solid var(--neon-blue);color:#dff6ff;padding:12px;border-radius:10px;margin:6px 0;font-size:1rem;box-shadow:inset 0 0 6px rgba(0,229,255,.3)}
   textarea:focus,input:focus{outline:none;box-shadow:0 0 12px var(--neon-blue)}
   label{display:block;margin-top:12px;color:var(--neon-cyan);font-size:.9rem}
@@ -55,110 +37,48 @@
   .word-slot{display:inline-block;background:rgba(0,229,255,.1);border:1px dashed var(--neon-cyan);padding:6px 14px;margin:6px;border-radius:8px;font-size:1.2rem;letter-spacing:2px}
   .feedback{margin-top:12px;font-weight:bold;min-height:24px}
   .correct{color:#0f6;text-shadow:0 0 8px #0f6}.wrong{color:#f36;text-shadow:0 0 8px #f36}
-  
+  footer{text-align:center;padding:40px 20px;color:#6b8baf;font-size:.8rem;line-height:1.6}
   .drag-item{display:inline-block;background:rgba(0,229,255,.15);border:2px solid var(--neon-cyan);padding:8px 16px;margin:6px;border-radius:10px;cursor:grab;font-size:1.1rem;box-shadow:0 0 8px rgba(0,229,255,.4);user-select:none}
   .drag-item.dragging{opacity:.4}
   .basket{min-height:80px;border:2px dashed var(--neon-purple);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 0 10px rgba(123,47,247,.3)}
   .basket h4{color:var(--neon-purple);text-shadow:0 0 8px var(--neon-purple);margin-bottom:8px}
   .basket.over{background:rgba(123,47,247,.15)}
   .pool{display:flex;flex-wrap:wrap;justify-content:center;padding:14px;border:1px solid rgba(0,229,255,.3);border-radius:12px;margin-bottom:14px;min-height:60px}
-  
   .badge{display:inline-block;background:rgba(0,229,255,.1);border:1px solid var(--neon-cyan);border-radius:20px;padding:6px 14px;margin:6px;font-size:.85rem;opacity:.35;transition:.3s}
   .badge.unlocked{opacity:1;box-shadow:0 0 12px var(--neon-blue);animation:pop .5s}
   @keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
-  
   .toast{position:fixed;top:20px;right:20px;background:var(--panel);border:1px solid var(--neon-cyan);border-radius:12px;padding:14px 20px;box-shadow:0 0 20px var(--neon-blue);z-index:99;animation:slideIn .4s;color:#fff}
   @keyframes slideIn{from{transform:translateX(120%)}to{transform:translateX(0)}}
-  
   .pic-quiz img{max-width:220px;border-radius:14px;border:2px solid var(--neon-cyan);box-shadow:0 0 16px var(--neon-blue);margin:10px}
   .pic-emoji{font-size:5rem;margin:10px}
   .task-list{list-style:none;margin:14px 0}
   .task-list li{background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;justify-content:space-between;align-items:center}
   .task-list li span{color:#dff6ff}
   .task-list li button{background:transparent;border:1px solid #f36;color:#f36;border-radius:8px;padding:4px 10px;cursor:pointer}
-  
   .progress-bar{height:8px;background:rgba(0,229,255,.15);border-radius:4px;overflow:hidden;margin:10px 0}
   .progress-bar div{height:100%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));width:0%;transition:width .4s}
-  
-  footer{text-align:center;padding:40px 20px;color:#6b8baf;font-size:.8rem;line-height:1.6}
-  
-  /* --- НОВЫЕ СТИЛИ ДЛЯ ЭКРАНА ПРИВЕТСТВИЯ --- */
-  .welcome-container {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 0 40px rgba(0,229,255,0.4);
-    border: 2px solid var(--neon-cyan);
-    background: #000;
-  }
-  .welcome-image {
-    width: 100%;
-    display: block;
-    opacity: 0.85;
-  }
-  .welcome-text-overlay {
-    position: absolute;
-    top: 6%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    text-align: center;
-    z-index: 2;
-  }
-  .welcome-text-overlay h1 {
-    font-size: 3rem;
-    margin-bottom: 5px;
-  }
-  .welcome-text-overlay p {
-    font-size: 1.2rem;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px #000;
-    font-weight: bold;
-  }
-  .play-button-overlay {
-    position: absolute;
-    top: 65%; /* Кнопка между героями */
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 3;
-  }
-  .btn-play {
-    font-size: 2rem;
-    padding: 15px 50px;
-    border-radius: 40px;
-    background: rgba(5, 8, 24, 0.8);
-    border: 3px solid var(--neon-blue);
-    color: #fff;
-    font-weight: bold;
-    text-shadow: 0 0 15px var(--neon-cyan);
-    box-shadow: 0 0 30px var(--neon-purple), inset 0 0 15px var(--neon-blue);
-    cursor: pointer;
-    transition: 0.3s;
-    animation: pulse 2s infinite ease-in-out;
-  }
-  .btn-play:hover {
-    background: var(--neon-blue);
-    color: #000;
-    box-shadow: 0 0 50px var(--neon-cyan);
-    transform: scale(1.1);
-  }
 
-  /* Скрытие интерфейса учителя в режиме ученика */
-  .student-mode-active #menu, 
-  .student-mode-active #teacher,
-  .student-mode-active footer { display: none !important; }
+  /* ═══ Титульный экран ученика ═══ */
+  #title{text-align:center;padding:20px}
+  .title-inner{max-width:900px;margin:0 auto}
+  .title-logo{font-size:2.6rem;letter-spacing:2px;color:#fff;text-transform:uppercase;text-shadow:0 0 12px var(--neon-blue),0 0 24px var(--neon-purple);margin-bottom:6px;animation:pulse 2.5s infinite ease-in-out}
+  .title-sub{color:var(--neon-cyan);font-size:1rem;letter-spacing:2px;opacity:.85;margin-bottom:20px}
+  .hero-stage{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+  .hero-stage img{max-width:100%;width:600px;border-radius:20px;border:2px solid rgba(0,229,255,.5);box-shadow:0 0 30px rgba(0,229,255,.4)}
+  .play-btn{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);font-size:1.6rem;padding:18px 46px;z-index:5;background:rgba(5,10,30,.6)}
+  @media(max-width:640px){.play-btn{position:static;transform:none;margin-top:16px}}
+
+  /* Скрывать лишнее в режиме ученика */
+  .student-mode-active #menu,.student-mode-active #teacher{display:none!important}
+  .student-mode-active header{display:none!important}
 </style>
 </head>
 <body>
 
-<header id="mainHeader">
-  <h1 class="logo header-title">Лаборатория русского языка</h1>
-  <p class="subtitle header-title">Твой карманный помощник грамотности</p>
-  <div class="hud" id="hudPanel">
+<header>
+  <h1 class="logo">Лаборатория русского языка</h1>
+  <p class="subtitle">Твой карманный помощник грамотности</p>
+  <div class="hud">
     <div class="energy">⚡ <span id="energy">0</span></div>
     <div class="tube"><div class="liquid" id="tube"></div></div>
     <div class="energy">🔥 <span id="combo">0</span></div>
@@ -167,16 +87,14 @@
   </div>
 </header>
 
-<!-- СТАРТОВЫЙ ЭКРАН УЧЕНИКА -->
-<section class="screen" id="welcomeScreen">
-  <div class="welcome-container">
-    <img src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" class="welcome-image" alt="Обложка">
-    <div class="welcome-text-overlay">
-      <h1 class="logo">Лаборатория русского языка</h1>
-      <p>Битва за грамотность</p>
-    </div>
-    <div class="play-button-overlay">
-      <button class="btn-play" onclick="launchGame()">ИГРАТЬ</button>
+<!-- ═══ ТИТУЛЬНЫЙ ЭКРАН (для ученика) ═══ -->
+<section class="screen" id="title">
+  <div class="title-inner">
+    <h1 class="title-logo">Лаборатория русского языка</h1>
+    <p class="title-sub">Битва за грамотность</p>
+    <div class="hero-stage">
+      <img src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" alt="Герои">
+      <button class="btn play-btn" onclick="goToSections()">▶ Играть</button>
     </div>
   </div>
 </section>
@@ -217,8 +135,15 @@
   </div>
 </section>
 
+<!-- ═══ ЭКРАН ВЫБОРА РАЗДЕЛОВ (для ученика) ═══ -->
+<section class="screen" id="sections">
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:16px">🧪 Выбери раздел тренировки</h2>
+  <div class="grid" id="sectionGrid"></div>
+</section>
+
 <section class="screen" id="student">
-  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:16px">🎓 Тренажёр</h2>
+  <button class="btn small" onclick="backToSections()">⬅ К разделам</button>
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:16px" id="studentTitle">🎓 Тренажёр</h2>
   <div class="progress-bar"><div id="lessonProgress"></div></div>
   <p style="text-align:center;color:var(--neon-cyan)">Задание <span id="curNum">1</span> из <span id="totNum">1</span></p>
   <div id="studentArea"></div>
@@ -234,7 +159,7 @@
 
 <footer>
   <p>© Все права защищены и принадлежат автору приложения Гальмиз Марии Александровне.</p>
-  <p style="color: var(--neon-blue); margin-top: 5px;">Сообщество в Вк «Креативные уроки»</p>
+  <p style="color:var(--neon-blue);margin-top:5px;">Сообщество в Вк «Креативные уроки»</p>
 </footer>
 
 <script>
@@ -315,16 +240,16 @@ function addTaskToLesson(){
   const task=collectTask();
   lesson.push(task);
   renderLessonList();
-  toast('➕ Задание добавлено! Можно вводить следующее.');
-  
-  // Очищаем форму, чтобы учитель мог сразу ввести следующее задание без переоткрытия
-  document.querySelectorAll('#teacherFields textarea, #teacherFields input').forEach(el => {
-      if(el.id !== 'fAns' || currentType !== 'trop') el.value = ''; 
-  });
-  document.getElementById('fTimer').value = '0';
+  document.getElementById('teacherFields').innerHTML='';
+  document.getElementById('teacherFieldsWrap').style.display='none';
+  document.getElementById('fTimer').value='0';
+  currentType=null;
+  toast('➕ Задание добавлено!');
 }
 
 const TYPE_NAMES={orf:'✏️ Орфография',punct:'❗ Пунктуация',trop:'🎭 Ср-ва выраз.',basket:'🧺 Корзинки',scheme:'📐 Схема',pic:'🖼️ Картинка',complex:'📚 Комплекс.'};
+const TYPE_ICONS={orf:'✏️',punct:'❗',trop:'🎭',basket:'🧺',scheme:'📐',pic:'🖼️',complex:'📚'};
+const TYPE_TITLES={orf:'Орфография',punct:'Пунктуация',trop:'Средства выразительности',basket:'Корзинки',scheme:'Схема предложения',pic:'По картинке',complex:'Комплексное повторение'};
 
 function renderLessonList(){
   document.getElementById('taskCount').textContent=lesson.length;
@@ -339,15 +264,24 @@ function removeTask(i){lesson.splice(i,1);renderLessonList();}
 /* ═══ ЭКСПОРТ В HTML ДЛЯ УЧЕНИКА ═══ */
 function buildHTMLFile(){
   if(lesson.length===0){alert('Добавь хотя бы одно задание!');return;}
-  
+
   const tasksJSON = JSON.stringify(lesson);
+
+  // Берём весь исходный код текущей страницы
   let baseHtml = document.documentElement.outerHTML;
-  
-  // Надежный инжект скрипта перед закрывающим тегом </head> 
-  // Это гарантирует, что переменная создастся и браузер ее увидит
-  let injectedScript = `\n<script>window.INJECTED_TASKS = ${tasksJSON};<\/script>\n</head>`;
-  let newHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + baseHtml.replace(/<\/head>/i, injectedScript);
-  
+
+  // Внедряем массив с заданиями. Используем безопасный маркер, чтобы не сломать первый <script>
+  let injectedScript = '<script>window.INJECTED_TASKS = ' + tasksJSON + ';<\/script>';
+
+  // Вставляем перед закрывающим </head>, чтобы данные загрузились ДО основного скрипта
+  let newHtml;
+  if(baseHtml.indexOf('</head>')!==-1){
+    newHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + baseHtml.replace('</head>', injectedScript + '\n</head>');
+  } else {
+    newHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + injectedScript + baseHtml;
+  }
+
+  // Создаём файл для скачивания
   const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -357,25 +291,55 @@ function buildHTMLFile(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  
+
   document.getElementById('linkResult').innerHTML = `<p style="margin-top:14px;color:#0f6;">✅ Файл скачан! Отправь этот HTML-файл ученикам. Им не нужен интернет для игры.</p>`;
 }
 
-/* ═══════════════ УЧЕНИК: ПРОХОЖДЕНИЕ УРОКА ═══════════════ */
-let studentLesson=[], curIdx=0;
+/* ═══════════════ УЧЕНИК: РАЗДЕЛЫ ═══════════════ */
+let ALL_TASKS=[];          // все задания из файла
+let sectionsMap={};        // {тип: [задания]}
+let studentLesson=[], curIdx=0, currentSection=null;
 
-function launchGame() {
-  document.getElementById('mainHeader').style.display = 'block'; // Показываем HUD
-  document.querySelectorAll('.header-title').forEach(el => el.style.display = 'none'); // Скрываем верхние заголовки для экономии места
-  startStudentMode(window.INJECTED_TASKS);
+function goToSections(){
+  show('sections');
 }
 
-function startStudentMode(tasks){
-  document.body.classList.add('student-mode-active');
-  studentLesson=tasks; curIdx=0; lessonDone=false;
-  document.getElementById('totNum').textContent=tasks.length;
+// Строим список доступных разделов на основе того, что добавил учитель
+function buildSections(tasks){
+  sectionsMap={};
+  tasks.forEach(t=>{
+    if(!sectionsMap[t.t])sectionsMap[t.t]=[];
+    sectionsMap[t.t].push(t);
+  });
+  const grid=document.getElementById('sectionGrid');
+  // Порядок разделов как в редакторе
+  const order=['orf','punct','trop','basket','scheme','pic','complex'];
+  let html='';
+  order.forEach(type=>{
+    if(sectionsMap[type] && sectionsMap[type].length>0){
+      html+=`<div class="card" onclick="startSection('${type}')">
+        <div class="icon">${TYPE_ICONS[type]}</div>
+        <h3>${TYPE_TITLES[type]}</h3>
+        <p>Заданий: ${sectionsMap[type].length}</p>
+      </div>`;
+    }
+  });
+  grid.innerHTML=html || '<p style="text-align:center;color:#a9d8e8">Заданий пока нет.</p>';
+}
+
+function startSection(type){
+  currentSection=type;
+  studentLesson=sectionsMap[type];
+  curIdx=0; lessonDone=false;
+  document.getElementById('studentTitle').textContent=TYPE_ICONS[type]+' '+TYPE_TITLES[type];
+  document.getElementById('totNum').textContent=studentLesson.length;
   show('student');
   renderCurrentTask();
+}
+
+function backToSections(){
+  stopTimer();
+  show('sections');
 }
 
 function renderCurrentTask(){
@@ -393,7 +357,7 @@ function renderNavButtons(){
   const nav=document.getElementById('navBtns'); let html='';
   if(curIdx>0)html+=`<button class="btn small" onclick="prevTask()">⬅ Назад</button>`;
   if(curIdx<studentLesson.length-1)html+=`<button class="btn" onclick="nextTask()">Далее ➡</button>`;
-  else html+=`<button class="btn" onclick="finishLesson()">🏁 Завершить урок</button>`;
+  else html+=`<button class="btn" onclick="finishLesson()">🏁 Завершить раздел</button>`;
   nav.innerHTML=html;
 }
 function nextTask(){if(curIdx<studentLesson.length-1){curIdx++;renderCurrentTask();}}
@@ -402,22 +366,23 @@ function finishLesson(){
   stopTimer(); lessonDone=true; checkAchievements();
   document.getElementById('lessonProgress').style.width='100%';
   document.getElementById('studentArea').innerHTML=`<div class="task-box" style="text-align:center">
-    <h2 style="color:#fff;text-shadow:0 0 12px var(--neon-blue)">🏁 Урок завершён!</h2>
+    <h2 style="color:#fff;text-shadow:0 0 12px var(--neon-blue)">🏁 Раздел завершён!</h2>
     <p style="font-size:1.3rem;margin:16px">⚡ Итоговая энергия: <b>${energy}</b></p>
     <div class="tube" style="width:60px;height:140px;margin:20px auto"><div class="liquid" style="height:100%"></div></div>
     <p style="color:var(--neon-cyan)">Отличная работа! 🧪</p>
-    <button class="btn" onclick="restartLesson()">🔄 Пройти заново</button></div>`;
+    <button class="btn" onclick="restartLesson()">🔄 Пройти заново</button>
+    <button class="btn" onclick="backToSections()">📚 К разделам</button></div>`;
   document.getElementById('navBtns').innerHTML=''; sndWin();
 }
-function restartLesson(){startStudentMode(studentLesson);}
+function restartLesson(){startSection(currentSection);}
 
 /* ═══════════════ РЕНДЕРЫ ЗАДАНИЙ ═══════════════ */
 function renderOrf(obj,area){
   let words=obj.d.split('\n').filter(x=>x.trim());
   let html='<div class="task-box"><h3>✏️ Вставь пропущенную букву</h3>';
   words.forEach(w=>{
-    let m=w.match(/\[(.*?)\]/);if(!m)return;
-    let display=w.replace(/\[.*?\]/,`<input style="width:40px;text-align:center;display:inline" data-l="${m[1]}" onkeyup="checkLetter(this)">`);
+    let m=w.match(/$$(.*?)$$/);if(!m)return;
+    let display=w.replace(/$$.*?$$/,`<input style="width:40px;text-align:center;display:inline" data-l="${m[1]}" onkeyup="checkLetter(this)">`);
     html+=`<div class="word-slot">${display}</div>`;
   });
   html+='<div class="feedback" id="fb"></div></div>';
@@ -466,7 +431,7 @@ function renderBasket(obj,area){
   let cats=obj.cats.split(';').map(x=>x.trim()).filter(x=>x);
   let items=obj.d.split('\n').filter(x=>x.trim()).map(l=>{let[w,c]=l.split('=');return{w:w.trim(),c:c.trim()}});
   items.sort(()=>Math.random()-0.5);
-  let html='<div class="task-box"><h3>🧺 Распредели слова по корзинкам</h3><div class="pool" id="pool">';
+  let html='<div class="task-box"><h3>🧺 Распредели слова по корзинкам</h3><p style="font-size:.85rem;color:#a9d8e8">Перетаскивай мышкой или нажми на слово, затем на корзинку.</p><div class="pool" id="pool">';
   items.forEach((it,i)=>html+=`<span class="drag-item" draggable="true" id="di${i}" data-c="${it.c}">${it.w}</span>`);
   html+='</div>';
   cats.forEach(c=>html+=`<div class="basket" data-cat="${c}"><h4>${c}</h4></div>`);
@@ -570,23 +535,25 @@ function renderComplex(obj,area){
 function checkComplex(i,correct){
   const val=document.getElementById('cq'+i).value.trim().toLowerCase();
   const fb=document.getElementById('cfb'+i);
-  if(!val) return;
   if(val===correct.trim().toLowerCase()){addEnergy(8);fb.innerHTML='<span class="correct">✅ Верно!</span>';document.getElementById('cq'+i).disabled=true;}
   else{resetCombo();fb.innerHTML='<span class="wrong">❌ Неверно</span>';}
 }
 
 function fbOK(){const fb=document.getElementById('fb');if(fb)fb.innerHTML='<span class="correct">Верно! ⚡</span>';}
 
-/* ИНИЦИАЛИЗАЦИЯ ПРИ ОТКРЫТИИ */
+/* ═══ ЗАПУСК ═══
+Если файл открыт учеником (есть INJECTED_TASKS) — показываем титульный
+   экран с картинкой, кнопкой «Играть» и автоматически строим разделы.
+   Иначе — обычное меню учителя.
+*/
 window.addEventListener('load',()=>{
-  // Если ученик открывает скачанный файл с заданиями
   if (window.INJECTED_TASKS && Array.isArray(window.INJECTED_TASKS) && window.INJECTED_TASKS.length > 0) {
-    document.getElementById('mainHeader').style.display = 'none'; // Полностью скрываем меню
-    document.body.classList.add('student-mode-active'); // Активируем скрытие лишнего
-    show('welcomeScreen'); // Показываем стартовую обложку
+    ALL_TASKS = window.INJECTED_TASKS;
+    document.body.classList.add('student-mode-active'); // Скрываем меню учителя и верхнюю шапку
+    buildSections(ALL_TASKS);   // Автоматически создаём только нужные разделы
+    show('title');              // Показываем титульный экран
   } else {
-    // Режим учителя
-    show('menu');
+    show('menu');               // Режим учителя
   }
 });
 </script>
