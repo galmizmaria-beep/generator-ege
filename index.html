@@ -10,7 +10,6 @@
   body{background:radial-gradient(circle at 20% 10%,rgba(123,47,247,.25),transparent 40%),radial-gradient(circle at 80% 90%,rgba(0,229,255,.20),transparent 40%),#050818;color:#dff6ff;min-height:100vh;overflow-x:hidden}
   header{text-align:center;padding:40px 20px 30px}
   
-  /* Стиль заголовка с пульсацией */
   h1.logo{
     font-size: 2.8rem;
     letter-spacing: 2px;
@@ -31,20 +30,24 @@
   .btn:hover{background:rgba(0,229,255,.15);box-shadow:0 0 18px var(--neon-blue),inset 0 0 12px var(--neon-blue);transform:translateY(-3px)}
   .btn.small{padding:8px 16px;font-size:.85rem}
   .btn.on{background:rgba(0,229,255,.25)}
+  
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;max-width:1000px;margin:20px auto;padding:0 20px}
   .card{background:var(--panel);border:1px solid rgba(0,229,255,.4);border-radius:18px;padding:22px;backdrop-filter:blur(6px);box-shadow:0 0 14px rgba(0,229,255,.25);transition:.3s;cursor:pointer}
   .card:hover{box-shadow:0 0 26px rgba(0,229,255,.5);transform:scale(1.03)}
   .card h3{color:#fff;text-shadow:0 0 8px var(--neon-blue);margin-bottom:8px;font-size:1.05rem}
   .card p{font-size:.85rem;color:#a9d8e8;line-height:1.4}
   .card .icon{font-size:2.2rem;margin-bottom:8px}
+  
   .screen{display:none;max-width:1000px;margin:0 auto;padding:20px}
   .screen.active{display:block;animation:fadeIn .5s}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  
   .hud{display:flex;justify-content:center;gap:24px;align-items:center;margin:20px auto 10px;flex-wrap:wrap}
   .tube{width:24px;height:70px;border:2px solid var(--neon-cyan);border-radius:12px;position:relative;overflow:hidden;box-shadow:0 0 10px var(--neon-cyan)}
   .tube .liquid{position:absolute;bottom:0;width:100%;height:0%;background:linear-gradient(var(--neon-blue),var(--neon-purple));transition:height .5s;box-shadow:0 0 12px var(--neon-blue)}
   .energy{font-size:1.05rem;color:#fff;text-shadow:0 0 8px var(--neon-blue)}
   #timer{color:#ff5b7f;text-shadow:0 0 8px #ff5b7f}
+  
   textarea,input,select{width:100%;background:rgba(5,10,30,.8);border:1px solid var(--neon-blue);color:#dff6ff;padding:12px;border-radius:10px;margin:6px 0;font-size:1rem;box-shadow:inset 0 0 6px rgba(0,229,255,.3)}
   textarea:focus,input:focus{outline:none;box-shadow:0 0 12px var(--neon-blue)}
   label{display:block;margin-top:12px;color:var(--neon-cyan);font-size:.9rem}
@@ -52,38 +55,110 @@
   .word-slot{display:inline-block;background:rgba(0,229,255,.1);border:1px dashed var(--neon-cyan);padding:6px 14px;margin:6px;border-radius:8px;font-size:1.2rem;letter-spacing:2px}
   .feedback{margin-top:12px;font-weight:bold;min-height:24px}
   .correct{color:#0f6;text-shadow:0 0 8px #0f6}.wrong{color:#f36;text-shadow:0 0 8px #f36}
-  .code-box{background:#020410;border:1px solid var(--neon-purple);padding:14px;border-radius:10px;word-break:break-all;font-family:monospace;color:var(--neon-cyan);font-size:.8rem;box-shadow:0 0 10px rgba(123,47,247,.4)}
-  footer{text-align:center;padding:40px 20px;color:#6b8baf;font-size:.8rem;line-height:1.6}
+  
   .drag-item{display:inline-block;background:rgba(0,229,255,.15);border:2px solid var(--neon-cyan);padding:8px 16px;margin:6px;border-radius:10px;cursor:grab;font-size:1.1rem;box-shadow:0 0 8px rgba(0,229,255,.4);user-select:none}
   .drag-item.dragging{opacity:.4}
   .basket{min-height:80px;border:2px dashed var(--neon-purple);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 0 10px rgba(123,47,247,.3)}
   .basket h4{color:var(--neon-purple);text-shadow:0 0 8px var(--neon-purple);margin-bottom:8px}
   .basket.over{background:rgba(123,47,247,.15)}
   .pool{display:flex;flex-wrap:wrap;justify-content:center;padding:14px;border:1px solid rgba(0,229,255,.3);border-radius:12px;margin-bottom:14px;min-height:60px}
+  
   .badge{display:inline-block;background:rgba(0,229,255,.1);border:1px solid var(--neon-cyan);border-radius:20px;padding:6px 14px;margin:6px;font-size:.85rem;opacity:.35;transition:.3s}
   .badge.unlocked{opacity:1;box-shadow:0 0 12px var(--neon-blue);animation:pop .5s}
   @keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  
   .toast{position:fixed;top:20px;right:20px;background:var(--panel);border:1px solid var(--neon-cyan);border-radius:12px;padding:14px 20px;box-shadow:0 0 20px var(--neon-blue);z-index:99;animation:slideIn .4s;color:#fff}
   @keyframes slideIn{from{transform:translateX(120%)}to{transform:translateX(0)}}
+  
   .pic-quiz img{max-width:220px;border-radius:14px;border:2px solid var(--neon-cyan);box-shadow:0 0 16px var(--neon-blue);margin:10px}
   .pic-emoji{font-size:5rem;margin:10px}
   .task-list{list-style:none;margin:14px 0}
   .task-list li{background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);border-radius:10px;padding:10px 14px;margin:8px 0;display:flex;justify-content:space-between;align-items:center}
   .task-list li span{color:#dff6ff}
   .task-list li button{background:transparent;border:1px solid #f36;color:#f36;border-radius:8px;padding:4px 10px;cursor:pointer}
+  
   .progress-bar{height:8px;background:rgba(0,229,255,.15);border-radius:4px;overflow:hidden;margin:10px 0}
   .progress-bar div{height:100%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));width:0%;transition:width .4s}
   
-  /* Скрывать лишнее в режиме ученика */
-  .student-mode-active #menu, .student-mode-active #teacher { display: none !important; }
+  footer{text-align:center;padding:40px 20px;color:#6b8baf;font-size:.8rem;line-height:1.6}
+  
+  /* --- НОВЫЕ СТИЛИ ДЛЯ ЭКРАНА ПРИВЕТСТВИЯ --- */
+  .welcome-container {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0,229,255,0.4);
+    border: 2px solid var(--neon-cyan);
+    background: #000;
+  }
+  .welcome-image {
+    width: 100%;
+    display: block;
+    opacity: 0.85;
+  }
+  .welcome-text-overlay {
+    position: absolute;
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    text-align: center;
+    z-index: 2;
+  }
+  .welcome-text-overlay h1 {
+    font-size: 3rem;
+    margin-bottom: 5px;
+  }
+  .welcome-text-overlay p {
+    font-size: 1.2rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px #000;
+    font-weight: bold;
+  }
+  .play-button-overlay {
+    position: absolute;
+    top: 65%; /* Кнопка между героями */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+  }
+  .btn-play {
+    font-size: 2rem;
+    padding: 15px 50px;
+    border-radius: 40px;
+    background: rgba(5, 8, 24, 0.8);
+    border: 3px solid var(--neon-blue);
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 0 0 15px var(--neon-cyan);
+    box-shadow: 0 0 30px var(--neon-purple), inset 0 0 15px var(--neon-blue);
+    cursor: pointer;
+    transition: 0.3s;
+    animation: pulse 2s infinite ease-in-out;
+  }
+  .btn-play:hover {
+    background: var(--neon-blue);
+    color: #000;
+    box-shadow: 0 0 50px var(--neon-cyan);
+    transform: scale(1.1);
+  }
+
+  /* Скрытие интерфейса учителя в режиме ученика */
+  .student-mode-active #menu, 
+  .student-mode-active #teacher,
+  .student-mode-active footer { display: none !important; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1 class="logo">Лаборатория русского языка</h1>
-  <p class="subtitle">Твой карманный помощник грамотности</p>
-  <div class="hud">
+<header id="mainHeader">
+  <h1 class="logo header-title">Лаборатория русского языка</h1>
+  <p class="subtitle header-title">Твой карманный помощник грамотности</p>
+  <div class="hud" id="hudPanel">
     <div class="energy">⚡ <span id="energy">0</span></div>
     <div class="tube"><div class="liquid" id="tube"></div></div>
     <div class="energy">🔥 <span id="combo">0</span></div>
@@ -91,6 +166,20 @@
     <button class="btn small" id="soundBtn" onclick="toggleSound()">🔊 Звук</button>
   </div>
 </header>
+
+<!-- СТАРТОВЫЙ ЭКРАН УЧЕНИКА -->
+<section class="screen" id="welcomeScreen">
+  <div class="welcome-container">
+    <img src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" class="welcome-image" alt="Обложка">
+    <div class="welcome-text-overlay">
+      <h1 class="logo">Лаборатория русского языка</h1>
+      <p>Битва за грамотность</p>
+    </div>
+    <div class="play-button-overlay">
+      <button class="btn-play" onclick="launchGame()">ИГРАТЬ</button>
+    </div>
+  </div>
+</section>
 
 <section class="screen" id="menu">
   <div class="grid">
@@ -151,8 +240,7 @@
 <script>
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el = document.getElementById(id);
-  if(el) el.classList.add('active');
+  document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   stopTimer();
 }
@@ -227,10 +315,13 @@ function addTaskToLesson(){
   const task=collectTask();
   lesson.push(task);
   renderLessonList();
-  document.getElementById('teacherFields').innerHTML='';
-  document.getElementById('teacherFieldsWrap').style.display='none';
-  currentType=null;
-  toast('➕ Задание добавлено!');
+  toast('➕ Задание добавлено! Можно вводить следующее.');
+  
+  // Очищаем форму, чтобы учитель мог сразу ввести следующее задание без переоткрытия
+  document.querySelectorAll('#teacherFields textarea, #teacherFields input').forEach(el => {
+      if(el.id !== 'fAns' || currentType !== 'trop') el.value = ''; 
+  });
+  document.getElementById('fTimer').value = '0';
 }
 
 const TYPE_NAMES={orf:'✏️ Орфография',punct:'❗ Пунктуация',trop:'🎭 Ср-ва выраз.',basket:'🧺 Корзинки',scheme:'📐 Схема',pic:'🖼️ Картинка',complex:'📚 Комплекс.'};
@@ -245,29 +336,19 @@ function renderLessonList(){
 }
 function removeTask(i){lesson.splice(i,1);renderLessonList();}
 
-/* ═══ НАДЕЖНЫЙ ЭКСПОРТ В HTML ДЛЯ УЧЕНИКА ═══ */
+/* ═══ ЭКСПОРТ В HTML ДЛЯ УЧЕНИКА ═══ */
 function buildHTMLFile(){
   if(lesson.length===0){alert('Добавь хотя бы одно задание!');return;}
   
-  // Надежно кодируем JSON (защита от спецсимволов и тегов script)
-  const jsonString = JSON.stringify(lesson).replace(/</g, '\\u003c');
-  const injectedHtml = `\n<script type="application/json" id="student-lesson-data">${jsonString}<\/script>\n`;
+  const tasksJSON = JSON.stringify(lesson);
+  let baseHtml = document.documentElement.outerHTML;
   
-  // Клонируем документ, чтобы "очистить" его от введенных учителем данных перед скачиванием
-  const clone = document.documentElement.cloneNode(true);
+  // Надежный инжект скрипта перед закрывающим тегом </head> 
+  // Это гарантирует, что переменная создастся и браузер ее увидит
+  let injectedScript = `\n<script>window.INJECTED_TASKS = ${tasksJSON};<\/script>\n</head>`;
+  let newHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + baseHtml.replace(/<\/head>/i, injectedScript);
   
-  // Сбрасываем интерфейс на клоне (ЗАМЕНЕНО getElementById на querySelector)
-  clone.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  clone.querySelector('#menu').classList.add('active'); 
-  clone.querySelector('#lessonList').innerHTML = ''; 
-  clone.querySelector('#taskCount').textContent = '0';
-  clone.querySelector('#linkResult').innerHTML = '';
-  
-  // Собираем итоговый HTML
-  let finalHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + clone.outerHTML.replace(/<\/body>/i, injectedHtml + '</body>');
-  
-  // Скачиваем
-  const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+  const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -282,12 +363,21 @@ function buildHTMLFile(){
 
 /* ═══════════════ УЧЕНИК: ПРОХОЖДЕНИЕ УРОКА ═══════════════ */
 let studentLesson=[], curIdx=0;
+
+function launchGame() {
+  document.getElementById('mainHeader').style.display = 'block'; // Показываем HUD
+  document.querySelectorAll('.header-title').forEach(el => el.style.display = 'none'); // Скрываем верхние заголовки для экономии места
+  startStudentMode(window.INJECTED_TASKS);
+}
+
 function startStudentMode(tasks){
+  document.body.classList.add('student-mode-active');
   studentLesson=tasks; curIdx=0; lessonDone=false;
   document.getElementById('totNum').textContent=tasks.length;
   show('student');
   renderCurrentTask();
 }
+
 function renderCurrentTask(){
   combo=0; updateHUD();
   const task=studentLesson[curIdx];
@@ -480,37 +570,24 @@ function renderComplex(obj,area){
 function checkComplex(i,correct){
   const val=document.getElementById('cq'+i).value.trim().toLowerCase();
   const fb=document.getElementById('cfb'+i);
+  if(!val) return;
   if(val===correct.trim().toLowerCase()){addEnergy(8);fb.innerHTML='<span class="correct">✅ Верно!</span>';document.getElementById('cq'+i).disabled=true;}
   else{resetCombo();fb.innerHTML='<span class="wrong">❌ Неверно</span>';}
 }
 
 function fbOK(){const fb=document.getElementById('fb');if(fb)fb.innerHTML='<span class="correct">Верно! ⚡</span>';}
 
-/* ГЛАВНЫЙ ЗАПУСК: Проверяем, есть ли вшитые задания. Если есть — мы в файле ученика */
-window.addEventListener('load', () => {
-  const dataScript = document.getElementById('student-lesson-data');
-  if (dataScript) {
-    try {
-      const tasks = JSON.parse(dataScript.textContent);
-      if (Array.isArray(tasks) && tasks.length > 0) {
-        
-        // ФИЗИЧЕСКИ ВЫРЕЗАЕМ МЕНЮ УЧИТЕЛЯ ИЗ ФАЙЛА УЧЕНИКА
-        const menuEl = document.getElementById('menu');
-        const teacherEl = document.getElementById('teacher');
-        if (menuEl) menuEl.remove();
-        if (teacherEl) teacherEl.remove();
-        
-        // Запускаем режим ученика
-        startStudentMode(tasks);
-        return; // Останавливаем дальнейшее выполнение
-      }
-    } catch(e) {
-      console.error('Ошибка загрузки заданий:', e);
-    }
+/* ИНИЦИАЛИЗАЦИЯ ПРИ ОТКРЫТИИ */
+window.addEventListener('load',()=>{
+  // Если ученик открывает скачанный файл с заданиями
+  if (window.INJECTED_TASKS && Array.isArray(window.INJECTED_TASKS) && window.INJECTED_TASKS.length > 0) {
+    document.getElementById('mainHeader').style.display = 'none'; // Полностью скрываем меню
+    document.body.classList.add('student-mode-active'); // Активируем скрытие лишнего
+    show('welcomeScreen'); // Показываем стартовую обложку
+  } else {
+    // Режим учителя
+    show('menu');
   }
-  
-  // Если мы дошли сюда, значит это оригинальный файл учителя
-  show('menu');
 });
 </script>
 </body>
