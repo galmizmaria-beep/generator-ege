@@ -73,6 +73,9 @@
   .task-list li button{background:transparent;border:1px solid #f36;color:#f36;border-radius:8px;padding:4px 10px;cursor:pointer}
   .progress-bar{height:8px;background:rgba(0,229,255,.15);border-radius:4px;overflow:hidden;margin:10px 0}
   .progress-bar div{height:100%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));width:0%;transition:width .4s}
+  
+  /* Скрывать лишнее в режиме ученика */
+  .student-mode-active #menu, .student-mode-active #teacher { display: none !important; }
 </style>
 </head>
 <body>
@@ -253,12 +256,12 @@ function buildHTMLFile(){
   // Клонируем документ, чтобы "очистить" его от введенных учителем данных перед скачиванием
   const clone = document.documentElement.cloneNode(true);
   
-  // Сбрасываем интерфейс на клоне
+  // Сбрасываем интерфейс на клоне (ЗАМЕНЕНО getElementById на querySelector)
   clone.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  clone.getElementById('menu').classList.add('active'); 
-  clone.getElementById('lessonList').innerHTML = ''; 
-  clone.getElementById('taskCount').textContent = '0';
-  clone.getElementById('linkResult').innerHTML = '';
+  clone.querySelector('#menu').classList.add('active'); 
+  clone.querySelector('#lessonList').innerHTML = ''; 
+  clone.querySelector('#taskCount').textContent = '0';
+  clone.querySelector('#linkResult').innerHTML = '';
   
   // Собираем итоговый HTML
   let finalHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + clone.outerHTML.replace(/<\/body>/i, injectedHtml + '</body>');
