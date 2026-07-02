@@ -266,13 +266,12 @@
 
 <footer>
   <p>© Все права защищены и принадлежат Гальмиз Марии Александровне.</p>
-  <p style="margin-top:5px;"><a href="https://vk.com/play_russianlanguage" target="_blank" style="color:var(--neon-blue); text-decoration:none; font-weight:bold; letter-spacing:1px;">Сообщество в VK «Креативные уроки»</a></p>
+  <p style="margin-top:5px;">
+    <a href="https://vk.com/play_russianlanguage" target="_blank" style="color:var(--neon-blue); text-decoration: none; font-weight: bold; font-size: 1rem; transition: 0.3s;" onmouseover="this.style.textShadow='0 0 10px var(--neon-blue)'" onmouseout="this.style.textShadow='none'">Сообщество в VK «Креативные уроки»</a>
+  </p>
 </footer>
 
 <script>
-// --- Глобальная переменная для ответов (нужна для таймера) ---
-let currentCorrectAnswer = '';
-
 // --- Базовая навигация ---
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -411,35 +410,45 @@ function startTimer(sec) {
       toast('⏱️ Время вышло!');
       sndBad();
       resetCombo();
-      
-      // Автоматически показываем правильный ответ и блокируем инпуты при истечении таймера
-      const fb = document.getElementById('fb');
-      if (fb && currentCorrectAnswer) {
-        fb.innerHTML = '<span class="wrong">Время вышло! Правильный ответ: <b>' + currentCorrectAnswer + '</b></span>';
-      }
-      
-      const inputEl = document.getElementById('answerInput');
-      if (inputEl) inputEl.disabled = true;
-      
-      const buttons = document.querySelectorAll('#optionsContainer button');
-      if (buttons.length > 0) {
-         buttons.forEach(b => {
-            b.disabled = true;
-            if (currentCorrectAnswer && b.textContent.toLowerCase() === currentCorrectAnswer.toLowerCase()) {
-               b.style.borderColor = '#0f6';
-               b.style.color = '#0f6';
-            }
-         });
-      }
-      
-      if (document.documentElement.classList.contains('mode-student')) {
-          renderNavButtons(true);
-      }
+      forceShowAnswer(); // Показываем правильный ответ, если не успел
     }
   }, 1000);
 }
 function stopTimer() {
   if (timerInt) { clearInterval(timerInt); timerInt = null; }
+}
+
+// Принудительный показ ответа, когда вышло время
+function forceShowAnswer() {
+  const task = currentClassTasks[curIdx];
+  const fb = document.getElementById('fb');
+  if (!task) return;
+
+  if (task.type === 'input') {
+    let match = task.d.match(/\[(.*?)\]/);
+    if (match) {
+      let inputEl = document.getElementById('answerInput');
+      if (inputEl && !inputEl.disabled) {
+        inputEl.disabled = true;
+        if (fb) fb.innerHTML = `<span class="wrong">Время вышло! Правильный ответ: <b>${match[1]}</b></span>`;
+      }
+    }
+  } else if (task.type === 'choice') {
+    const container = document.getElementById('optionsContainer');
+    if (container) {
+      const buttons = container.querySelectorAll('button');
+      buttons.forEach(b => {
+        b.disabled = true;
+        if (b.textContent.toLowerCase() === task.right.toLowerCase()) {
+          b.style.borderColor = '#0f6';
+          b.style.color = '#0f6';
+          b.style.boxShadow = '0 0 15px #0f6';
+        }
+      });
+    }
+    if (fb) fb.innerHTML = `<span class="wrong">Время вышло! Правильный ответ: <b>${task.right}</b></span>`;
+  }
+  renderNavButtons(true); // Разблокируем кнопку "Далее"
 }
 
 // ==========================================
@@ -721,12 +730,11 @@ function finishClass() {
 
 // --- Рендер задания типа ВВОД (input) ---
 function renderTaskInput(task, area) {
+  // task.d = "к[о]рова"
   let match = task.d.match(/\[(.*?)\]/);
   if (!match) return;
   
   let correctLetter = match[1];
-  currentCorrectAnswer = correctLetter; // Сохраняем глобально для таймера
-  
   let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" style="width: 60px; text-align: center; display: inline-block; font-size: 1.8rem; padding: 5px;" id="answerInput" autocomplete="off">`);
 
   area.innerHTML = `
@@ -756,31 +764,34 @@ function renderTaskInput(task, area) {
       stopTimer();
       renderNavButtons(true); // Разблокируем кнопку "Далее"
     } else if (val.length >= ans.length) {
+      // НЕВЕРНЫЙ ВВОД
       inputEl.style.color = '#f36';
       inputEl.style.borderColor = '#f36';
-      inputEl.disabled = true;
+      inputEl.disabled = true; // Блокируем поле (чтобы дальше пропустить)
       resetCombo();
-      document.getElementById('fb').innerHTML = '<span class="wrong">Ошибка. Правильный ответ: <b>' + ans + '</b></span>';
+      document.getElementById('fb').innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correctLetter}</b></span>`;
       stopTimer();
-      renderNavButtons(true); // Разблокируем кнопку "Далее"
+      renderNavButtons(true); // Разблокируем кнопку "Далее", чтобы ученик прошел дальше
     }
   });
 }
 
 // --- Рендер задания типа ВЫБОР (choice) ---
 function renderTaskChoice(task, area) {
-  currentCorrectAnswer = task.right;
-  let options = [task.right, ...task.wrong.split(',').map(s => s.trim())];
-  options.sort(() => Math.random() - 0.5); // Перемешиваем варианты
+  let wrongAnswers = task.wrong.split(',').map(x => x.trim()).filter(x => x);
+  let options = [...wrongAnswers, task.right];
+  // Перемешиваем варианты
+  options.sort(() => Math.random() - 0.5);
 
   let html = `
     <div class="task-box" style="text-align:center;">
       <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px;">📝 Тема: ${task.theme}</h3>
-      <p style="font-size: 1.8rem; margin-bottom: 30px;">${task.q}</p>
-      <div id="optionsContainer" style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+      <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">Выберите правильный вариант:</p>
+      <p style="font-size: 2.2rem; font-weight: bold; margin-bottom: 35px; letter-spacing: 2px;">${task.q}</p>
+      <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;" id="optionsContainer">
   `;
-
-  options.forEach(opt => {
+  
+  options.forEach((opt, idx) => {
     html += `<button class="btn" style="font-size: 1.5rem; min-width: 80px;" onclick="checkChoiceAnswer(this, '${opt}', '${task.right}')">${opt}</button>`;
   });
   
@@ -806,22 +817,25 @@ function checkChoiceAnswer(btn, selected, correct) {
     buttons.forEach(b => b.disabled = true);
     renderNavButtons(true); // Разблокируем кнопку "Далее"
   } else {
+    // НЕВЕРНЫЙ ВЫБОР
     btn.style.background = 'rgba(255, 51, 102, 0.3)';
     btn.style.borderColor = '#f36';
     btn.style.color = '#f36';
     resetCombo();
-    fb.innerHTML = '<span class="wrong">Ошибка. Правильный ответ: <b>' + correct + '</b></span>';
+    fb.innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correct}</b></span>`;
     
-    // Блокируем все кнопки и подсвечиваем правильную
+    // Блокируем все кнопки и подсвечиваем правильный вариант
     buttons.forEach(b => {
       b.disabled = true;
       if (b.textContent.toLowerCase() === correct.toLowerCase()) {
         b.style.borderColor = '#0f6';
         b.style.color = '#0f6';
+        b.style.boxShadow = '0 0 15px #0f6';
       }
     });
+    
     stopTimer();
-    renderNavButtons(true); // Разблокируем кнопку "Далее"
+    renderNavButtons(true); // Разблокируем кнопку "Далее", чтобы пропустить ученика дальше
   }
 }
 
