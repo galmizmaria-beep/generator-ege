@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -99,6 +98,7 @@
         }
 
         input:focus, textarea:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
+        textarea[readonly] { color: var(--neon-green); border-color: var(--neon-green); cursor: pointer; font-size: 0.9rem;}
 
         /* Game Elements */
         .game-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--neon-blue); padding-bottom: 10px;}
@@ -162,11 +162,19 @@
             <input type="text" id="input-complex-task" placeholder="Задание к тексту (например: Выпишите все эпитеты)">
         </div>
 
-        <!-- Кнопка генерации -->
+        <!-- Кнопка генерации ссылки -->
         <div style="text-align: center; margin-top: 30px;">
-            <button class="neon-btn btn-purple" onclick="generateStudentFile()" style="font-size: 1.2rem; padding: 15px 40px;">
-                СГЕНЕРИРОВАТЬ КОД УРОКА (Скачать HTML)
+            <button class="neon-btn btn-purple" onclick="generateLink()" style="font-size: 1.2rem; padding: 15px 40px;">
+                ШИФРОВАТЬ ДАННЫЕ (Создать ссылку)
             </button>
+        </div>
+
+        <!-- Поле с готовой ссылкой -->
+        <div id="link-container" class="glass-panel hidden" style="margin-top: 20px; text-align: center; border-color: var(--neon-green);">
+            <h3 style="color: var(--neon-green); margin-bottom: 10px;">ДАННЫЕ УСПЕШНО ЗАШИФРОВАНЫ</h3>
+            <p>Отправьте эту защищенную ссылку ученикам:</p>
+            <textarea id="generated-link" readonly rows="4" onclick="this.select()"></textarea>
+            <button class="neon-btn" style="border-color: var(--neon-green); color: var(--neon-green);" onclick="copyLink()">СКОПИРОВАТЬ В БУФЕР</button>
         </div>
     </div>
 
@@ -221,26 +229,37 @@
     // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ УЧЕНИКА ===
     let health = 100;
     
-    // === ДАННЫЕ УРОКА (Заполняются учителем или при загрузке) ===
+    // === ДАННЫЕ УРОКА ===
     let lessonData = {
         ortho: "",
         complexText: "",
         complexTask: ""
     };
 
-    // Проверка: мы сейчас в режиме создателя или ученика?
-    // (Если в HTML есть мета-тэг student-mode, значит это сгенерированный файл)
+    // Проверка при загрузке страницы: есть ли зашифрованные данные в ссылке?
     window.onload = function() {
-        if (document.getElementById('is-student-mode')) {
-            // Это сгенерированный файл для ученика
-            document.getElementById('teacher-panel').remove();
-            document.getElementById('student-panel').classList.remove('hidden');
-            loadStudentMissions();
+        // Если в URL есть символ '#' и после него есть текст (это наш шифр)
+        if (window.location.hash.length > 1) {
+            try {
+                // Берем текст после решетки
+                let hashData = window.location.hash.substring(1);
+                // Дешифруем из Base64 и преобразуем обратно в объект
+                let decodedString = decodeURIComponent(atob(hashData));
+                lessonData = JSON.parse(decodedString);
+                
+                // Включаем интерфейс ученика
+                document.getElementById('teacher-panel').remove();
+                document.getElementById('student-panel').classList.remove('hidden');
+                loadStudentMissions();
+            } catch (e) {
+                alert("Ошибка декодирования! Ссылка повреждена.");
+                console.error(e);
+            }
         }
     };
 
-    // === ФУНКЦИИ УЧИТЕЛЯ (ГЕНЕРАТОР HTML) ===
-    function generateStudentFile() {
+    // === ФУНКЦИИ УЧИТЕЛЯ (ГЕНЕРАТОР ССЫЛКИ) ===
+    function generateLink() {
         // Собираем данные
         lessonData.ortho = document.getElementById('input-ortho').value;
         lessonData.complexText = document.getElementById('input-complex').value;
@@ -251,28 +270,25 @@
             return;
         }
 
-        // Клонируем текущий документ, чтобы создать файл для скачивания
-        let htmlContent = document.documentElement.outerHTML;
+        // Превращаем данные в строку JSON
+        let jsonString = JSON.stringify(lessonData);
+        // Шифруем в Base64 (с поддержкой кириллицы)
+        let encryptedData = btoa(encodeURIComponent(jsonString));
         
-        // Внедряем данные внутрь скрипта для скачиваемого файла
-        let dataScript = `
-            <meta id="is-student-mode" content="true">
-            <script>
-                lessonData = ${JSON.stringify(lessonData)};
-            <\/script>
-        `;
-        
-        htmlContent = htmlContent.replace('<head>', '<head>' + dataScript);
+        // Формируем итоговую ссылку
+        let baseUrl = window.location.href.split('#')[0]; // Берем текущую ссылку без старых хэшей
+        let finalUrl = baseUrl + '#' + encryptedData;
 
-        // Создаем файл и скачиваем
-        let blob = new Blob([htmlContent], {type: "text/html;charset=utf-8"});
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement("a");
-        a.href = url;
-        a.download = "Cyber_Lingua_Lesson.html";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        // Показываем ссылку учителю
+        document.getElementById('link-container').classList.remove('hidden');
+        document.getElementById('generated-link').value = finalUrl;
+    }
+
+    function copyLink() {
+        let copyText = document.getElementById("generated-link");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Зашифрованная ссылка скопирована! Отправьте её ученикам.");
     }
 
     // === ФУНКЦИИ УЧЕНИКА (ИГРА) ===
@@ -281,7 +297,7 @@
         const menu = document.getElementById('mission-select');
         menu.innerHTML = "";
 
-        if (lessonData.ortho.trim() !== "") {
+        if (lessonData.ortho && lessonData.ortho.trim() !== "") {
             menu.innerHTML += `
                 <div class="glass-panel" style="text-align: center; cursor: pointer;" onclick="openMission('ortho')">
                     <h2 style="color: var(--neon-blue); margin-bottom: 10px;">ОРФОГРАФИЯ</h2>
@@ -291,7 +307,7 @@
             `;
         }
         
-        if (lessonData.complexText.trim() !== "") {
+        if (lessonData.complexText && lessonData.complexText.trim() !== "") {
              menu.innerHTML += `
                 <div class="glass-panel" style="text-align: center; cursor: pointer;" onclick="openMission('complex')">
                     <h2 style="color: var(--neon-purple); margin-bottom: 10px;">КОМПЛЕКС</h2>
@@ -325,7 +341,7 @@
         const container = document.getElementById('ortho-words-container');
         container.innerHTML = "";
         
-        // Парсим слова учителя (к[о]рова, м[о]локо)
+        // Парсим слова (к[о]рова, м[о]локо)
         let words = lessonData.ortho.split(/[\s,]+/);
         
         words.forEach(word => {
