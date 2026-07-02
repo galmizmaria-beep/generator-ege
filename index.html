@@ -205,10 +205,13 @@
       <input type="text" id="fAnsWrong" placeholder="Например: е, а, о">
     </div>
 
+    <button class="btn small" style="width: 100%; margin-top: 15px; border-color: var(--neon-purple); background: rgba(123,47,247,0.3);" onclick="draftTask()">➕ Добавить задание</button>
+    <div id="draftStatus" style="text-align: center; color: #0f6; font-size: 1.1rem; font-weight: bold; margin-top: 10px; display: none;">Заданий для раздела: <span id="draftCount">0</span></div>
+
     <label style="margin-top: 15px;">⏱️ Таймер на задание (секунды, 0 = без таймера):</label>
     <input type="number" id="fTimer" value="0" style="max-width:150px">
     
-    <button class="btn" style="width: 100%; margin: 15px 0 0 0;" onclick="addTaskToLesson()">➕ Добавить в урок</button>
+    <button class="btn" style="width: 100%; margin: 15px 0 0 0;" onclick="addLessonSection()">🚀 Добавить урок (сформировать раздел)</button>
   </div>
 
   <div class="task-box" style="max-width: 800px; margin: 20px auto;">
@@ -416,7 +419,8 @@ function stopTimer() {
 // ==========================================
 //           ЛОГИКА УЧИТЕЛЯ
 // ==========================================
-let lesson = [];
+let lesson = []; // Массив целых разделов (уроков)
+let draftTasks = []; // Временные задания для текущего раздела
 
 function toggleTypeFields() {
   const type = document.getElementById('fType').value;
@@ -424,11 +428,8 @@ function toggleTypeFields() {
   document.getElementById('typeChoiceWrap').style.display = type === 'choice' ? 'block' : 'none';
 }
 
-function addTaskToLesson() {
-  const classLvl = document.getElementById('fClass').value;
-  const theme = document.getElementById('fTheme').value.trim() || 'Без темы';
+function draftTask() {
   const type = document.getElementById('fType').value;
-  const timer = parseInt(document.getElementById('fTimer').value) || 0;
 
   if (type === 'input') {
     const data = document.getElementById('fDataInput').value.trim();
@@ -440,14 +441,12 @@ function addTaskToLesson() {
     words.forEach(w => {
       // Проверка правильности формата (наличие квадратных скобок)
       if (w.includes('[') && w.includes(']')) {
-        lesson.push({ classLvl, theme, type, d: w.trim(), timer });
+        draftTasks.push({ type: 'input', d: w.trim() });
         addedCount++;
       }
     });
     
-    if (addedCount === 0) {
-      return alert('Не найдено слов с квадратными скобками [ ] !');
-    }
+    if (addedCount === 0) return alert('Не найдено слов с квадратными скобками [ ] !');
     toast(`➕ Добавлено слов: ${addedCount}`);
     document.getElementById('fDataInput').value = '';
 
@@ -458,25 +457,69 @@ function addTaskToLesson() {
     
     if (!q || !right || !wrong) return alert('Заполните все поля для теста!');
     
-    lesson.push({ classLvl, theme, type, q, right, wrong, timer });
-    toast('➕ Задание добавлено!');
+    draftTasks.push({ type: 'choice', q, right, wrong });
+    toast('➕ Задание добавлено в черновик!');
     
+    // Очищаем только поля с ответами и вопросом, чтобы быстро ввести следующее
     document.getElementById('fDataChoice').value = '';
     document.getElementById('fAnsRight').value = '';
     document.getElementById('fAnsWrong').value = '';
   }
   
+  updateDraftUI();
+}
+
+function updateDraftUI() {
+  const draftDiv = document.getElementById('draftStatus');
+  const draftCount = document.getElementById('draftCount');
+  
+  if (draftTasks.length > 0) {
+    draftDiv.style.display = 'block';
+    draftCount.textContent = draftTasks.length;
+  } else {
+    draftDiv.style.display = 'none';
+    draftCount.textContent = '0';
+  }
+}
+
+function addLessonSection() {
+  const type = document.getElementById('fType').value;
+  
+  // Авто-добавление: если учитель забыл нажать "Добавить задание", но заполнил поля
+  if (type === 'input' && document.getElementById('fDataInput').value.trim()) {
+    draftTask();
+  } else if (type === 'choice' && document.getElementById('fDataChoice').value.trim() && document.getElementById('fAnsRight').value.trim() && document.getElementById('fAnsWrong').value.trim()) {
+    draftTask();
+  }
+
+  if (draftTasks.length === 0) {
+    return alert('Сначала добавьте задания с помощью кнопки "➕ Добавить задание"!');
+  }
+
+  const classLvl = document.getElementById('fClass').value;
+  const theme = document.getElementById('fTheme').value.trim() || 'Без темы';
+  const timer = parseInt(document.getElementById('fTimer').value) || 0;
+
+  // Формируем один раздел со всеми собранными заданиями
+  lesson.push({
+    classLvl,
+    theme,
+    timer,
+    tasks: [...draftTasks]
+  });
+
+  draftTasks = [];
+  updateDraftUI();
   renderLessonList();
+  toast('✅ Урок успешно сформирован!');
 }
 
 function renderLessonList() {
   document.getElementById('taskCount').textContent = lesson.length;
   const ul = document.getElementById('lessonList');
-  ul.innerHTML = lesson.map((t, i) => {
-    let preview = t.type === 'input' ? t.d : t.q;
-    let typeName = t.type === 'input' ? 'Ввод' : 'Тест';
+  ul.innerHTML = lesson.map((sec, i) => {
     return `<li>
-      <span><b>${t.classLvl} кл.</b> [${typeName}] — ${preview.substring(0, 30)}${preview.length > 30 ? '…' : ''}</span>
+      <span><b>${sec.classLvl} кл.</b> — ${sec.theme} <br><i style="font-size:0.9rem;color:#a9d8e8">В разделе заданий: ${sec.tasks.length}</i></span>
       <button onclick="removeTask(${i})">✕</button>
     </li>`;
   }).join('');
@@ -489,11 +532,24 @@ function removeTask(i) {
 
 function buildHTMLFile() {
   if (lesson.length === 0) {
-    alert('Добавьте хотя бы одно задание перед скачиванием!');
+    alert('Добавьте хотя бы один урок перед скачиванием!');
     return;
   }
 
-  const tasksJSON = JSON.stringify(lesson);
+  // Для ученика снова "расплющиваем" структуру, чтобы его код работал как и раньше
+  let flatTasks = [];
+  lesson.forEach(sec => {
+    sec.tasks.forEach(t => {
+      flatTasks.push({
+        classLvl: sec.classLvl,
+        theme: sec.theme,
+        timer: sec.timer,
+        ...t
+      });
+    });
+  });
+
+  const tasksJSON = JSON.stringify(flatTasks);
   let baseHtml = document.documentElement.outerHTML;
 
   // Ищем точку внедрения и заменяем её
