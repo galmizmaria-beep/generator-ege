@@ -10,7 +10,7 @@
   body{background:radial-gradient(circle at 20% 10%,rgba(123,47,247,.25),transparent 40%),radial-gradient(circle at 80% 90%,rgba(0,229,255,.20),transparent 40%),#050818;color:#dff6ff;min-height:100vh;overflow-x:hidden}
   header{text-align:center;padding:40px 20px 30px}
   
-  /* Новый стиль заголовка с пульсацией */
+  /* Стиль заголовка с пульсацией */
   h1.logo{
     font-size: 2.8rem;
     letter-spacing: 2px;
@@ -198,12 +198,7 @@ function showTeacherType(type){
   document.getElementById('teacherFieldsWrap').style.display='block';
   const forms={
     orf:`<h3>✏️ Орфография</h3><label>Слова, буква в [ ], каждое с новой строки. Пример: <b>к[о]рова</b></label><textarea id="fData" rows="5" placeholder="к[о]рова&#10;с[о]бака"></textarea>`,
-    punct:`<h3>❗ Пунктуация</h3><label>Предложение, пропуск = ¤</label><textarea id="fData" rows="3" placeholder="Здравствуй¤ друг¤"></textarea><label>Знаки через запятую:</label><input id="fAns" placeholder=", !">`,
-    trop:`<h3>🎭 Ср-ва выразительности</h3><label>Цитата:</label><textarea id="fData" rows="2"></textarea><label>Правильный троп:</label><select id="fAns"><option>Метафора</option><option>Эпитет</option><option>Олицетворение</option><option>Сравнение</option><option>Гипербола</option><option>Метонимия</option></select>`,
-    basket:`<h3>🧺 Корзинки</h3><label>Названия корзинок через ; (пример: <b>О;А</b>)</label><input id="fCats" placeholder="О;А"><label>Слова: слово=корзинка, с новой строки. Пример: <b>вода=О</b></label><textarea id="fData" rows="5" placeholder="вода=О&#10;трава=А"></textarea>`,
-    scheme:`<h3>📐 Схема предложения</h3><label>Блоки через ; в правильном порядке</label><input id="fData" placeholder="Подлежащее;Сказуемое;Дополнение"><label>Предложение-подсказка:</label><input id="fHint" placeholder="Кошка ловит мышь">`,
-    pic:`<h3>🖼️ По картинке</h3><label>URL или emoji:</label><input id="fPic" placeholder="🐈 или https://..."><label>Ответ:</label><input id="fAns" placeholder="кошка"><label>Подсказка:</label><input id="fHint" placeholder="Кто изображён?">`,
-    complex:`<h3>📚 Комплексное повторение</h3><label>Текст:</label><textarea id="fData" rows="3" placeholder="Вставь текст..."></textarea><label>Вопросы: вопрос|ответ (с новой строки)</label><textarea id="fQ" rows="3" placeholder="Тема текста?|осень"></textarea>`
+    punct:`<h3>❗ Пунктуация</h3><label>Предложение,>Текст:</label><textarea id="fData" rows="3" placeholder="Вставь текст..."></textarea><label>Вопросы: вопрос|ответ (с новой строки)</label><textarea id="fQ" rows="3" placeholder="Тема текста?|осень"></textarea>`
   };
   f.innerHTML=forms[type];
 }
@@ -244,18 +239,20 @@ function renderLessonList(){
 }
 function removeTask(i){lesson.splice(i,1);renderLessonList();}
 
-/* ═══ ЭКСПОРТ В HTML ДЛЯ УЧЕНИКА ═══ */
+/* ═══ НАДЕЖНЫЙ ЭКСПОРТ В HTML ДЛЯ УЧЕНИКА ═══ */
 function buildHTMLFile(){
   if(lesson.length===0){alert('Добавь хотя бы одно задание!');return;}
   
+  // Кодируем данные в Base64, чтобы никакие спецсимволы не сломали скачанный файл
   const tasksJSON = JSON.stringify(lesson);
+  const tasksB64 = btoa(unescape(encodeURIComponent(tasksJSON)));
   
   // Берем весь исходный код текущей страницы
   let baseHtml = document.documentElement.outerHTML;
   
-  // Внедряем массив с заданиями прямо в код (запускается при открытии файла учеником)
-  let injectedScript = `\n<script>window.INJECTED_TASKS = ${tasksJSON};<\/script>\n`;
-  let newHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + baseHtml.replace('<script>', injectedScript + '<script>');
+  // Внедряем скрипт в самый конец страницы (надежнее всего)
+  let injectedScript = `\n<script id="injected-data">window.INJECTED_B64 = "${tasksB64}";<\/script>\n`;
+  let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<\/body>/i, injectedScript + '</body>');
   
   // Создаем файл для скачивания
   const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
@@ -478,10 +475,22 @@ function checkComplex(i,correct){
 
 function fbOK(){const fb=document.getElementById('fb');if(fb)fb.innerHTML='<span class="correct">Верно! ⚡</span>';}
 
-/* Проверка: если файл скачан и в нем есть задания, сразу открываем тренажер */
+/* Проверка: если файл скачан и в нем есть зашифрованные задания, сразу открываем тренажер */
 window.addEventListener('load',()=>{
-  if (window.INJECTED_TASKS && Array.isArray(window.INJECTED_TASKS) && window.INJECTED_TASKS.length > 0) {
-    startStudentMode(window.INJECTED_TASKS);
+  if (window.INJECTED_B64) {
+    try {
+      // Расшифровываем задания
+      const decoded = decodeURIComponent(escape(atob(window.INJECTED_B64)));
+      const tasks = JSON.parse(decoded);
+      if (Array.isArray(tasks) && tasks.length > 0) {
+        startStudentMode(tasks);
+      } else {
+        show('menu');
+      }
+    } catch(e) {
+      console.error('Ошибка загрузки заданий:', e);
+      show('menu');
+    }
   } else {
     show('menu');
   }
@@ -489,4 +498,3 @@ window.addEventListener('load',()=>{
 </script>
 </body>
 </html>
-  
