@@ -1,534 +1,392 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Архив ЕГЭ | Русский язык</title>
-    <!-- Подключаем винтажные и печатные шрифты -->
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:ital,wght@0,600;1,600&family=Special+Elite&display=swap" rel="stylesheet">
+    <title>Кибер-Лингвист: Лаборатория</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* ================= ВИНТАЖНЫЙ ДИЗАЙН ================= */
         :root {
-            --paper-bg: #eaddc5;
-            --paper-dark: #d5c5a9;
-            --ink-black: #2b2b2b;
-            --ink-red: #8b2626;
-            --ink-blue: #2a3c5a;
-            --font-typewriter: 'Special Elite', monospace;
-            --font-heading: 'Playfair Display', serif;
-            --font-handwriting: 'Caveat', cursive;
+            --bg-color: #030a16;
+            --panel-bg: rgba(0, 150, 255, 0.05);
+            --neon-blue: #00f3ff;
+            --neon-purple: #9d00ff;
+            --neon-red: #ff0055;
+            --neon-green: #00ff66;
+            --text-main: #e0f2fe;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            margin: 0;
-            padding: 20px;
-            background-color: #c2b29a;
-            background-image: url('https://www.transparenttextures.com/patterns/old-wall.png'); /* Текстура старой стены/бумаги */
-            color: var(--ink-black);
-            font-family: var(--font-typewriter);
-            line-height: 1.6;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(157, 0, 255, 0.08) 0%, transparent 50%);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Эффект старой бумаги для блоков */
-        .paper-box {
-            background-color: var(--paper-bg);
-            background-image: url('https://www.transparenttextures.com/patterns/rice-paper.png');
-            box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 40px rgba(139, 115, 85, 0.1);
-            border: 1px solid #bda88a;
-            position: relative;
-        }
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            border-bottom: 3px double var(--ink-black);
+            padding: 40px 0;
+            text-shadow: 0 0 10px var(--neon-blue);
         }
 
-        h1 {
-            font-family: var(--font-heading);
-            font-size: 3em;
-            margin: 0;
-            color: var(--ink-black);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        header h1 { font-size: 3rem; color: #fff; margin-bottom: 10px; }
+        header p { color: var(--neon-blue); font-size: 1.2rem; }
 
-        .author-note {
-            font-family: var(--font-handwriting);
-            font-size: 1.8em;
-            color: var(--ink-blue);
-            transform: rotate(-2deg);
-            display: inline-block;
-            margin-top: -10px;
-        }
-
-        /* Ссылка на ФИПИ как газетная вырезка */
-        .fipi-link {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 5px 15px;
-            background: #f4ecd8;
-            border: 1px dashed var(--ink-black);
-            color: var(--ink-red);
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-            transition: 0.2s;
-        }
-        .fipi-link:hover {
-            background: var(--paper-dark);
-            transform: translateY(-2px);
-        }
-
-        /* ================= ОСНОВНАЯ СЕТКА ================= */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 2fr 300px;
-            gap: 30px;
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 900px) {
-            .main-layout { grid-template-columns: 1fr; }
-        }
-
-        /* ЛЕВАЯ КОЛОНКА: БАНК ЗАДАНИЙ */
-        .tasks-bank {
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 20px;
             padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            transition: all 0.3s ease;
         }
 
-        .section-title {
-            font-family: var(--font-heading);
-            border-bottom: 2px solid var(--ink-black);
-            padding-bottom: 5px;
-            margin-top: 0;
-            font-size: 1.8em;
-        }
+        .glass-panel:hover { border-color: rgba(0, 243, 255, 0.5); box-shadow: 0 0 20px rgba(0, 243, 255, 0.1); }
 
-        /* Аккордеоны заданий */
-        details {
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.3);
-            border: 1px solid #c8b99c;
-            padding: 10px;
-            transition: all 0.3s;
-        }
-
-        details[open] {
-            background: rgba(255, 255, 255, 0.5);
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-        }
-
-        summary {
-            font-weight: bold;
-            font-size: 1.1em;
-            cursor: pointer;
-            list-style: none; /* Убираем стандартный треугольник */
-            display: flex;
-            align-items: center;
-        }
-        
-        summary::-webkit-details-marker { display: none; }
-        
-        summary::before {
-            content: '► ';
-            color: var(--ink-red);
-            margin-right: 10px;
-            font-size: 0.8em;
-        }
-        details[open] summary::before { content: '▼ '; }
-
-        .task-content {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed #bda88a;
-            font-size: 0.95em;
-        }
-
-        .general-text {
-            background: rgba(0,0,0,0.03);
-            padding: 15px;
-            border-left: 4px solid var(--ink-blue);
-            margin-bottom: 15px;
-            font-style: italic;
-        }
-
-        /* Поля ввода в стиле печатной машинки */
-        input[type="text"], input[type="number"], textarea {
+        /* Neon Buttons */
+        .neon-btn {
             background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--ink-black);
-            font-family: var(--font-typewriter);
-            font-size: 1em;
-            color: var(--ink-blue);
-            padding: 2px 5px;
-            outline: none;
-        }
-        input[type="text"]:focus { border-bottom: 2px solid var(--ink-red); }
-
-        /* Кнопки в стиле старых штампов/клавиш */
-        button {
-            font-family: var(--font-typewriter);
-            background: var(--paper-bg);
-            border: 1px solid var(--ink-black);
-            padding: 5px 15px;
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            padding: 12px 24px;
+            border: 1px solid var(--neon-blue);
+            border-radius: 5px;
             cursor: pointer;
-            box-shadow: 2px 2px 0 var(--ink-black);
-            transition: 0.1s;
             text-transform: uppercase;
-            font-weight: bold;
-        }
-        button:active {
-            box-shadow: 0 0 0 var(--ink-black);
-            transform: translate(2px, 2px);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2), inset 0 0 10px rgba(0, 243, 255, 0.1);
+            transition: 0.3s;
+            margin: 10px 5px;
         }
 
-        .check-btn { color: var(--ink-blue); font-size: 0.9em;}
-        
-        /* Штамп результата проверки */
-        .result-stamp {
-            display: inline-block;
-            margin-left: 15px;
-            font-family: var(--font-heading);
-            font-size: 1.2em;
-            padding: 2px 8px;
-            border: 2px solid transparent;
-            transform: rotate(-3deg);
-            opacity: 0;
+        .neon-btn:hover {
+            background: var(--neon-blue);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--neon-blue), inset 0 0 10px #fff;
+        }
+
+        .btn-purple { border-color: var(--neon-purple); color: var(--neon-purple); box-shadow: 0 0 10px rgba(157, 0, 255, 0.2); }
+        .btn-purple:hover { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px var(--neon-purple); }
+
+        /* Inputs & Textareas */
+        input[type="text"], textarea, select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: var(--neon-blue);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            outline: none;
             transition: 0.3s;
         }
-        .result-stamp.correct {
-            color: #27632a;
-            border-color: #27632a;
-            opacity: 1;
-        }
-        .result-stamp.incorrect {
-            color: var(--ink-red);
-            border-color: var(--ink-red);
-            opacity: 1;
-        }
 
-        /* ПРАВАЯ КОЛОНКА: НАСТРОЙКИ (Чек-лист) */
-        .settings-panel {
-            padding: 20px;
-            height: fit-content;
-        }
+        input:focus, textarea:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
 
-        /* CSS Скрепка */
-        .paperclip {
-            position: absolute;
-            top: -15px;
-            left: 20px;
-            width: 15px;
-            height: 45px;
-            border: 3px solid #888;
-            border-radius: 10px;
+        /* Game Elements */
+        .game-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--neon-blue); padding-bottom: 10px;}
+        .health-bar-container { width: 300px; height: 15px; background: #111; border: 1px solid var(--neon-blue); border-radius: 10px; overflow: hidden; }
+        .health-bar { height: 100%; background: var(--neon-blue); width: 100%; box-shadow: 0 0 10px var(--neon-blue); transition: width 0.3s, background 0.3s; }
+        
+        .word-gap {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
             background: transparent;
-            z-index: 10;
-            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.5), 2px 2px 3px rgba(0,0,0,0.3);
-        }
-        .paperclip::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: -3px;
-            width: 15px;
-            height: 25px;
-            border: 3px solid #888;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-            clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
-        }
-
-        .qty-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dotted #bda88a;
-            padding: 5px 0;
-        }
-        .qty-row input {
-            width: 40px;
+            border: 0;
+            border-bottom: 2px solid var(--neon-blue);
+            color: #fff;
             text-align: center;
-        }
-
-        /* НИЖНЯЯ ПАНЕЛЬ: ГЕНЕРАЦИЯ */
-        .action-bar {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            margin-top: 10px;
-        }
-        .action-bar button {
-            font-size: 1.2em;
-            padding: 10px 20px;
-            background: var(--paper-dark);
-        }
-
-        /* РЕЖИМ СГЕНЕРИРОВАННОГО ВАРИАНТА */
-        #generated-view {
-            display: none;
-            padding: 40px;
-            max-width: 900px;
-            margin: 0 auto;
+            font-size: 1.2rem;
+            font-family: 'Orbitron';
+            text-transform: lowercase;
         }
         
-        .print-btn { float: right; margin-bottom: 20px; }
+        .correct { border-bottom-color: var(--neon-green); color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); pointer-events: none;}
+        .error { border-bottom-color: var(--neon-red); color: var(--neon-red); text-shadow: 0 0 5px var(--neon-red); animation: shake 0.3s; }
 
-        /* ПЕЧАТЬ */
-        @media print {
-            body { background: white; color: black; padding: 0; margin: 0; }
-            .paper-box { background: none; border: none; box-shadow: none; }
-            .action-bar, .fipi-link, .print-btn, .check-btn, #editor-view { display: none !important; }
-            #generated-view { display: block !important; padding: 0; }
-            input[type="text"] { border-bottom: 1px solid black; }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
         }
+
+        .hidden { display: none !important; }
+        .section-title { font-size: 1.5rem; margin-bottom: 20px; color: var(--neon-purple); border-left: 4px solid var(--neon-purple); padding-left: 10px;}
+        
+        .grid-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
     </style>
 </head>
 <body>
 
-    <header class="paper-box">
-        <h1>Архив Экзаменатора</h1>
-        <div class="author-note">ЕГЭ по русскому языку (Проект 2026)</div><br>
-        <a href="https://oge.fipi.ru/bank/index.php?proj=2F5EE3B12FE2A0EA40B06BF61A015416" target="_blank" class="fipi-link">
-            ☛ Открытый банк заданий ФИПИ
-        </a>
+<div class="container">
+    <header>
+        <h1>СИСТЕМА: АЛЬФА-ЛИНГВА</h1>
+        <p>Нейросетевая образовательная среда</p>
     </header>
 
-    <!-- РЕЖИМ РЕДАКТОРА (БАНК ЗАДАНИЙ) -->
-    <div id="editor-view" class="main-layout">
-        
-        <!-- Левая колонка: Список заданий -->
-        <div class="paper-box tasks-bank" id="tasks-container">
-            <h2 class="section-title">Материалы для подготовки (Ким)</h2>
-            <!-- Аккордеоны заданий будут сгенерированы скриптом -->
+    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ УЧИТЕЛЯ (АРХИТЕКТОРА) -->
+    <div id="teacher-panel" class="glass-panel">
+        <h2 style="color: var(--neon-blue); margin-bottom: 15px;">Панель Архитектора (Учитель)</h2>
+        <p style="margin-bottom: 20px; color: #aaa;">Создайте модули задания. Оставьте блоки пустыми, если не хотите их включать в урок.</p>
+
+        <div class="glass-panel">
+            <h3 class="section-title">1. Орфография: Восстановление кластеров</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">Введите слова, где пропущенную букву заключите в квадратные скобки. Например: <i>к[о]рова, пр[и]шёл, с[о]бака</i></p>
+            <textarea id="input-ortho" rows="4" placeholder="Введите слова через запятую или пробел..."></textarea>
         </div>
 
-        <!-- Правая колонка: Настройки варианта -->
-        <div class="paper-box settings-panel">
-            <div class="paperclip"></div>
-            <h2 class="section-title" style="font-size: 1.4em;">Конструктор</h2>
-            <div style="font-family: var(--font-handwriting); color: var(--ink-red); font-size: 1.3em; margin-bottom: 10px;">
-                Укажите количество:
-            </div>
-            <div id="quantity-container">
-                <!-- Поля количества генерируются скриптом -->
-            </div>
+        <div class="glass-panel">
+            <h3 class="section-title">2. Комплексная отработка: Дешифровка логов</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">Вставьте текст для анализа (ученику нужно будет прочитать текст и выполнить комплексное задание).</p>
+            <textarea id="input-complex" rows="6" placeholder="Вставьте текст сюда..."></textarea>
+            <input type="text" id="input-complex-task" placeholder="Задание к тексту (например: Выпишите все эпитеты)">
         </div>
 
-        <!-- Нижняя панель кнопок -->
-        <div class="paper-box action-bar">
-            <button onclick="generateVariant()">Собрать вариант на печать</button>
-            <button onclick="resetQuantities()" style="color: var(--ink-red);">Сбросить всё</button>
+        <!-- Кнопка генерации -->
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="neon-btn btn-purple" onclick="generateStudentFile()" style="font-size: 1.2rem; padding: 15px 40px;">
+                СГЕНЕРИРОВАТЬ КОД УРОКА (Скачать HTML)
+            </button>
         </div>
     </div>
 
-    <!-- РЕЖИМ СГЕНЕРИРОВАННОГО ВАРИАНТА (ДЛЯ ПЕЧАТИ/РЕШЕНИЯ) -->
-    <div id="generated-view" class="paper-box">
-        <button class="print-btn" onclick="window.print()">🖨 Печать (PDF)</button>
-        <button class="print-btn" style="margin-right: 10px;" onclick="backToEditor()">🔙 Назад в архив</button>
+
+    <!-- ИНТЕРФЕЙС УЧЕНИКА (КИБЕР-ЛИНГВИСТА) -->
+    <div id="student-panel" class="hidden">
         
-        <h1 style="text-align: center; border-bottom: 2px solid #000; margin-bottom: 30px;">ЭКЗАМЕНАЦИОННЫЙ ВАРИАНТ</h1>
-        <div id="generated-content">
-            <!-- Сюда попадут выбранные задания -->
+        <div class="game-status">
+            <div>
+                <h3>Статус: <span style="color: var(--neon-blue)">Синхронизация</span></h3>
+                <p>Оператор: Кибер-Лингвист</p>
+            </div>
+            <div>
+                <p style="margin-bottom: 5px;">Целостность данных:</p>
+                <div class="health-bar-container">
+                    <div id="health-bar" class="health-bar"></div>
+                </div>
+            </div>
         </div>
+
+        <!-- Меню выбора миссий -->
+        <div id="mission-select" class="grid-menu">
+            <!-- Кнопки миссий появятся здесь -->
+        </div>
+
+        <!-- Игровая зона Орфографии -->
+        <div id="game-ortho" class="glass-panel hidden">
+            <h3 class="section-title">Протокол: Восстановление кластеров (Орфография)</h3>
+            <p style="margin-bottom: 20px;">Вставьте корректные символы в поврежденные сектора данных:</p>
+            <div id="ortho-words-container" style="line-height: 2.5; font-size: 1.5rem;">
+                <!-- Слова генерируются JS -->
+            </div>
+            <button class="neon-btn" onclick="returnToMenu()" style="margin-top: 20px;">Назад в терминал</button>
+        </div>
+
+        <!-- Игровая зона Комплексного текста -->
+        <div id="game-complex" class="glass-panel hidden">
+            <h3 class="section-title">Протокол: Дешифровка логов (Текст)</h3>
+            <div style="background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; border-left: 2px solid var(--neon-blue); margin-bottom: 20px;">
+                <p id="complex-text-display" style="font-size: 1.1rem; line-height: 1.6;"></p>
+            </div>
+            <p id="complex-task-display" style="color: var(--neon-purple); font-weight: bold; margin-bottom: 10px; font-size: 1.2rem;"></p>
+            <textarea rows="4" placeholder="Введите ответ системы..."></textarea>
+            <button class="neon-btn btn-purple" onclick="alert('Данные отправлены Архитектору!'); returnToMenu()">Отправить данные</button>
+            <button class="neon-btn" onclick="returnToMenu()">Назад в терминал</button>
+        </div>
+
     </div>
+</div>
 
-    <script>
-        // БАЗА ДАННЫХ ЗАДАНИЙ (На основе предоставленного PDF Демо 2026)
-        const commonText1_3 = `<b>(1)</b> В Россию пришёл Пушкинский праздник... Время неумолимо, но Александр Сергеевич, как и сама Россия, был, есть и будет нашей духовной сущностью на все времена. Думаю, что для поэта, живущего вне времени, не было привычного нам понятия прошлого и будущего: прошлое жило в нём, в настоящем жил он сам, будущее прозревал его гений.<br>
-        <b>(2)</b> Пушкин для нас есть сама Россия, сама русская душа – загадочная и непонятная. Он искал национальный характер, прозревая будущее. В его стихотворении «Странник» удивительным и непостижимым образом угадывается характер Льва Николаевича Толстого, появление которого Пушкин предчувствовал. Случайность? Совпадение? Нет! Это гениальное прозрение.<br>
-        <b>(3)</b> Пушкин – явление национальное мирового масштаба. Языки, судьбы и характеры народов подобны рекам, опоясывающим планету. Пушкин мог войти в любую из этих рек, не рассыпаясь по дну мелкой галькой, а растворившись в реке, &lt;…&gt; становился вселенским потоком.`;
+<script>
+    // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ УЧЕНИКА ===
+    let health = 100;
+    
+    // === ДАННЫЕ УРОКА (Заполняются учителем или при загрузке) ===
+    let lessonData = {
+        ortho: "",
+        complexText: "",
+        complexTask: ""
+    };
 
-        const tasksDB = {
-            1: {
-                title: 'Задание 1. Текст и местоимение',
-                instruction: 'Прочитайте текст и выполните задания 1-3.',
-                generalText: commonText1_3,
-                taskText: 'Самостоятельно подберите <b>определительное местоимение</b>, которое должно стоять на месте пропуска в третьем (3) абзаце текста. Запишите это местоимение.',
-                answer: ['сам', 'весь'], // Допустимые варианты
-                type: 'input'
-            },
-            2: {
-                title: 'Задание 2. Лексическое значение',
-                instruction: 'Прочитайте текст и выполните задания 1-3.',
-                generalText: commonText1_3,
-                taskText: 'Укажите варианты ответов, в которых лексическое значение выделенного слова соответствует его значению в данном тексте.<br>1) ПРИЙТИ. Достичь чего-либо...<br>2) ДУХОВНЫЙ. Относящийся к религии...<br>3) ХАРАКТЕР. Сильная воля...<br>4) ПРОЗРЕНИЕ. Внезапное просветление мысли.<br>5) КРОВЬ. Происхождение.',
-                answer: ['45', '54'],
-                type: 'input'
-            },
-            4: {
-                title: 'Задание 4. Орфоэпические нормы (ударение)',
-                taskText: 'Укажите варианты ответов, в которых верно выделена буква, обозначающая ударный гласный звук. Запишите номера ответов.<br><br>1) ногтЕй<br>2) кремЕнь<br>3) нОвостей<br>4) туфлЯ<br>5) приручЁнный',
-                answer: ['125', '152', '215', '251', '512', '521'],
-                type: 'input'
-            },
-            6: {
-                title: 'Задание 6. Лексические нормы',
-                taskText: 'Отредактируйте предложение: исправьте лексическую ошибку, <b>исключив лишнее слово</b>. Выпишите это слово.<br><br><i>Посев семян хвойных пород необходимо проводить в <b>очень оптимальные</b> сроки, когда почва влажная и температура её верхних слоёв достигает 6–8 °С.</i>',
-                answer: ['очень'],
-                type: 'input'
-            },
-            27: {
-                title: 'Задание 27. Сочинение',
-                instruction: 'Прочитайте текст К.Я. Ваншенкина (о службе в армии) и выполните задание.',
-                taskText: 'Напишите сочинение-рассуждение по проблеме, поставленной в исходном тексте: <b>«Какой опыт приобретает молодой человек, служа в армии?»</b>.<br><br>Сформулируйте позицию автора. Прокомментируйте, приведите два примера-иллюстрации. Сформулируйте и обоснуйте своё отношение (не менее 150 слов).',
-                type: 'essay'
-            }
-        };
+    // Проверка: мы сейчас в режиме создателя или ученика?
+    // (Если в HTML есть мета-тэг student-mode, значит это сгенерированный файл)
+    window.onload = function() {
+        if (document.getElementById('is-student-mode')) {
+            // Это сгенерированный файл для ученика
+            document.getElementById('teacher-panel').remove();
+            document.getElementById('student-panel').classList.remove('hidden');
+            loadStudentMissions();
+        }
+    };
 
-        // Заполняем остальные задания заглушками для полноты списка (до 27)
-        for (let i = 1; i <= 27; i++) {
-            if (!tasksDB[i]) {
-                tasksDB[i] = {
-                    title: `Задание ${i}. Типовое задание ФИПИ`,
-                    taskText: `Здесь располагается формулировка задания №${i} согласно спецификации КИМ ЕГЭ. Вставьте пропущенные буквы, раскройте скобки или выберите правильный вариант ответа.`,
-                    answer: ['123'],
-                    type: 'input'
-                };
-            }
+    // === ФУНКЦИИ УЧИТЕЛЯ (ГЕНЕРАТОР HTML) ===
+    function generateStudentFile() {
+        // Собираем данные
+        lessonData.ortho = document.getElementById('input-ortho').value;
+        lessonData.complexText = document.getElementById('input-complex').value;
+        lessonData.complexTask = document.getElementById('input-complex-task').value;
+
+        if(!lessonData.ortho && !lessonData.complexText) {
+            alert("Пожалуйста, заполните хотя бы один раздел!");
+            return;
         }
 
-        // ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА
-        document.addEventListener('DOMContentLoaded', () => {
-            const tasksContainer = document.getElementById('tasks-container');
-            const qtyContainer = document.getElementById('quantity-container');
+        // Клонируем текущий документ, чтобы создать файл для скачивания
+        let htmlContent = document.documentElement.outerHTML;
+        
+        // Внедряем данные внутрь скрипта для скачиваемого файла
+        let dataScript = `
+            <meta id="is-student-mode" content="true">
+            <script>
+                lessonData = ${JSON.stringify(lessonData)};
+            <\/script>
+        `;
+        
+        htmlContent = htmlContent.replace('<head>', '<head>' + dataScript);
 
-            for (let i = 1; i <= 27; i++) {
-                const task = tasksDB[i];
+        // Создаем файл и скачиваем
+        let blob = new Blob([htmlContent], {type: "text/html;charset=utf-8"});
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = "Cyber_Lingua_Lesson.html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // === ФУНКЦИИ УЧЕНИКА (ИГРА) ===
+    
+    function loadStudentMissions() {
+        const menu = document.getElementById('mission-select');
+        menu.innerHTML = "";
+
+        if (lessonData.ortho.trim() !== "") {
+            menu.innerHTML += `
+                <div class="glass-panel" style="text-align: center; cursor: pointer;" onclick="openMission('ortho')">
+                    <h2 style="color: var(--neon-blue); margin-bottom: 10px;">ОРФОГРАФИЯ</h2>
+                    <p>Восстановление кластеров</p>
+                    <div style="margin-top: 15px; font-size: 2rem;">🧩</div>
+                </div>
+            `;
+        }
+        
+        if (lessonData.complexText.trim() !== "") {
+             menu.innerHTML += `
+                <div class="glass-panel" style="text-align: center; cursor: pointer;" onclick="openMission('complex')">
+                    <h2 style="color: var(--neon-purple); margin-bottom: 10px;">КОМПЛЕКС</h2>
+                    <p>Дешифровка логов</p>
+                    <div style="margin-top: 15px; font-size: 2rem;">📜</div>
+                </div>
+            `;
+        }
+    }
+
+    function openMission(type) {
+        document.getElementById('mission-select').classList.add('hidden');
+        
+        if (type === 'ortho') {
+            document.getElementById('game-ortho').classList.remove('hidden');
+            buildOrthoGame();
+        } else if (type === 'complex') {
+            document.getElementById('game-complex').classList.remove('hidden');
+            document.getElementById('complex-text-display').innerText = lessonData.complexText;
+            document.getElementById('complex-task-display').innerText = "> Задача: " + lessonData.complexTask;
+        }
+    }
+
+    function returnToMenu() {
+        document.getElementById('game-ortho').classList.add('hidden');
+        document.getElementById('game-complex').classList.add('hidden');
+        document.getElementById('mission-select').classList.remove('hidden');
+    }
+
+    function buildOrthoGame() {
+        const container = document.getElementById('ortho-words-container');
+        container.innerHTML = "";
+        
+        // Парсим слова учителя (к[о]рова, м[о]локо)
+        let words = lessonData.ortho.split(/[\s,]+/);
+        
+        words.forEach(word => {
+            if(!word) return;
+            
+            // Ищем конструкцию [буква]
+            let match = word.match(/\[(.)\]/i);
+            
+            if (match) {
+                let correctLetter = match[1].toLowerCase();
+                let before = word.substring(0, match.index);
+                let after = word.substring(match.index + 3);
                 
-                // 1. Создаем аккордеоны для левой колонки
-                let contentHtml = '';
-                if (task.instruction) contentHtml += `<div style="font-weight:bold; margin-bottom:10px;">${task.instruction}</div>`;
-                if (task.generalText) contentHtml += `<div class="general-text">${task.generalText}</div>`;
-                contentHtml += `<div>${task.taskText}</div>`;
-
-                let inputArea = '';
-                if (task.type === 'input') {
-                    // Передаем ответ в функцию проверки как JSON строку
-                    const answersJson = JSON.stringify(task.answer).replace(/"/g, '&quot;');
-                    inputArea = `
-                        <div style="margin-top: 15px;">
-                            <label>Ответ: </label>
-                            <input type="text" id="ans-editor-${i}" placeholder="Введите ответ...">
-                            <button class="check-btn" onclick="checkAnswer(${i}, '${answersJson}')">Проверить</button>
-                            <span class="result-stamp" id="res-editor-${i}"></span>
-                        </div>
-                    `;
-                } else if (task.type === 'essay') {
-                    inputArea = `
-                        <div style="margin-top: 15px;">
-                            <textarea rows="6" style="width:100%; border:1px solid #bda88a; padding:10px; font-family:var(--font-typewriter);" placeholder="Черновик для сочинения..."></textarea>
-                        </div>
-                    `;
-                }
-
-                tasksContainer.innerHTML += `
-                    <details>
-                        <summary>${task.title}</summary>
-                        <div class="task-content">
-                            ${contentHtml}
-                            ${inputArea}
-                        </div>
-                    </details>
+                let wordWrapper = document.createElement('span');
+                wordWrapper.style.marginRight = "20px";
+                
+                wordWrapper.innerHTML = `
+                    ${before}
+                    <input type="text" maxlength="1" class="word-gap" data-answer="${correctLetter}">
+                    ${after}
                 `;
-
-                // 2. Создаем поля количества для правой колонки
-                qtyContainer.innerHTML += `
-                    <div class="qty-row">
-                        <label>Задание ${i}</label>
-                        <input type="number" id="qty-${i}" value="0" min="0" max="10">
-                    </div>
-                `;
+                container.appendChild(wordWrapper);
             }
         });
 
-        // ПРОВЕРКА ОТВЕТА В РЕДАКТОРЕ
-        function checkAnswer(taskId, validAnswersStr) {
-            const inputEl = document.getElementById(`ans-editor-${taskId}`);
-            const resultEl = document.getElementById(`res-editor-${taskId}`);
-            const userVal = inputEl.value.trim().toLowerCase().replace(/\s+/g, ''); // убираем пробелы
-            
-            const validAnswers = JSON.parse(validAnswersStr.replace(/&quot;/g, '"'));
-            
-            // Проверяем, есть ли ответ пользователя в массиве правильных ответов
-            let isCorrect = false;
-            for(let ans of validAnswers) {
-                if(userVal === ans.toLowerCase().replace(/\s+/g, '')) {
-                    isCorrect = true; break;
-                }
-            }
-
-            if (isCorrect) {
-                resultEl.textContent = "ВЕРНО";
-                resultEl.className = "result-stamp correct";
-            } else {
-                resultEl.textContent = "ОШИБКА";
-                resultEl.className = "result-stamp incorrect";
-            }
-        }
-
-        // СБРОС КОЛИЧЕСТВ
-        function resetQuantities() {
-            for (let i = 1; i <= 27; i++) {
-                document.getElementById(`qty-${i}`).value = 0;
-            }
-        }
-
-        // ГЕНЕРАЦИЯ ВАРИАНТА ДЛЯ ПЕЧАТИ
-        function generateVariant() {
-            const generatedContent = document.getElementById('generated-content');
-            generatedContent.innerHTML = '';
-            let totalTasksAdded = 0;
-            let currentTaskNum = 1; // Сквозная нумерация в сгенерированном варианте
-
-            for (let i = 1; i <= 27; i++) {
-                const qty = parseInt(document.getElementById(`qty-${i}`).value) || 0;
+        // Добавляем логику проверки
+        document.querySelectorAll('.word-gap').forEach(input => {
+            input.addEventListener('input', function() {
+                let val = this.value.toLowerCase();
+                let correct = this.getAttribute('data-answer');
                 
-                for(let j = 0; j < qty; j++) {
-                    const task = tasksDB[i];
-                    let html = `<div style="margin-bottom: 40px; page-break-inside: avoid;">`;
-                    
-                    html += `<h3 style="font-family: var(--font-heading);">Задание № ${currentTaskNum} (Тип ${i})</h3>`;
-                    
-                    if (task.instruction) html += `<p><b>${task.instruction}</b></p>`;
-                    if (task.generalText) html += `<div class="general-text" style="font-size:0.9em;">${task.generalText}</div>`;
-                    
-                    html += `<p>${task.taskText}</p>`;
-                    
-                    if(task.type === 'input') {
-                        html += `<div style="margin-top: 20px;">Ответ: _______________________</div>`;
-                    } else {
-                        html += `<div style="margin-top: 20px; border: 1px dashed #000; height: 300px; padding: 10px; color: #999;">Место для написания ответа...</div>`;
-                    }
-                    
-                    html += `</div>`;
-                    generatedContent.innerHTML += html;
-                    
-                    totalTasksAdded++;
-                    currentTaskNum++;
+                if (val === correct) {
+                    this.classList.remove('error');
+                    this.classList.add('correct');
+                    this.blur(); // убираем фокус
+                } else if (val !== "") {
+                    this.classList.add('error');
+                    takeDamage();
+                    setTimeout(() => { this.value = ""; this.classList.remove('error'); }, 500);
                 }
-            }
+            });
+        });
+    }
 
-            if (totalTasksAdded === 0) {
-                alert("Пожалуйста, укажите количество заданий в Конструкторе справа.");
-                return;
-            }
-
-            // Переключаем виды
-            document.getElementById('editor-view').style.display = 'none';
-            document.getElementById('generated-view').style.display = 'block';
+    function takeDamage() {
+        health -= 10;
+        if (health < 0) health = 0;
+        
+        let bar = document.getElementById('health-bar');
+        bar.style.width = health + "%";
+        
+        if (health <= 50) bar.style.background = "var(--neon-purple)";
+        if (health <= 20) bar.style.background = "var(--neon-red)";
+        
+        if (health === 0) {
+            alert("КРИТИЧЕСКИЙ СБОЙ СИСТЕМЫ! Данные утеряны.");
+            health = 100;
+            bar.style.width = "100%";
+            bar.style.background = "var(--neon-blue)";
         }
-
-        // ВОЗВРАТ В РЕДАКТОР
-        function backToEditor() {
-            document.getElementById('editor-view').style.display = 'grid';
-            document.getElementById('generated-view').style.display = 'none';
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
