@@ -4,82 +4,113 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Лаборатория русского языка</title>
+
+<!-- Точка внедрения данных (для скачанного файла) -->
+<script id="injection-point">window.INJECTED_TASKS = [];</script>
+
+<!-- Скрипт мгновенного переключения режима (убирает мигание экранов) -->
+<script>
+  if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) {
+    document.documentElement.classList.add('mode-student');
+  } else {
+    document.documentElement.classList.add('mode-teacher');
+  }
+</script>
+
 <style>
-  :root {--neon-blue: #00e5ff; --neon-cyan: #18d4ff; --neon-purple: #7b2ff7; --bg-dark: #050818; --panel: rgba(10,20,45,0.75)}
-  * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Trebuchet MS', sans-serif}
-  body {background: radial-gradient(circle at 20% 10%, rgba(123,47,247,.25), transparent 40%), radial-gradient(circle at 80% 90%, rgba(0,229,255,.20), transparent 40%), #050818; color: #dff6ff; min-height: 100vh; overflow-x: hidden}
+  :root {--neon-blue: #00e5ff; --neon-cyan: #18d4ff; --neon-purple: #7b2ff7; --bg-dark: #050818; --panel: rgba(10,20,45,0.85)}
+  * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Trebuchet MS', sans-serif;}
   
-  header {text-align: center; padding: 30px 20px 20px}
-  h1.logo {font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); animation: pulse 2s infinite ease-in-out}
-  @keyframes pulse {0%{transform:scale(1);text-shadow:0 0 10px var(--neon-blue),0 0 20px var(--neon-cyan)} 50%{transform:scale(1.03);text-shadow:0 0 20px var(--neon-blue),0 0 40px var(--neon-purple),0 0 60px var(--neon-cyan)} 100%{transform:scale(1);text-shadow:0 0 10px var(--neon-blue),0 0 20px var(--neon-cyan)}}
-  .subtitle {color: var(--neon-cyan); margin-top: 8px; font-size: 0.9rem; letter-spacing: 1.5px; opacity: 0.8}
-  
-  .btn {background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-cyan); padding: 14px 28px; margin: 8px; border-radius: 14px; font-size: 1rem; cursor: pointer; letter-spacing: 1px; transition: .3s; box-shadow: 0 0 6px var(--neon-blue), inset 0 0 6px rgba(0,229,255,.3); text-shadow: 0 0 6px var(--neon-blue)}
-  .btn:hover {background: rgba(0,229,255,.15); box-shadow: 0 0 18px var(--neon-blue), inset 0 0 12px var(--neon-blue); transform: translateY(-3px)}
-  .btn.small {padding: 8px 16px; font-size: 0.85rem}
-  .btn.inline {padding: 4px 10px; margin: 0 4px; border-radius: 8px; font-size: 1rem;}
-  
-  /* Контейнер расширен для комфорта на ПК */
-  .container {max-width: 1200px; margin: 0 auto; padding: 0 20px;}
-  
-  .grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin: 20px 0;}
-  .card {background: var(--panel); border: 1px solid rgba(0,229,255,.4); border-radius: 18px; padding: 22px; backdrop-filter: blur(6px); box-shadow: 0 0 14px rgba(0,229,255,.25); transition: .3s; cursor: pointer; text-align: center;}
-  .card:hover {box-shadow: 0 0 26px rgba(0,229,255,.5); transform: scale(1.03)}
-  .card h3 {color: #fff; text-shadow: 0 0 8px var(--neon-blue); margin-bottom: 8px; font-size: 1.2rem}
-  .card p {font-size: 0.9rem; color: #a9d8e8; line-height: 1.4}
-  .card .icon {font-size: 2.8rem; margin-bottom: 8px}
-  
-  /* Скрываем экраны по умолчанию, чтобы не было "мелькания" */
-  .screen {display: none;}
-  .screen.active {display: block; animation: fadeIn .5s}
-  @keyframes fadeIn {from{opacity: 0; transform: translateY(10px)} to{opacity: 1; transform: translateY(0)}}
-  
-  .hud {display: flex; justify-content: center; gap: 24px; align-items: center; margin: 15px auto; flex-wrap: wrap}
-  .tube {width: 24px; height: 70px; border: 2px solid var(--neon-cyan); border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 0 10px var(--neon-cyan)}
-  .tube .liquid {position: absolute; bottom: 0; width: 100%; height: 0%; background: linear-gradient(var(--neon-blue), var(--neon-purple)); transition: height .5s; box-shadow: 0 0 12px var(--neon-blue)}
-  .energy {font-size: 1.1rem; color: #fff; text-shadow: 0 0 8px var(--neon-blue)}
-  #timer {color: #ff5b7f; text-shadow: 0 0 8px #ff5b7f}
-  
-  textarea, input, select {width: 100%; background: rgba(5,10,30,.8); border: 1px solid var(--neon-blue); color: #dff6ff; padding: 14px; border-radius: 10px; margin: 8px 0; font-size: 1rem; box-shadow: inset 0 0 6px rgba(0,229,255,.3)}
-  textarea:focus, input:focus, select:focus {outline: none; box-shadow: 0 0 12px var(--neon-blue)}
-  label {display: block; margin-top: 16px; color: var(--neon-cyan); font-size: 1rem; font-weight: bold;}
-  
-  .task-box {background: var(--panel); border: 1px solid rgba(0,229,255,.4); border-radius: 16px; padding: 30px; margin: 16px 0; box-shadow: 0 0 14px rgba(0,229,255,.2)}
-  .word-slot {display: inline-block; background: rgba(0,229,255,.1); border: 1px dashed var(--neon-cyan); padding: 10px 18px; margin: 8px; border-radius: 8px; font-size: 1.3rem; letter-spacing: 1px}
-  .feedback {margin-top: 16px; font-size: 1.1rem; font-weight: bold; min-height: 28px; text-align: center;}
-  .correct {color: #0f6; text-shadow: 0 0 8px #0f6} 
-  .wrong {color: #f36; text-shadow: 0 0 8px #f36}
-  
-  footer {text-align: center; padding: 40px 20px; color: #6b8baf; font-size: 0.8rem; line-height: 1.6}
-  
-  .badge {display: inline-block; background: rgba(0,229,255,.1); border: 1px solid var(--neon-cyan); border-radius: 20px; padding: 8px 16px; margin: 6px; font-size: 0.9rem; opacity: 0.35; transition: .3s}
-  .badge.unlocked {opacity: 1; box-shadow: 0 0 12px var(--neon-blue); animation: pop .5s}
-  @keyframes pop {0%{transform:scale(.5)} 60%{transform:scale(1.2)} 100%{transform:scale(1)}}
-  .toast {position: fixed; top: 20px; right: 20px; background: var(--panel); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 14px 20px; box-shadow: 0 0 20px var(--neon-blue); z-index: 99; animation: slideIn .4s; color: #fff}
-  @keyframes slideIn {from{transform:translateX(120%)} to{transform:translateX(0)}}
-  
-  .task-list {list-style: none; margin: 14px 0}
-  .task-list li {background: rgba(0,229,255,.08); border: 1px solid rgba(0,229,255,.3); border-radius: 10px; padding: 12px 16px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;}
-  .task-list li span {color: #dff6ff; font-size: 1.05rem;}
-  .task-list li button {background: transparent; border: 1px solid #f36; color: #f36; border-radius: 8px; padding: 6px 12px; cursor: pointer}
-  
-  .progress-bar {height: 8px; background: rgba(0,229,255,.15); border-radius: 4px; overflow: hidden; margin: 15px 0}
-  .progress-bar div {height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); width: 0%; transition: width .4s}
+  body {
+    background: radial-gradient(circle at 20% 10%, rgba(123,47,247,.25), transparent 40%), 
+                radial-gradient(circle at 80% 90%, rgba(0,229,255,.20), transparent 40%), 
+                #050818;
+    color: #dff6ff; 
+    min-height: 100vh; 
+    overflow-x: hidden;
+  }
 
-  /* ═══ Титульный экран ученика ═══ */
-  #title {text-align: center; padding: 20px}
-  .title-inner {max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;}
-  .title-logo {font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 12px var(--neon-blue), 0 0 24px var(--neon-purple); margin-bottom: 6px; animation: pulse 2.5s infinite ease-in-out}
-  .title-sub {color: var(--neon-cyan); font-size: 1rem; letter-spacing: 2px; opacity: .85; margin-bottom: 24px}
-  
-  .hero-stage {display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; width: 100%;}
-  .hero-stage img {max-width: 100%; width: 600px; height: auto; border-radius: 20px; border: 2px solid rgba(0,229,255,.5); box-shadow: 0 0 30px rgba(0,229,255,.4); object-fit: contain;}
-  .play-btn {font-size: 1.6rem; padding: 16px 50px; background: rgba(5,10,30,.8); border-width: 3px;}
+  /* Скрытие элементов в зависимости от режима */
+  .mode-student #menu, .mode-student #teacher { display: none !important; }
+  .mode-student header { display: none !important; }
+  .mode-teacher #title, .mode-teacher #sections, .mode-teacher #student { display: none !important; }
 
-  /* Скрывать лишнее в режиме ученика */
-  body.student-mode-active #menu, 
-  body.student-mode-active #teacher,
-  body.student-mode-active header {display: none !important}
+  header { text-align: center; padding: 40px 20px 20px; }
+  h1.logo { font-size: 3rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); animation: pulse 2s infinite ease-in-out; }
+  @keyframes pulse { 
+    0% { transform: scale(1); text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-cyan); } 
+    50% { transform: scale(1.02); text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-purple); } 
+    100% { transform: scale(1); text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-cyan); } 
+  }
+  .subtitle { color: var(--neon-cyan); margin-top: 8px; font-size: 0.95rem; letter-spacing: 1.5px; opacity: .8; text-transform: uppercase;}
+  
+  .btn { background: rgba(5,10,30,.6); border: 2px solid var(--neon-blue); color: var(--neon-cyan); padding: 14px 28px; margin: 8px; border-radius: 14px; font-size: 1.1rem; cursor: pointer; letter-spacing: 1px; transition: .3s; box-shadow: 0 0 8px rgba(0,229,255,.4); text-shadow: 0 0 6px var(--neon-blue); }
+  .btn:hover { background: rgba(0,229,255,.15); box-shadow: 0 0 20px var(--neon-blue); transform: translateY(-3px); }
+  .btn.small { padding: 8px 16px; font-size: 0.9rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+  .card { background: var(--panel); border: 1px solid rgba(0,229,255,.4); border-radius: 18px; padding: 25px; backdrop-filter: blur(8px); box-shadow: 0 0 15px rgba(0,229,255,.2); transition: .3s; cursor: pointer; text-align: center;}
+  .card:hover { box-shadow: 0 0 30px rgba(0,229,255,.5); transform: scale(1.03); border-color: var(--neon-blue);}
+  .card h3 { color: #fff; text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 10px; font-size: 1.3rem; }
+  .card p { font-size: 0.95rem; color: #a9d8e8; line-height: 1.5; }
+  .card .icon { font-size: 3rem; margin-bottom: 12px; }
+  
+  .screen { display: none; max-width: 1200px; margin: 0 auto; padding: 20px; animation: fadeIn .5s; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+  
+  .hud { display: flex; justify-content: center; gap: 30px; align-items: center; margin: 20px auto 10px; flex-wrap: wrap; background: rgba(0,0,0,0.3); padding: 10px 30px; border-radius: 20px; border: 1px solid rgba(0,229,255,.2); max-width: max-content;}
+  .tube { width: 24px; height: 70px; border: 2px solid var(--neon-cyan); border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 0 10px var(--neon-cyan); background: rgba(0,0,0,0.5);}
+  .tube .liquid { position: absolute; bottom: 0; width: 100%; height: 0%; background: linear-gradient(to top, var(--neon-blue), var(--neon-purple)); transition: height .5s; box-shadow: 0 0 15px var(--neon-blue); }
+  .energy { font-size: 1.2rem; color: #fff; text-shadow: 0 0 8px var(--neon-blue); font-weight: bold;}
+  #timer { color: #ff5b7f; text-shadow: 0 0 8px #ff5b7f; }
+  
+  textarea, input, select { width: 100%; background: rgba(5,10,30,.8); border: 1px solid var(--neon-blue); color: #dff6ff; padding: 14px; border-radius: 12px; margin: 8px 0 16px 0; font-size: 1.05rem; box-sizing: border-box; }
+  textarea:focus, input:focus, select:focus { outline: none; box-shadow: 0 0 15px var(--neon-blue); background: rgba(10,20,50,.9);}
+  label { display: block; margin-top: 10px; color: var(--neon-cyan); font-size: 0.95rem; font-weight: bold;}
+  
+  .task-box { background: var(--panel); border: 1px solid rgba(0,229,255,.4); border-radius: 20px; padding: 30px; margin: 20px 0; box-shadow: 0 0 20px rgba(0,229,255,.15); }
+  
+  .word-slot input { background: rgba(0,229,255,.1); border: 2px dashed var(--neon-cyan); text-transform: lowercase; font-weight: bold; margin: 0 5px;}
+  .feedback { margin-top: 15px; font-weight: bold; font-size: 1.2rem; min-height: 28px; }
+  .correct { color: #0f6; text-shadow: 0 0 10px #0f6; animation: pop .4s;}
+  .wrong { color: #f36; text-shadow: 0 0 10px #f36; animation: shake .4s;}
+  
+  @keyframes shake { 0%, 100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  
+  footer { text-align: center; padding: 40px 20px; color: #6b8baf; font-size: 0.85rem; line-height: 1.6; }
+  
+  .badge { display: inline-block; background: rgba(0,229,255,.1); border: 1px solid var(--neon-cyan); border-radius: 20px; padding: 8px 16px; margin: 8px; font-size: 0.95rem; opacity: .35; transition: .3s; }
+  .badge.unlocked { opacity: 1; box-shadow: 0 0 15px var(--neon-blue); animation: pop .5s; background: rgba(0,229,255,.25);}
+  @keyframes pop { 0% { transform: scale(.5); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+  
+  .toast { position: fixed; top: 20px; right: 20px; background: var(--panel); border: 2px solid var(--neon-cyan); border-radius: 12px; padding: 15px 25px; box-shadow: 0 0 20px var(--neon-blue); z-index: 99; animation: slideIn .4s; color: #fff; font-size: 1.1rem;}
+  @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+  
+  .task-list { list-style: none; margin: 15px 0; }
+  .task-list li { background: rgba(0,229,255,.08); border: 1px solid rgba(0,229,255,.3); border-radius: 12px; padding: 12px 18px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; font-size: 1.05rem;}
+  .task-list li span { color: #dff6ff; }
+  .task-list li button { background: rgba(255, 51, 102, 0.2); border: 1px solid #f36; color: #f36; border-radius: 8px; padding: 6px 14px; cursor: pointer; transition: .3s;}
+  .task-list li button:hover { background: #f36; color: #fff; box-shadow: 0 0 10px #f36;}
+  
+  .progress-bar { height: 12px; background: rgba(0,229,255,.15); border-radius: 6px; overflow: hidden; margin: 15px 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
+  .progress-bar div { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); width: 0%; transition: width .4s ease-out; box-shadow: 0 0 10px var(--neon-blue);}
+
+  /* ═══ ТИТУЛЬНЫЙ ЭКРАН УЧЕНИКА ═══ */
+  #title { text-align: center; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; min-height: 80vh;}
+  .title-logo { font-size: 3.5rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-purple); margin-bottom: 10px; animation: pulse 2.5s infinite ease-in-out; }
+  .title-sub { color: var(--neon-cyan); font-size: 1.1rem; letter-spacing: 2px; opacity: .85; margin-bottom: 40px; text-transform: uppercase;}
+  
+  .hero-stage { display: flex; flex-direction: column; align-items: center; gap: 30px; width: 100%; max-width: 800px; margin: 0 auto;}
+  .hero-stage img { width: 100%; max-width: 600px; height: auto; border-radius: 20px; border: 2px solid rgba(0,229,255,.5); box-shadow: 0 0 40px rgba(0,229,255,.3); object-fit: cover;}
+  .play-btn { font-size: 1.8rem; padding: 20px 60px; border-radius: 20px; font-weight: bold;}
+
+  @media (max-width: 768px) {
+    h1.logo, .title-logo { font-size: 2.2rem; }
+    .card h3 { font-size: 1.1rem; }
+    .hud { gap: 15px; }
+  }
 </style>
 </head>
 <body>
@@ -103,142 +134,138 @@
     <p class="title-sub">Битва за грамотность</p>
     <div class="hero-stage">
       <img src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" alt="Герои">
-      <button class="btn play-btn" onclick="goToSections()">▶ Играть</button>
+      <button class="btn play-btn" onclick="goToClasses()">▶ Играть</button>
     </div>
   </div>
 </section>
 
 <!-- ═══ ГЛАВНОЕ МЕНЮ (для учителя) ═══ -->
-<section class="screen" id="menu">
-  <div class="container">
-    <div class="grid">
-      <div class="card" onclick="show('teacher')">
-        <div class="icon">👨‍🔬</div>
-        <h3>Режим учителя</h3>
-        <p>Собери урок по классам и скачай файл</p>
-      </div>
-      <div class="card" onclick="show('achieveScreen');renderBadges()">
-        <div class="icon">🏆</div>
-        <h3>Достижения</h3>
-        <p>Твои открытые мутации знаний</p>
-      </div>
+<section class="screen active" id="menu">
+  <div class="grid">
+    <div class="card" onclick="show('teacher')">
+      <div class="icon">👨‍🔬</div>
+      <h3>Режим учителя</h3>
+      <p>Создать урок, темы и скачать игру</p>
+    </div>
+    <div class="card" onclick="show('achieveScreen');renderBadges()">
+      <div class="icon">🏆</div>
+      <h3>Достижения</h3>
+      <p>Смотреть открытые мутации знаний</p>
     </div>
   </div>
 </section>
 
-<!-- ═══ КОНСТРУКТОР (для учителя) ═══ -->
+<!-- ═══ РЕДАКТОР УЧИТЕЛЯ ═══ -->
 <section class="screen" id="teacher">
-  <div class="container">
-    <button class="btn small" onclick="show('menu')">⬅ Назад</button>
-    <h2 style="text-align:center; color:#fff; text-shadow:0 0 10px var(--neon-blue); margin:20px 0;">Конструктор урока</h2>
+  <button class="btn small" onclick="show('menu')">⬅ Назад в меню</button>
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;">Конструктор урока</h2>
+  
+  <div class="task-box" style="max-width: 800px; margin: 0 auto;">
+    <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">1. Создание задания</h3>
     
-    <div class="task-box">
-      <h3 style="color:var(--neon-cyan); margin-bottom: 10px;">Добавить задание</h3>
+    <label>🎓 Выберите класс:</label>
+    <select id="fClass">
+      <option value="5">5 класс</option>
+      <option value="6">6 класс</option>
+      <option value="7">7 класс</option>
+      <option value="8">8 класс</option>
+      <option value="9">9 класс</option>
+      <option value="10">10 класс</option>
+      <option value="11">11 класс</option>
+    </select>
+
+    <label>📝 Название темы:</label>
+    <input type="text" id="fTheme" placeholder="Например: Правописание чередующихся гласных">
+
+    <label>⚙️ Тип задания:</label>
+    <select id="fType" onchange="toggleTypeFields()">
+      <option value="input">✏️ Ввод ответа (пропущенные буквы)</option>
+      <option value="choice">🎯 Выбор из нескольких вариантов</option>
+    </select>
+
+    <!-- Поля для ввода ответа (массовое добавление) -->
+    <div id="typeInputWrap">
+      <label>Слова для отработки (каждое с новой строки). Букву для пропуска берите в [квадратные скобки]:<br>
+        <span style="font-size:0.85rem; font-weight:normal; color:#a9d8e8;">Пример: к[о]рова<br>с[о]бака</span>
+      </label>
+      <textarea id="fDataInput" rows="6" placeholder="к[о]рова&#10;с[о]бака"></textarea>
+    </div>
+
+    <!-- Поля для выбора вариантов -->
+    <div id="typeChoiceWrap" style="display:none;">
+      <label>Слово с пропуском или вопрос:</label>
+      <input type="text" id="fDataChoice" placeholder="Например: в..негрет">
       
-      <label>1. Выбери класс:</label>
-      <select id="tGrade">
-        <option value="5 класс">5 класс</option>
-        <option value="6 класс">6 класс</option>
-        <option value="7 класс">7 класс</option>
-        <option value="8 класс">8 класс</option>
-        <option value="9 класс">9 класс</option>
-        <option value="10 класс">10 класс</option>
-        <option value="11 класс">11 класс</option>
-      </select>
-
-      <label>2. Название темы:</label>
-      <input type="text" id="tTopic" placeholder="Например: Чередующиеся гласные в корне">
-
-      <label>3. Формат ответа ученика:</label>
-      <select id="tType" onchange="updateHelpText()">
-        <option value="input">Печатать букву вручную</option>
-        <option value="choice">Выбирать из вариантов (кнопки)</option>
-      </select>
-
-      <label>4. Слова для отработки (каждое с новой строки):</label>
-      <div id="helpText" style="font-size: 0.9rem; color: #a9d8e8; margin-bottom: 8px;">
-        Выделите пропущенную букву в квадратные скобки. Пример: <b>к[о]рова</b>
-      </div>
-      <textarea id="tData" rows="6" placeholder="к[о]рова&#10;с[о]бака"></textarea>
-
-      <label>5. Таймер на всё задание (сек, 0 = без таймера):</label>
-      <input type="number" id="tTimer" value="0" style="max-width:150px">
-
-      <div style="margin-top: 20px;">
-        <button class="btn" onclick="addTaskToLesson()">➕ Добавить задание</button>
-      </div>
+      <label>Правильный ответ:</label>
+      <input type="text" id="fAnsRight" placeholder="Например: и">
+      
+      <label>Неправильные ответы (через запятую):</label>
+      <input type="text" id="fAnsWrong" placeholder="Например: е, а, о">
     </div>
 
-    <div class="task-box">
-      <h3 style="color:#fff; text-shadow:0 0 8px var(--neon-blue)">📋 Готовые задания (<span id="taskCount">0</span>)</h3>
-      <ul class="task-list" id="lessonList"></ul>
-      <button class="btn" style="margin-top: 15px; width: 100%; font-size: 1.1rem;" onclick="buildHTMLFile()">💾 Скачать готовую игру для учеников</button>
-      <div id="linkResult"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ ВЫБОР КЛАССА (для ученика) ═══ -->
-<section class="screen" id="sections">
-  <div class="container">
-    <div class="hud" id="studentHud" style="margin-bottom: 30px;">
-      <div class="energy">⚡ <span id="energy-s">0</span></div>
-      <div class="tube"><div class="liquid" id="tube-s"></div></div>
-      <div class="energy">🔥 <span id="combo-s">0</span></div>
-      <div class="energy">⏱️ <span id="timer-s">—</span></div>
-    </div>
+    <label style="margin-top: 15px;">⏱️ Таймер на задание (секунды, 0 = без таймера):</label>
+    <input type="number" id="fTimer" value="0" style="max-width:150px">
     
-    <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:16px">🎓 Выбери свой класс</h2>
-    <div class="grid" id="gradeGrid"></div>
+    <button class="btn" style="width: 100%; margin: 15px 0 0 0;" onclick="addTaskToLesson()">➕ Добавить в урок</button>
+  </div>
+
+  <div class="task-box" style="max-width: 800px; margin: 20px auto;">
+    <h3 style="color:#fff;text-shadow:0 0 8px var(--neon-blue); font-size: 1.4rem;">📋 Готовые задания (<span id="taskCount">0</span>)</h3>
+    <ul class="task-list" id="lessonList"></ul>
+    
+    <button class="btn" style="width: 100%; font-size: 1.2rem; padding: 18px; margin-top: 20px;" onclick="buildHTMLFile()">💾 Скачать игру для учеников</button>
+    <div id="linkResult" style="text-align: center;"></div>
   </div>
 </section>
 
-<!-- ═══ ЭКРАН ВЫПОЛНЕНИЯ ЗАДАНИЯ ═══ -->
+<!-- ═══ ЭКРАН ВЫБОРА КЛАССОВ (для ученика) ═══ -->
+<section class="screen" id="classesScreen">
+  <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+    <div class="hud" style="margin: 0;">
+      <div class="energy">⚡ <span id="energyHudClasses">0</span></div>
+    </div>
+    <button class="btn small" onclick="show('achieveScreen');renderBadges()">🏆 Мои достижения</button>
+  </div>
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 15px var(--neon-blue);margin:30px 0; font-size: 2.5rem;">🧪 Выбери свой класс</h2>
+  <div class="grid" id="classGrid"></div>
+</section>
+
+<!-- ═══ ТРЕНАЖЁР УЧЕНИКА ═══ -->
 <section class="screen" id="student">
-  <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <button class="btn small" onclick="backToSections()">⬅ К классам</button>
-      <h2 style="color:#fff; text-shadow:0 0 10px var(--neon-blue)" id="studentTitle">Класс</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <button class="btn small" onclick="backToClasses()">⬅ К классам</button>
+    <div class="hud" style="margin: 0;">
+      <div class="energy">⚡ <span id="energyHudStudent">0</span></div>
+      <div class="energy">🔥 <span id="comboHudStudent">0</span></div>
+      <div class="energy">⏱️ <span id="timerStudent">—</span></div>
     </div>
-    
-    <div class="progress-bar"><div id="lessonProgress"></div></div>
-    <p style="text-align:center; color:var(--neon-cyan); margin-bottom: 10px;">Задание <span id="curNum">1</span> из <span id="totNum">1</span></p>
-    
-    <div id="studentArea"></div>
-    <div style="text-align:center; margin-top: 20px;" id="navBtns"></div>
   </div>
+  
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 1.8rem;" id="studentTitle">🎓 Тренажёр</h2>
+  
+  <div class="progress-bar"><div id="lessonProgress"></div></div>
+  <p style="text-align:center;color:var(--neon-cyan); font-size: 1.1rem; margin-bottom: 20px;">Задание <span id="curNum" style="color:#fff; font-weight:bold;">1</span> из <span id="totNum" style="color:#fff; font-weight:bold;">1</span></p>
+  
+  <div id="studentArea" style="max-width: 800px; margin: 0 auto;"></div>
+  
+  <div style="text-align:center; margin-top: 30px;" id="navBtns"></div>
 </section>
 
-<!-- ═══ ДОСТИЖЕНИЯ ═══ -->
+<!-- ═══ ЭКРАН ДОСТИЖЕНИЙ ═══ -->
 <section class="screen" id="achieveScreen">
-  <div class="container">
-    <button class="btn small" onclick="show('menu')">⬅ Назад</button>
-    <h2 style="text-align:center; color:#fff; text-shadow:0 0 10px var(--neon-blue); margin:16px">🏆 Достижения</h2>
-    <div class="task-box" id="badgeList" style="text-align:center"></div>
-    <div style="text-align:center"><button class="btn small" onclick="resetProgress()">🗑️ Сбросить прогресс</button></div>
-  </div>
+  <button class="btn small" onclick="goBackFromAchieve()">⬅ Назад</button>
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;">🏆 Твои мутации знаний</h2>
+  <div class="task-box" id="badgeList" style="text-align:center; max-width: 800px; margin: 0 auto;"></div>
+  <div style="text-align:center; margin-top: 30px;"><button class="btn small" onclick="resetProgress()">🗑️ Сбросить прогресс</button></div>
 </section>
 
 <footer>
-  <div class="container">
-    <p>© Все права защищены и принадлежат автору приложения Гальмиз Марии Александровне.</p>
-    <p style="color:var(--neon-blue); margin-top:5px;">Сообщество в Вк «Креативные уроки»</p>
-  </div>
+  <p>© Все права защищены и принадлежат автору приложения Гальмиз Марии Александровне.</p>
+  <p style="color:var(--neon-blue);margin-top:5px;">Сообщество в Вк «Креативные уроки»</p>
 </footer>
 
 <script>
-// --- ИНИЦИАЛИЗАЦИЯ И СКРЫТИЕ ЭКРАНОВ ---
-window.addEventListener('DOMContentLoaded', () => {
-  if (window.INJECTED_TASKS && Array.isArray(window.INJECTED_TASKS) && window.INJECTED_TASKS.length > 0) {
-    ALL_TASKS = window.INJECTED_TASKS;
-    document.body.classList.add('student-mode-active');
-    buildGrades(ALL_TASKS);
-    show('title'); 
-  } else {
-    show('menu');
-  }
-});
-
+// --- Базовая навигация ---
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -246,330 +273,486 @@ function show(id) {
   stopTimer();
 }
 
-// --- ЗВУК И ИНТЕРФЕЙС (HUD) ---
-let soundOn=true, audioCtx=null;
-function toggleSound(){soundOn=!soundOn; document.getElementById('soundBtn').classList.toggle('on',soundOn); document.getElementById('soundBtn').textContent=soundOn?'🔊 Звук':'🔇 Выкл';}
-function beep(freq,dur,type='sine'){if(!soundOn)return;if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(.15,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.start();o.stop(audioCtx.currentTime+dur);}
-const sndOK=()=>{beep(660,.12);setTimeout(()=>beep(880,.15),90)};
-const sndBad=()=>beep(160,.3,'sawtooth');
-const sndWin=()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.2),i*100))};
+function goBackFromAchieve() {
+  if (document.documentElement.classList.contains('mode-student')) {
+    show('classesScreen');
+  } else {
+    show('menu');
+  }
+}
 
+// --- Звуки ---
+let soundOn = true, audioCtx = null;
+function toggleSound() {
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').classList.toggle('on', soundOn);
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊 Звук' : '🔇 Выкл';
+}
+function beep(freq, dur, type = 'sine') {
+  if (!soundOn) return;
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq;
+  o.connect(g); g.connect(audioCtx.destination);
+  g.gain.setValueAtTime(.15, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + dur);
+  o.start(); o.stop(audioCtx.currentTime + dur);
+}
+const sndOK = () => { beep(660, .12); setTimeout(() => beep(880, .15), 90) };
+const sndBad = () => beep(160, .3, 'sawtooth');
+const sndWin = () => { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, .2), i * 100)) };
+
+// --- Прогресс и сохранения ---
 let state = JSON.parse(localStorage.getItem('nr_state') || '{}');
 let energy = state.energy || 0, combo = 0, totalCorrect = state.totalCorrect || 0;
 let achievements = state.achievements || {};
 
-function saveState() { localStorage.setItem('nr_state', JSON.stringify({energy, totalCorrect, achievements})); }
+function saveState() { localStorage.setItem('nr_state', JSON.stringify({ energy, totalCorrect, achievements })); }
+
 function updateHUD() {
-  // Для учителя
-  if(document.getElementById('energy')) {
-    document.getElementById('energy').textContent = energy;
-    document.getElementById('combo').textContent = combo;
-    document.getElementById('tube').style.height = Math.min(100, energy/2) + '%';
-  }
-  // Для ученика (второй комплект ID, чтобы работало при скрытом хидере)
-  if(document.getElementById('energy-s')) {
-    document.getElementById('energy-s').textContent = energy;
-    document.getElementById('combo-s').textContent = combo;
-    document.getElementById('tube-s').style.height = Math.min(100, energy/2) + '%';
-  }
+  const eStr = energy.toString();
+  const cStr = combo.toString();
+  // Обновляем шапку (если видна)
+  document.getElementById('energy').textContent = eStr;
+  document.getElementById('combo').textContent = cStr;
+  document.getElementById('tube').style.height = Math.min(100, energy / 2) + '%';
+  
+  // Обновляем HUD ученика на экранах классов и тренажера
+  if(document.getElementById('energyHudClasses')) document.getElementById('energyHudClasses').textContent = eStr;
+  if(document.getElementById('energyHudStudent')) document.getElementById('energyHudStudent').textContent = eStr;
+  if(document.getElementById('comboHudStudent')) document.getElementById('comboHudStudent').textContent = cStr;
 }
-function addEnergy(n) { combo++; energy += n * combo; totalCorrect++; sndOK(); updateHUD(); saveState(); checkAchievements(); }
-function resetCombo() { combo = 0; updateHUD(); sndBad(); }
-updateHUD();
+
+function addEnergy(n) { 
+  combo++; 
+  energy += n * combo; 
+  totalCorrect++; 
+  sndOK(); 
+  updateHUD(); 
+  saveState(); 
+  checkAchievements(); 
+}
+
+function resetCombo() { 
+  combo = 0; 
+  updateHUD(); 
+  sndBad(); 
+}
 
 let lessonDone = false;
 const BADGES = [
-  {id:'first', name:'🧬 Первый эксперимент', cond:()=>totalCorrect>=1},
-  {id:'ten', name:'⚗️ 10 верных', cond:()=>totalCorrect>=10},
-  {id:'fifty', name:'🔬 50 верных', cond:()=>totalCorrect>=50},
-  {id:'combo5', name:'🔥 Комбо x5', cond:()=>combo>=5},
-  {id:'combo10', name:'💥 Комбо x10', cond:()=>combo>=10},
-  {id:'energy500', name:'⚡ 500 энергии', cond:()=>energy>=500},
-  {id:'lesson', name:'🎓 Урок пройден', cond:()=>lessonDone},
+  { id: 'first', name: '🧬 Первый эксперимент', cond: () => totalCorrect >= 1 },
+  { id: 'ten', name: '⚗️ 10 верных', cond: () => totalCorrect >= 10 },
+  { id: 'fifty', name: '🔬 50 верных', cond: () => totalCorrect >= 50 },
+  { id: 'combo5', name: '🔥 Комбо x5', cond: () => combo >= 5 },
+  { id: 'combo10', name: '💥 Комбо x10', cond: () => combo >= 10 },
+  { id: 'energy500', name: '⚡ 500 энергии', cond: () => energy >= 500 },
+  { id: 'lesson', name: '🎓 Урок пройден', cond: () => lessonDone },
 ];
-function checkAchievements() { BADGES.forEach(b=>{if(!achievements[b.id]&&b.cond()){achievements[b.id]=true;saveState();toast('🏆 Открыто достижение: '+b.name);sndWin();}}); }
-function toast(msg) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-function renderBadges() { document.getElementById('badgeList').innerHTML = BADGES.map(b=>`<span class="badge ${achievements[b.id]?'unlocked':''}">${b.name}</span>`).join(''); }
-function resetProgress() { if(confirm('Сбросить весь прогресс?')) { localStorage.removeItem('nr_state'); energy=0; combo=0; totalCorrect=0; achievements={}; updateHUD(); renderBadges(); } }
 
-let timerInt = null;
-function startTimer(sec) {
-  stopTimer();
-  let tUI = document.getElementById('timer-s');
-  if(!sec || sec <= 0) { tUI.textContent='—'; return; }
-  let t = sec; tUI.textContent = t;
-  timerInt = setInterval(() => {
-    t--; tUI.textContent = t;
-    if(t <= 0) { stopTimer(); toast('⏱️ Время вышло!'); sndBad(); }
-  }, 1000);
+function checkAchievements() {
+  BADGES.forEach(b => {
+    if (!achievements[b.id] && b.cond()) {
+      achievements[b.id] = true;
+      saveState();
+      toast('🏆 Открыто достижение: ' + b.name);
+      sndWin();
+    }
+  });
 }
-function stopTimer() { if(timerInt) { clearInterval(timerInt); timerInt=null; } }
 
-// --- ЛОГИКА УЧИТЕЛЯ ---
-let lesson = [];
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
 
-function updateHelpText() {
-  const type = document.getElementById('tType').value;
-  const help = document.getElementById('helpText');
-  if(type === 'input') {
-    help.innerHTML = "Выделите пропущенную букву в квадратные скобки.<br>Пример: <b>к[о]рова</b>";
-  } else {
-    help.innerHTML = "Напишите правильную букву первой, а варианты через слеш (/).<br>Пример: <b>к[о/а]рова</b> (программа сама перемешает кнопки).";
+function renderBadges() {
+  document.getElementById('badgeList').innerHTML = BADGES.map(b => `<span class="badge ${achievements[b.id] ? 'unlocked' : ''}">${b.name}</span>`).join('');
+}
+
+function resetProgress() {
+  if (confirm('Сбросить весь прогресс (энергию и достижения)?')) {
+    localStorage.removeItem('nr_state');
+    energy = 0; combo = 0; totalCorrect = 0; achievements = {};
+    updateHUD(); renderBadges();
   }
 }
 
-function addTaskToLesson() {
-  const grade = document.getElementById('tGrade').value;
-  const topic = document.getElementById('tTopic').value.trim();
-  const type = document.getElementById('tType').value;
-  const data = document.getElementById('tData').value.trim();
-  const timer = parseInt(document.getElementById('tTimer').value) || 0;
-
-  if(!topic) return alert('Введите название темы!');
-  if(!data) return alert('Добавьте слова для задания!');
-
-  lesson.push({ grade, topic, type, data, timer });
-  renderLessonList();
+// --- Таймер ---
+let timerInt = null;
+function startTimer(sec) {
+  stopTimer();
+  const tEl1 = document.getElementById('timer');
+  const tEl2 = document.getElementById('timerStudent');
   
-  document.getElementById('tTopic').value = '';
-  document.getElementById('tData').value = '';
-  toast('➕ Задание для ' + grade + ' добавлено!');
+  if (!sec || sec <= 0) {
+    tEl1.textContent = '—'; tEl2.textContent = '—';
+    return;
+  }
+  let t = sec;
+  tEl1.textContent = t; tEl2.textContent = t;
+  
+  timerInt = setInterval(() => {
+    t--;
+    tEl1.textContent = t; tEl2.textContent = t;
+    if (t <= 0) {
+      stopTimer();
+      toast('⏱️ Время вышло!');
+      sndBad();
+      // Автоматически завершаем текущее задание как неверное, если это инпут
+      resetCombo();
+    }
+  }, 1000);
+}
+function stopTimer() {
+  if (timerInt) { clearInterval(timerInt); timerInt = null; }
+}
+
+// ==========================================
+//           ЛОГИКА УЧИТЕЛЯ
+// ==========================================
+let lesson = [];
+
+function toggleTypeFields() {
+  const type = document.getElementById('fType').value;
+  document.getElementById('typeInputWrap').style.display = type === 'input' ? 'block' : 'none';
+  document.getElementById('typeChoiceWrap').style.display = type === 'choice' ? 'block' : 'none';
+}
+
+function addTaskToLesson() {
+  const classLvl = document.getElementById('fClass').value;
+  const theme = document.getElementById('fTheme').value.trim() || 'Без темы';
+  const type = document.getElementById('fType').value;
+  const timer = parseInt(document.getElementById('fTimer').value) || 0;
+
+  if (type === 'input') {
+    const data = document.getElementById('fDataInput').value.trim();
+    if (!data) return alert('Введите слова с пропущенными буквами!');
+    
+    // Разбиваем по строкам, чтобы добавить сразу несколько слов
+    const words = data.split('\n').filter(w => w.trim());
+    let addedCount = 0;
+    words.forEach(w => {
+      // Проверка правильности формата (наличие квадратных скобок)
+      if (w.includes('[') && w.includes(']')) {
+        lesson.push({ classLvl, theme, type, d: w.trim(), timer });
+        addedCount++;
+      }
+    });
+    
+    if (addedCount === 0) {
+      return alert('Не найдено слов с квадратными скобками [ ] !');
+    }
+    toast(`➕ Добавлено слов: ${addedCount}`);
+    document.getElementById('fDataInput').value = '';
+
+  } else if (type === 'choice') {
+    const q = document.getElementById('fDataChoice').value.trim();
+    const right = document.getElementById('fAnsRight').value.trim();
+    const wrong = document.getElementById('fAnsWrong').value.trim();
+    
+    if (!q || !right || !wrong) return alert('Заполните все поля для теста!');
+    
+    lesson.push({ classLvl, theme, type, q, right, wrong, timer });
+    toast('➕ Задание добавлено!');
+    
+    document.getElementById('fDataChoice').value = '';
+    document.getElementById('fAnsRight').value = '';
+    document.getElementById('fAnsWrong').value = '';
+  }
+  
+  renderLessonList();
 }
 
 function renderLessonList() {
   document.getElementById('taskCount').textContent = lesson.length;
   const ul = document.getElementById('lessonList');
   ul.innerHTML = lesson.map((t, i) => {
-    let typeName = t.type === 'input' ? '⌨️ Ввод' : '🔘 Выбор';
+    let preview = t.type === 'input' ? t.d : t.q;
+    let typeName = t.type === 'input' ? 'Ввод' : 'Тест';
     return `<li>
-      <div>
-        <strong>${t.grade}</strong> | Тема: <em>${t.topic}</em><br>
-        <span style="font-size:0.85rem; color:#a9d8e8">${typeName} | Слов: ${t.data.split('\n').length}</span>
-      </div>
-      <button onclick="removeTask(${i})">✕ Удалить</button>
+      <span><b>${t.classLvl} кл.</b> [${typeName}] — ${preview.substring(0, 30)}${preview.length > 30 ? '…' : ''}</span>
+      <button onclick="removeTask(${i})">✕</button>
     </li>`;
   }).join('');
 }
 
-function removeTask(i) { lesson.splice(i, 1); renderLessonList(); }
+function removeTask(i) {
+  lesson.splice(i, 1);
+  renderLessonList();
+}
 
 function buildHTMLFile() {
-  if(lesson.length === 0) return alert('Добавь хотя бы одно задание в урок!');
+  if (lesson.length === 0) {
+    alert('Добавьте хотя бы одно задание перед скачиванием!');
+    return;
+  }
 
   const tasksJSON = JSON.stringify(lesson);
   let baseHtml = document.documentElement.outerHTML;
-  let injectedScript = '<script>window.INJECTED_TASKS = ' + tasksJSON + ';<\/script>';
 
-  let newHtml;
-  if(baseHtml.indexOf('</head>') !== -1) {
-    newHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + baseHtml.replace('</head>', injectedScript + '\n</head>');
-  } else {
-    newHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + injectedScript + baseHtml;
-  }
+  // Ищем точку внедрения и заменяем её
+  let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};<\/script>`;
+  let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<script id="injection-point">.*?<\/script>/, injectionString);
 
   const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'Игра_Грамотность.html';
+  a.download = 'Тренажер_Битва_за_грамотность.html';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  document.getElementById('linkResult').innerHTML = `<p style="margin-top:14px;color:#0f6;">✅ Файл скачан! Отправь этот HTML-файл ученикам.</p>`;
+  document.getElementById('linkResult').innerHTML = `<p style="margin-top:20px;color:#0f6; font-size:1.1rem;">✅ Файл успешно скачан! Отправьте его ученикам.</p>`;
 }
 
-// --- ЛОГИКА УЧЕНИКА ---
-let ALL_TASKS = [];      
-let gradesMap = {};       
-let studentLesson = [], curIdx = 0, currentGrade = null;
+// ==========================================
+//           ЛОГИКА УЧЕНИКА
+// ==========================================
 
-function goToSections() { show('sections'); }
+let classesMap = {}; // { "5": [задания], "6": [задания] ... }
+let currentClassTasks = [];
+let curIdx = 0;
+let currentClassLvl = null;
 
-function buildGrades(tasks) {
-  gradesMap = {};
-  // Группируем задания по классам
+function goToClasses() {
+  show('classesScreen');
+}
+
+function buildClassesList(tasks) {
+  classesMap = {};
   tasks.forEach(t => {
-    if(!gradesMap[t.grade]) gradesMap[t.grade] = [];
-    gradesMap[t.grade].push(t);
+    if (!classesMap[t.classLvl]) classesMap[t.classLvl] = [];
+    classesMap[t.classLvl].push(t);
   });
-  
-  const grid = document.getElementById('gradeGrid');
-  const classOrder = ['5 класс', '6 класс', '7 класс', '8 класс', '9 класс', '10 класс', '11 класс'];
-  
+
+  const grid = document.getElementById('classGrid');
   let html = '';
-  classOrder.forEach(gr => {
-    if(gradesMap[gr] && gradesMap[gr].length > 0) {
-      let topicsCount = gradesMap[gr].length;
-      html += `<div class="card" onclick="startGrade('${gr}')">
-        <div class="icon">🎒</div>
-        <h3>${gr}</h3>
-        <p>Заданий (тем): ${topicsCount}</p>
-      </div>`;
-    }
+  
+  // Сортируем классы по возрастанию (5, 6, 7...)
+  const sortedLevels = Object.keys(classesMap).sort((a, b) => parseInt(a) - parseInt(b));
+  
+  sortedLevels.forEach(lvl => {
+    // Собираем уникальные темы для этого класса
+    const uniqueThemes = [...new Set(classesMap[lvl].map(t => t.theme))].join(' • ');
+    const count = classesMap[lvl].length;
+    
+    html += `
+      <div class="card" onclick="startClass('${lvl}')">
+        <div class="icon">🏫</div>
+        <h3 style="font-size: 1.8rem; margin-bottom: 15px;">${lvl} класс</h3>
+        <p style="color: var(--neon-cyan); font-weight: bold; margin-bottom: 10px;">Темы:</p>
+        <p style="font-style: italic;">${uniqueThemes}</p>
+        <p style="margin-top: 15px; color: #fff; background: rgba(0,229,255,.2); border-radius: 10px; padding: 5px;">Заданий: <b>${count}</b></p>
+      </div>
+    `;
   });
-  grid.innerHTML = html || '<p style="text-align:center; color:#a9d8e8">Заданий пока нет.</p>';
+  
+  grid.innerHTML = html || '<p style="text-align:center;color:#a9d8e8;grid-column: 1/-1;">Заданий пока нет.</p>';
 }
 
-function startGrade(grade) {
-  currentGrade = grade;
-  studentLesson = gradesMap[grade];
-  curIdx = 0; lessonDone = false;
+function startClass(lvl) {
+  currentClassLvl = lvl;
+  currentClassTasks = classesMap[lvl];
+  // Перемешиваем задания внутри класса, чтобы было интереснее
+  currentClassTasks.sort(() => Math.random() - 0.5);
+  curIdx = 0; 
+  lessonDone = false;
   
-  document.getElementById('studentTitle').textContent = grade;
-  document.getElementById('totNum').textContent = studentLesson.length;
+  document.getElementById('studentTitle').textContent = `🏫 ${lvl} класс`;
+  document.getElementById('totNum').textContent = currentClassTasks.length;
   
   show('student');
-  renderCurrentTask();
+  renderCurrentStudentTask();
 }
 
-function backToSections() {
+function backToClasses() {
   stopTimer();
-  show('sections');
+  show('classesScreen');
 }
 
-function renderCurrentTask() {
+function renderCurrentStudentTask() {
   combo = 0; updateHUD();
-  const task = studentLesson[curIdx];
+  const task = currentClassTasks[curIdx];
   
   document.getElementById('curNum').textContent = curIdx + 1;
-  document.getElementById('lessonProgress').style.width = (curIdx / studentLesson.length * 100) + '%';
+  document.getElementById('lessonProgress').style.width = ((curIdx) / currentClassTasks.length * 100) + '%';
   
-  const area = document.getElementById('studentArea');
+  const area = document.getElementById('studentArea'); 
+  area.innerHTML = '';
   
   if (task.type === 'input') {
-    renderInputTask(task, area);
+    renderTaskInput(task, area);
   } else if (task.type === 'choice') {
-    renderChoiceTask(task, area);
+    renderTaskChoice(task, area);
   }
   
   startTimer(task.timer);
-  renderNavButtons();
+  renderNavButtons(false);
 }
 
-function renderNavButtons() {
-  const nav = document.getElementById('navBtns');
+function renderNavButtons(taskCompleted) {
+  const nav = document.getElementById('navBtns'); 
   let html = '';
-  if(curIdx > 0) html += `<button class="btn small" onclick="prevTask()">⬅ Назад</button>`;
-  if(curIdx < studentLesson.length - 1) html += `<button class="btn" onclick="nextTask()">Далее ➡</button>`;
-  else html += `<button class="btn" onclick="finishLesson()">🏁 Завершить класс</button>`;
+  
+  if (curIdx < currentClassTasks.length - 1) {
+    html += `<button class="btn" id="nextBtn" onclick="nextTask()" ${!taskCompleted ? 'disabled' : ''}>Далее ➡</button>`;
+  } else {
+    html += `<button class="btn" id="finishBtn" onclick="finishClass()" ${!taskCompleted ? 'disabled' : ''}>🏁 Завершить тренировку</button>`;
+  }
   nav.innerHTML = html;
 }
 
-function nextTask() { if(curIdx < studentLesson.length - 1) { curIdx++; renderCurrentTask(); } }
-function prevTask() { if(curIdx > 0) { curIdx--; renderCurrentTask(); } }
+function nextTask() {
+  if (curIdx < currentClassTasks.length - 1) {
+    curIdx++;
+    renderCurrentStudentTask();
+  }
+}
 
-function finishLesson() {
-  stopTimer(); lessonDone = true; checkAchievements();
+function finishClass() {
+  stopTimer(); 
+  lessonDone = true; 
+  checkAchievements();
+  
   document.getElementById('lessonProgress').style.width = '100%';
   document.getElementById('studentArea').innerHTML = `
     <div class="task-box" style="text-align:center">
-      <h2 style="color:#fff; text-shadow:0 0 12px var(--neon-blue)">🏁 Все темы пройдены!</h2>
-      <p style="font-size:1.3rem; margin:16px">⚡ Итоговая энергия: <b>${energy}</b></p>
-      <div class="tube" style="width:60px; height:140px; margin:20px auto"><div class="liquid" style="height:100%"></div></div>
-      <p style="color:var(--neon-cyan)">Отличная работа! 🧪</p>
-      <button class="btn" onclick="startGrade(currentGrade)">🔄 Пройти заново</button>
-      <button class="btn" onclick="backToSections()">📚 К выбору класса</button>
-    </div>`;
+      <h2 style="color:#fff;text-shadow:0 0 20px var(--neon-blue); font-size: 2.2rem; margin-bottom:20px;">🏁 Тренировка завершена!</h2>
+      <div class="tube" style="width:80px;height:180px;margin:30px auto"><div class="liquid" style="height:100%"></div></div>
+      <p style="font-size:1.5rem;margin:20px">Накоплено энергии: <b style="color:var(--neon-blue); font-size: 2rem;">${energy}</b> ⚡</p>
+      <p style="color:var(--neon-cyan); font-size: 1.2rem; margin-bottom: 30px;">Мозг заряжен на 100%! Отличная работа!</p>
+      <button class="btn" onclick="startClass('${currentClassLvl}')">🔄 Пройти заново</button>
+      <button class="btn" onclick="backToClasses()">📚 Вернуться к классам</button>
+    </div>
+  `;
   document.getElementById('navBtns').innerHTML = ''; 
   sndWin();
 }
 
-// --- РЕНДЕР ТИПОВ ЗАДАНИЙ ---
+// --- Рендер задания типа ВВОД (input) ---
+function renderTaskInput(task, area) {
+  // task.d = "к[о]рова"
+  let match = task.d.match(/\[(.*?)\]/);
+  if (!match) return;
+  
+  let correctLetter = match[1];
+  let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" style="width: 60px; text-align: center; display: inline-block; font-size: 1.8rem; padding: 5px;" id="answerInput" autocomplete="off">`);
 
-// 1. Ввод ответа вручную (к[о]рова)
-function renderInputTask(task, area) {
-  let words = task.data.split('\n').filter(x => x.trim());
+  area.innerHTML = `
+    <div class="task-box" style="text-align:center;">
+      <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px;">📝 Тема: ${task.theme}</h3>
+      <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">Вставь пропущенную букву:</p>
+      <div class="word-slot" style="font-size:2.5rem; letter-spacing: 5px; margin-bottom: 20px;">
+        ${displayWord}
+      </div>
+      <div class="feedback" id="fb"></div>
+    </div>
+  `;
+
+  const inputEl = document.getElementById('answerInput');
+  inputEl.focus();
+  
+  inputEl.addEventListener('keyup', (e) => {
+    let val = inputEl.value.trim().toLowerCase();
+    let ans = correctLetter.trim().toLowerCase();
+    
+    if (val === ans) {
+      inputEl.style.color = '#0f6';
+      inputEl.style.borderColor = '#0f6';
+      inputEl.disabled = true;
+      document.getElementById('fb').innerHTML = '<span class="correct">🎉 Верно! Отличный нейронный импульс! ⚡</span>';
+      addEnergy(10);
+      stopTimer();
+      renderNavButtons(true); // Разблокируем кнопку "Далее"
+    } else if (val.length >= ans.length) {
+      inputEl.style.color = '#f36';
+      inputEl.style.borderColor = '#f36';
+      resetCombo();
+      // Очищаем через секунду для повторной попытки
+      setTimeout(() => {
+        if(!inputEl.disabled) {
+          inputEl.value = '';
+          inputEl.style.color = '';
+          inputEl.style.borderColor = '';
+        }
+      }, 800);
+    }
+  });
+}
+
+// --- Рендер задания типа ВЫБОР (choice) ---
+function renderTaskChoice(task, area) {
+  let wrongAnswers = task.wrong.split(',').map(x => x.trim()).filter(x => x);
+  let options = [...wrongAnswers, task.right];
+  // Перемешиваем варианты
+  options.sort(() => Math.random() - 0.5);
+
   let html = `
-    <div class="task-box">
-      <h3 style="color: var(--neon-cyan); margin-bottom: 5px;">📝 Тема: ${task.topic}</h3>
-      <p style="font-size: 0.95rem; margin-bottom: 20px;">Напечатай правильную букву в пропуск:</p>
+    <div class="task-box" style="text-align:center;">
+      <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px;">📝 Тема: ${task.theme}</h3>
+      <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">Выберите правильный вариант:</p>
+      <p style="font-size: 2.2rem; font-weight: bold; margin-bottom: 35px; letter-spacing: 2px;">${task.q}</p>
+      <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;" id="optionsContainer">
   `;
   
-  words.forEach(w => {
-    let m = w.match(/\[(.*?)\]/);
-    if(!m) return;
-    let correctLetter = m[1].trim();
-    let display = w.replace(/\[(.*?)\]/, `<input style="width:45px; text-align:center; display:inline; padding: 6px;" data-l="${correctLetter}" onkeyup="checkInputLetter(this)">`);
-    html += `<div class="word-slot">${display}</div>`;
+  options.forEach((opt, idx) => {
+    html += `<button class="btn" style="font-size: 1.5rem; min-width: 80px;" onclick="checkChoiceAnswer(this, '${opt}', '${task.right}')">${opt}</button>`;
   });
   
-  html += `<div class="feedback" id="fb"></div></div>`;
+  html += `</div><div class="feedback" id="fb" style="margin-top: 30px;"></div></div>`;
   area.innerHTML = html;
 }
 
-function checkInputLetter(el) {
-  if(el.value.toLowerCase() === el.dataset.l.toLowerCase()) {
-    el.style.color = '#0f6'; el.style.borderColor = '#0f6';
-    el.readOnly = true; // Блокируем после правильного ответа
-    if(!el.dataset.done) { el.dataset.done = 1; addEnergy(5); showCorrectFb(); }
-  } else if(el.value) {
-    el.style.color = '#f36'; el.style.borderColor = '#f36';
-    resetCombo();
-  }
-}
-
-// 2. Выбор из вариантов (к[о/а]рова)
-function renderChoiceTask(task, area) {
-  let words = task.data.split('\n').filter(x => x.trim());
-  let html = `
-    <div class="task-box">
-      <h3 style="color: var(--neon-cyan); margin-bottom: 5px;">🔘 Тема: ${task.topic}</h3>
-      <p style="font-size: 0.95rem; margin-bottom: 20px;">Выбери правильную букву:</p>
-  `;
-  
-  words.forEach((w, idx) => {
-    let m = w.match(/\[(.*?)\]/);
-    if(!m) return;
-    
-    // Разбиваем варианты по слешу
-    let opts = m[1].split('/').map(x => x.trim());
-    let correctLetter = opts[0]; // Первое всегда верное в формате учителя
-    
-    // Перемешиваем кнопки
-    let shuffled = [...opts].sort(() => Math.random() - 0.5);
-    
-    let btns = shuffled.map(o => 
-      `<button class="btn inline" onclick="checkChoiceBtn(this, '${correctLetter}', 'wrap${idx}')">${o}</button>`
-    ).join('');
-    
-    let display = w.replace(/\[(.*?)\]/, `<span id="wrap${idx}">${btns}</span>`);
-    html += `<div class="word-slot">${display}</div>`;
-  });
-  
-  html += `<div class="feedback" id="fb"></div></div>`;
-  area.innerHTML = html;
-}
-
-function checkChoiceBtn(btn, correct, wrapId) {
-  const wrap = document.getElementById(wrapId);
+function checkChoiceAnswer(btn, selected, correct) {
+  const container = document.getElementById('optionsContainer');
+  const buttons = container.querySelectorAll('button');
   const fb = document.getElementById('fb');
-  
-  if (btn.textContent.toLowerCase() === correct.toLowerCase()) {
-    // Верно
-    btn.style.background = 'rgba(0,255,100,.3)';
+
+  if (selected.toLowerCase() === correct.toLowerCase()) {
+    btn.style.background = 'rgba(0, 255, 100, 0.3)';
     btn.style.borderColor = '#0f6';
     btn.style.color = '#0f6';
+    btn.style.boxShadow = '0 0 20px #0f6';
+    fb.innerHTML = '<span class="correct">🎉 Идеально! ⚡</span>';
+    addEnergy(10);
+    stopTimer();
     
-    // Делаем кнопки некликабельными и заменяем на просто текст для красоты
-    wrap.innerHTML = `<span style="color:#0f6; font-weight:bold; text-decoration:underline;">${correct}</span>`;
-    
-    if(!wrap.dataset.done) { wrap.dataset.done = 1; addEnergy(5); showCorrectFb(); }
+    // Блокируем все кнопки
+    buttons.forEach(b => b.disabled = true);
+    renderNavButtons(true); // Разблокируем кнопку "Далее"
   } else {
-    // Неверно
-    btn.style.background = 'rgba(255,50,80,.3)';
+    btn.style.background = 'rgba(255, 51, 102, 0.3)';
     btn.style.borderColor = '#f36';
     btn.style.color = '#f36';
     resetCombo();
-    fb.innerHTML = '<span class="wrong">Ой, ошибка! Попробуй другой вариант. 🔄</span>';
+    fb.innerHTML = '<span class="wrong">Ошибка. Попробуй другой вариант! 🔄</span>';
+    
+    // Прячем неверную кнопку чтобы не мешала
+    setTimeout(() => { btn.style.display = 'none'; }, 600);
   }
 }
 
-function showCorrectFb() {
-  const fb = document.getElementById('fb');
-  if(fb) fb.innerHTML = '<span class="correct">Верно! ⚡</span>';
-}
+// ==========================================
+//                 ЗАПУСК
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+  updateHUD();
+  
+  // Если загружено с массивом заданий (режим ученика)
+  if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) {
+    buildClassesList(window.INJECTED_TASKS);
+    show('title');
+  } else {
+    // Режим учителя
+    show('menu');
+  }
+});
 </script>
 </body>
 </html>
