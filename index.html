@@ -74,7 +74,7 @@
   
   .task-box { background: var(--panel); border: 1px solid rgba(0,229,255,.4); border-radius: 20px; padding: 30px; margin: 20px 0; box-shadow: 0 0 20px rgba(0,229,255,.15); }
   
-  .word-slot input { background: rgba(0,229,255,.1); border: 2px dashed var(--neon-cyan); text-transform: lowercase; font-weight: bold; margin: 0 5px; text-align: center;}
+  .word-slot input { background: rgba(0,229,255,.1); border: 2px dashed var(--neon-cyan); text-transform: lowercase; font-weight: bold; margin: 0 5px;}
   .feedback { margin-top: 15px; font-weight: bold; font-size: 1.2rem; min-height: 28px; }
   .correct { color: #0f6; text-shadow: 0 0 10px #0f6; animation: pop .4s;}
   .wrong { color: #f36; text-shadow: 0 0 10px #f36; animation: shake .4s;}
@@ -725,7 +725,7 @@ function renderTaskInput(task, area) {
   if (!match) return;
   
   let correctLetter = match[1];
-  currentCorrectAnswer = correctLetter; 
+  currentCorrectAnswer = correctLetter; // Сохраняем глобально для таймера
   
   let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" style="width: 60px; text-align: center; display: inline-block; font-size: 1.8rem; padding: 5px;" id="answerInput" autocomplete="off">`);
 
@@ -754,7 +754,7 @@ function renderTaskInput(task, area) {
       document.getElementById('fb').innerHTML = '<span class="correct">🎉 Верно! Отличный нейронный импульс! ⚡</span>';
       addEnergy(10);
       stopTimer();
-      renderNavButtons(true); 
+      renderNavButtons(true); // Разблокируем кнопку "Далее"
     } else if (val.length >= ans.length) {
       inputEl.style.color = '#f36';
       inputEl.style.borderColor = '#f36';
@@ -762,24 +762,22 @@ function renderTaskInput(task, area) {
       resetCombo();
       document.getElementById('fb').innerHTML = '<span class="wrong">Ошибка. Правильный ответ: <b>' + ans + '</b></span>';
       stopTimer();
-      renderNavButtons(true);
+      renderNavButtons(true); // Разблокируем кнопку "Далее"
     }
   });
 }
 
 // --- Рендер задания типа ВЫБОР (choice) ---
 function renderTaskChoice(task, area) {
-  let options = task.wrong.split(',').map(s => s.trim());
-  options.push(task.right.trim());
+  currentCorrectAnswer = task.right;
+  let options = [task.right, ...task.wrong.split(',').map(s => s.trim())];
   options.sort(() => Math.random() - 0.5); // Перемешиваем варианты
-
-  currentCorrectAnswer = task.right.trim();
 
   let html = `
     <div class="task-box" style="text-align:center;">
       <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px;">📝 Тема: ${task.theme}</h3>
-      <p style="font-size: 1.5rem; color: #fff; margin-bottom: 30px; letter-spacing: 2px;">${task.q}</p>
-      <div id="optionsContainer" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+      <p style="font-size: 1.8rem; margin-bottom: 30px;">${task.q}</p>
+      <div id="optionsContainer" style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
   `;
 
   options.forEach(opt => {
@@ -806,7 +804,7 @@ function checkChoiceAnswer(btn, selected, correct) {
     
     // Блокируем все кнопки
     buttons.forEach(b => b.disabled = true);
-    renderNavButtons(true); 
+    renderNavButtons(true); // Разблокируем кнопку "Далее"
   } else {
     btn.style.background = 'rgba(255, 51, 102, 0.3)';
     btn.style.borderColor = '#f36';
@@ -823,7 +821,7 @@ function checkChoiceAnswer(btn, selected, correct) {
       }
     });
     stopTimer();
-    renderNavButtons(true); 
+    renderNavButtons(true); // Разблокируем кнопку "Далее"
   }
 }
 
