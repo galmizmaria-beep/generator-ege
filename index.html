@@ -73,9 +73,6 @@
   .task-list li button{background:transparent;border:1px solid #f36;color:#f36;border-radius:8px;padding:4px 10px;cursor:pointer}
   .progress-bar{height:8px;background:rgba(0,229,255,.15);border-radius:4px;overflow:hidden;margin:10px 0}
   .progress-bar div{height:100%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));width:0%;transition:width .4s}
-  
-  /* Скрывать лишнее в режиме ученика */
-  .student-mode-active #menu, .student-mode-active #teacher { display: none !important; }
 </style>
 </head>
 <body>
@@ -151,7 +148,8 @@
 <script>
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
   window.scrollTo(0,0);
   stopTimer();
 }
@@ -198,7 +196,12 @@ function showTeacherType(type){
   document.getElementById('teacherFieldsWrap').style.display='block';
   const forms={
     orf:`<h3>✏️ Орфография</h3><label>Слова, буква в [ ], каждое с новой строки. Пример: <b>к[о]рова</b></label><textarea id="fData" rows="5" placeholder="к[о]рова&#10;с[о]бака"></textarea>`,
-    punct:`<h3>❗ Пунктуация</h3><label>Предложение,>Текст:</label><textarea id="fData" rows="3" placeholder="Вставь текст..."></textarea><label>Вопросы: вопрос|ответ (с новой строки)</label><textarea id="fQ" rows="3" placeholder="Тема текста?|осень"></textarea>`
+    punct:`<h3>❗ Пунктуация</h3><label>Предложение, пропуск = ¤</label><textarea id="fData" rows="3" placeholder="Здравствуй¤ друг¤"></textarea><label>Знаки через запятую:</label><input id="fAns" placeholder=", !">`,
+    trop:`<h3>🎭 Ср-ва выразительности</h3><label>Цитата:</label><textarea id="fData" rows="2"></textarea><label>Правильный троп:</label><select id="fAns"><option>Метафора</option><option>Эпитет</option><option>Олицетворение</option><option>Сравнение</option><option>Гипербола</option><option>Метонимия</option></select>`,
+    basket:`<h3>🧺 Корзинки</h3><label>Названия корзинок через ; (пример: <b>О;А</b>)</label><input id="fCats" placeholder="О;А"><label>Слова: слово=корзинка, с новой строки. Пример: <b>вода=О</b></label><textarea id="fData" rows="5" placeholder="вода=О&#10;трава=А"></textarea>`,
+    scheme:`<h3>📐 Схема предложения</h3><label>Блоки через ; в правильном порядке</label><input id="fData" placeholder="Подлежащее;Сказуемое;Дополнение"><label>Предложение-подсказка:</label><input id="fHint" placeholder="Кошка ловит мышь">`,
+    pic:`<h3>🖼️ По картинке</h3><label>URL или emoji:</label><input id="fPic" placeholder="🐈 или https://..."><label>Ответ:</label><input id="fAns" placeholder="кошка"><label>Подсказка:</label><input id="fHint" placeholder="Кто изображён?">`,
+    complex:`<h3>📚 Комплексное повторение</h3><label>Текст:</label><textarea id="fData" rows="3" placeholder="Вставь текст..."></textarea><label>Вопросы: вопрос|ответ (с новой строки)</label><textarea id="fQ" rows="3" placeholder="Тема текста?|осень"></textarea>`
   };
   f.innerHTML=forms[type];
 }
@@ -243,19 +246,25 @@ function removeTask(i){lesson.splice(i,1);renderLessonList();}
 function buildHTMLFile(){
   if(lesson.length===0){alert('Добавь хотя бы одно задание!');return;}
   
-  // Кодируем данные в Base64, чтобы никакие спецсимволы не сломали скачанный файл
-  const tasksJSON = JSON.stringify(lesson);
-  const tasksB64 = btoa(unescape(encodeURIComponent(tasksJSON)));
+  // Надежно кодируем JSON (защита от спецсимволов и тегов script)
+  const jsonString = JSON.stringify(lesson).replace(/</g, '\\u003c');
+  const injectedHtml = `\n<script type="application/json" id="student-lesson-data">${jsonString}<\/script>\n`;
   
-  // Берем весь исходный код текущей страницы
-  let baseHtml = document.documentElement.outerHTML;
+  // Клонируем документ, чтобы "очистить" его от введенных учителем данных перед скачиванием
+  const clone = document.documentElement.cloneNode(true);
   
-  // Внедряем скрипт в самый конец страницы (надежнее всего)
-  let injectedScript = `\n<script id="injected-data">window.INJECTED_B64 = "${tasksB64}";<\/script>\n`;
-  let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<\/body>/i, injectedScript + '</body>');
+  // Сбрасываем интерфейс на клоне
+  clone.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  clone.getElementById('menu').classList.add('active'); 
+  clone.getElementById('lessonList').innerHTML = ''; 
+  clone.getElementById('taskCount').textContent = '0';
+  clone.getElementById('linkResult').innerHTML = '';
   
-  // Создаем файл для скачивания
-  const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
+  // Собираем итоговый HTML
+  let finalHtml = '<!DOCTYPE html>\n<html lang="ru">\n' + clone.outerHTML.replace(/<\/body>/i, injectedHtml + '</body>');
+  
+  // Скачиваем
+  const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -271,7 +280,6 @@ function buildHTMLFile(){
 /* ═══════════════ УЧЕНИК: ПРОХОЖДЕНИЕ УРОКА ═══════════════ */
 let studentLesson=[], curIdx=0;
 function startStudentMode(tasks){
-  document.body.classList.add('student-mode-active'); // Скрываем лишние меню
   studentLesson=tasks; curIdx=0; lessonDone=false;
   document.getElementById('totNum').textContent=tasks.length;
   show('student');
@@ -475,25 +483,31 @@ function checkComplex(i,correct){
 
 function fbOK(){const fb=document.getElementById('fb');if(fb)fb.innerHTML='<span class="correct">Верно! ⚡</span>';}
 
-/* Проверка: если файл скачан и в нем есть зашифрованные задания, сразу открываем тренажер */
-window.addEventListener('load',()=>{
-  if (window.INJECTED_B64) {
+/* ГЛАВНЫЙ ЗАПУСК: Проверяем, есть ли вшитые задания. Если есть — мы в файле ученика */
+window.addEventListener('load', () => {
+  const dataScript = document.getElementById('student-lesson-data');
+  if (dataScript) {
     try {
-      // Расшифровываем задания
-      const decoded = decodeURIComponent(escape(atob(window.INJECTED_B64)));
-      const tasks = JSON.parse(decoded);
+      const tasks = JSON.parse(dataScript.textContent);
       if (Array.isArray(tasks) && tasks.length > 0) {
+        
+        // ФИЗИЧЕСКИ ВЫРЕЗАЕМ МЕНЮ УЧИТЕЛЯ ИЗ ФАЙЛА УЧЕНИКА
+        const menuEl = document.getElementById('menu');
+        const teacherEl = document.getElementById('teacher');
+        if (menuEl) menuEl.remove();
+        if (teacherEl) teacherEl.remove();
+        
+        // Запускаем режим ученика
         startStudentMode(tasks);
-      } else {
-        show('menu');
+        return; // Останавливаем дальнейшее выполнение
       }
     } catch(e) {
       console.error('Ошибка загрузки заданий:', e);
-      show('menu');
     }
-  } else {
-    show('menu');
   }
+  
+  // Если мы дошли сюда, значит это оригинальный файл учителя
+  show('menu');
 });
 </script>
 </body>
