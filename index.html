@@ -33,7 +33,6 @@
   }
 
   /* Скрытие элементов в зависимости от режима */
-  /* ИСПРАВЛЕНИЕ: statsScreen убран из скрытия для ученика, чтобы учитель мог посмотреть статистику из скачанной игры */
   .mode-student #menu, .mode-student #teacher { display: none !important; }
   .mode-student header { display: none !important; }
   .mode-teacher #title, .mode-teacher #sections, .mode-teacher #student, .mode-teacher #themesScreen { display: none !important; }
@@ -107,6 +106,13 @@
   .modal-box p { color: #fff; font-size: 1.2rem; margin-bottom: 25px; text-shadow: 0 0 8px var(--neon-blue); line-height: 1.5; }
   .modal-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
 
+  /* Модальное окно редактирования раздела */
+  .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,8,24,0.95); z-index: 1001; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+  .edit-modal.active { display: flex; animation: fadeIn 0.3s; }
+  .edit-box { background: var(--panel); border: 2px solid var(--neon-cyan); border-radius: 18px; padding: 25px; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 30px var(--neon-blue); }
+  .task-edit-list { list-style: none; margin: 15px 0; padding: 0; }
+  .task-edit-list li { background: rgba(0,229,255,.08); border: 1px solid rgba(0,229,255,.3); padding: 10px; margin: 8px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: #fff; word-break: break-word; }
+
   /* ═══ ТИТУЛЬНЫЙ ЭКРАН УЧЕНИКА ═══ */
   #title { text-align: center; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; min-height: 80vh;}
   .title-logo { font-size: 3.5rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-purple); margin-bottom: 10px; animation: pulse 2.5s infinite ease-in-out; }
@@ -142,6 +148,38 @@
   <div class="modal-box">
     <p id="modalMessage"></p>
     <div class="modal-buttons" id="modalButtons"></div>
+  </div>
+</div>
+
+<!-- Модальное окно редактирования раздела -->
+<div id="editSectionModal" class="edit-modal">
+  <div class="edit-box">
+    <h3 style="color:#fff; text-align:center; margin-bottom: 20px; text-shadow:0 0 10px var(--neon-blue); font-size: 1.6rem;">✏️ Редактирование раздела</h3>
+    
+    <label>🎓 Класс:</label>
+    <select id="editClass">
+      <option value="5">5 класс</option>
+      <option value="6">6 класс</option>
+      <option value="7">7 класс</option>
+      <option value="8">8 класс</option>
+      <option value="9">9 класс</option>
+      <option value="10">10 класс</option>
+      <option value="11">11 класс</option>
+    </select>
+    
+    <label>📝 Тема:</label>
+    <input type="text" id="editTheme">
+    
+    <label>⏱️ Таймер (сек, 0 = без таймера):</label>
+    <input type="number" id="editTimer">
+    
+    <h4 style="color:var(--neon-cyan); margin-top:20px; font-size:1.1rem;">📋 Задания в этом разделе (можно удалить лишние):</h4>
+    <ul class="task-edit-list" id="editTaskList"></ul>
+    
+    <div style="text-align:center; margin-top:25px; display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+      <button class="btn small" style="border-color: #f36; color: #f36; background: rgba(255,51,102,0.1); box-shadow: none;" onclick="closeEditModal()">Отмена</button>
+      <button class="btn small" onclick="saveEditedSection()">💾 Сохранить изменения</button>
+    </div>
   </div>
 </div>
 
@@ -241,7 +279,6 @@
     <div class="hud" style="margin: 0;">
       <div class="energy">⚡ <span id="energyHudClasses">0</span></div>
     </div>
-    <!-- ИСПРАВЛЕНИЕ: Добавлена кнопка вызова статистики внутри скачанной игры -->
     <div>
       <button class="btn small" onclick="show('statsScreen');renderStats()">📊 Статистика</button>
       <button class="btn small" onclick="show('achieveScreen');renderBadges()">🏆 Мои достижения</button>
@@ -294,7 +331,6 @@
 
 <!-- ═══ ЭКРАН СТАТИСТИКИ УЧИТЕЛЯ ═══ -->
 <section class="screen" id="statsScreen">
-  <!-- ИСПРАВЛЕНИЕ: Кнопка Назад теперь возвращает либо в Меню, либо к Классам в зависимости от режима -->
   <button class="btn small" onclick="goBackFromStats()">⬅ Назад</button>
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;">📊 Статистика прохождений</h2>
   <div class="task-box" id="statsList" style="max-width: 800px; margin: 0 auto;"></div>
@@ -347,7 +383,6 @@ function goBackFromAchieve() {
   }
 }
 
-// ИСПРАВЛЕНИЕ: Функция для возврата с экрана статистики
 function goBackFromStats() {
   if (document.documentElement.classList.contains('mode-student')) {
     show('classesScreen');
@@ -387,12 +422,10 @@ function saveState() { localStorage.setItem('nr_state', JSON.stringify({ energy,
 function updateHUD() {
   const eStr = energy.toString();
   const cStr = combo.toString();
-  // Обновляем шапку (если видна)
   document.getElementById('energy').textContent = eStr;
   document.getElementById('combo').textContent = cStr;
   document.getElementById('tube').style.height = Math.min(100, energy / 2) + '%';
   
-  // Обновляем HUD ученика на экранах
   if(document.getElementById('energyHudClasses')) document.getElementById('energyHudClasses').textContent = eStr;
   if(document.getElementById('energyHudThemes')) document.getElementById('energyHudThemes').textContent = eStr;
   if(document.getElementById('energyHudStudent')) document.getElementById('energyHudStudent').textContent = eStr;
@@ -479,7 +512,7 @@ function startTimer(sec) {
       toast('⏱️ Время вышло!');
       sndBad();
       resetCombo();
-      forceShowAnswer(); // Показываем правильный ответ, если не успел
+      forceShowAnswer();
     }
   }, 1000);
 }
@@ -487,7 +520,6 @@ function stopTimer() {
   if (timerInt) { clearInterval(timerInt); timerInt = null; }
 }
 
-// Принудительный показ ответа, когда вышло время
 function forceShowAnswer() {
   const task = currentClassTasks[curIdx];
   const fb = document.getElementById('fb');
@@ -517,14 +549,14 @@ function forceShowAnswer() {
     }
     if (fb) fb.innerHTML = `<span class="wrong">Время вышло! Правильный ответ: <b>${task.right}</b></span>`;
   }
-  renderNavButtons(true); // Разблокируем кнопку "Далее"
+  renderNavButtons(true);
 }
 
 // ==========================================
 //           ЛОГИКА УЧИТЕЛЯ
 // ==========================================
-let lesson = []; // Массив целых разделов (уроков)
-let draftTasks = []; // Временные задания для текущего раздела
+let lesson = [];
+let draftTasks = [];
 
 function toggleTypeFields() {
   const type = document.getElementById('fType').value;
@@ -539,11 +571,9 @@ function draftTask() {
     const data = document.getElementById('fDataInput').value.trim();
     if (!data) { showCustomAlert('Введите слова с пропущенными буквами!'); return; }
     
-    // Разбиваем по строкам, чтобы добавить сразу несколько слов
     const words = data.split('\n').filter(w => w.trim());
     let addedCount = 0;
     words.forEach(w => {
-      // Проверка правильности формата (наличие квадратных скобок)
       if (w.includes('[') && w.includes(']')) {
         draftTasks.push({ type: 'input', d: w.trim() });
         addedCount++;
@@ -551,7 +581,6 @@ function draftTask() {
     });
     
     if (addedCount === 0) { showCustomAlert('Не найдено слов с квадратными скобками [ ] !'); return; }
-    // ИСПРАВЛЕНИЕ: Убрано слово "в черновик", чтобы никого не пугать
     toast(`➕ Задание добавлено! (Слов: ${addedCount})`);
     document.getElementById('fDataInput').value = '';
 
@@ -563,10 +592,8 @@ function draftTask() {
     if (!q || !right || !wrong) { showCustomAlert('Заполните все поля для теста!'); return; }
     
     draftTasks.push({ type: 'choice', q, right, wrong });
-    // ИСПРАВЛЕНИЕ: Убрано слово "в черновик"
     toast('➕ Задание добавлено!');
     
-    // Очищаем только поля с ответами и вопросом, чтобы быстро ввести следующее
     document.getElementById('fDataChoice').value = '';
     document.getElementById('fAnsRight').value = '';
     document.getElementById('fAnsWrong').value = '';
@@ -591,7 +618,6 @@ function updateDraftUI() {
 function addLessonSection() {
   const type = document.getElementById('fType').value;
   
-  // Авто-добавление: если учитель забыл нажать "Добавить задание", но заполнил поля
   if (type === 'input' && document.getElementById('fDataInput').value.trim()) {
     draftTask();
   } else if (type === 'choice' && document.getElementById('fDataChoice').value.trim() && document.getElementById('fAnsRight').value.trim() && document.getElementById('fAnsWrong').value.trim()) {
@@ -607,7 +633,6 @@ function addLessonSection() {
   const theme = document.getElementById('fTheme').value.trim() || 'Без темы';
   const timer = parseInt(document.getElementById('fTimer').value) || 0;
 
-  // Формируем один раздел со всеми собранными заданиями
   lesson.push({
     classLvl,
     theme,
@@ -620,15 +645,79 @@ function addLessonSection() {
   renderLessonList();
 }
 
+function removeTask(i) {
+  showCustomConfirm('Удалить этот раздел из урока?', () => {
+    lesson.splice(i, 1);
+    renderLessonList();
+  });
+}
+
 function renderLessonList() {
   document.getElementById('taskCount').textContent = lesson.length;
   const ul = document.getElementById('lessonList');
   ul.innerHTML = lesson.map((sec, i) => {
-    return `<li>
-      <span><b>${sec.classLvl} кл.</b> — ${sec.theme} <br><i style="font-size:0.9rem;color:#a9d8e8">В разделе заданий: ${sec.tasks.length}</i></span>
-      <button onclick="removeTask(${i})">✕</button>
+    return `<li style="cursor:pointer; transition:0.3s;" onmouseover="this.style.boxShadow='0 0 10px var(--neon-blue)'" onmouseout="this.style.boxShadow='none'" onclick="openEditModal(${i})">
+      <span style="flex-grow:1;"><b>${sec.classLvl} кл.</b> — ${sec.theme} <br><i style="font-size:0.9rem;color:#a9d8e8">В разделе заданий: ${sec.tasks.length} (Нажмите, чтобы посмотреть/изменить)</i></span>
+      <button onclick="event.stopPropagation(); removeTask(${i})">✕</button>
     </li>`;
   }).join('');
+}
+
+// --- ЛОГИКА РЕДАКТИРОВАНИЯ РАЗДЕЛА ---
+let currentEditSectionIdx = -1;
+let currentEditTasks = [];
+
+function openEditModal(i) {
+  currentEditSectionIdx = i;
+  let sec = lesson[i];
+  document.getElementById('editClass').value = sec.classLvl;
+  document.getElementById('editTheme').value = sec.theme;
+  document.getElementById('editTimer').value = sec.timer;
+  
+  currentEditTasks = JSON.parse(JSON.stringify(sec.tasks));
+  renderEditTasks();
+  
+  document.getElementById('editSectionModal').classList.add('active');
+}
+
+function renderEditTasks() {
+  const ul = document.getElementById('editTaskList');
+  if (currentEditTasks.length === 0) {
+    ul.innerHTML = '<li style="color:#f36; justify-content:center;">В разделе нет заданий!</li>';
+    return;
+  }
+  ul.innerHTML = currentEditTasks.map((t, idx) => {
+    let text = t.type === 'input' ? `✏️ ${t.d}` : `🎯 ${t.q} (Ответ: ${t.right})`;
+    return `<li>
+      <span style="font-size:0.95rem;">${text}</span>
+      <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0 0 0 10px; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
+    </li>`;
+  }).join('');
+}
+
+function removeEditTask(idx) {
+  currentEditTasks.splice(idx, 1);
+  renderEditTasks();
+}
+
+function closeEditModal() {
+  document.getElementById('editSectionModal').classList.remove('active');
+}
+
+function saveEditedSection() {
+  if (currentEditTasks.length === 0) {
+    showCustomAlert('Раздел не может быть пустым. Удалите его крестиком на главном экране или оставьте хотя бы одно задание.');
+    return;
+  }
+  
+  lesson[currentEditSectionIdx].classLvl = document.getElementById('editClass').value;
+  lesson[currentEditSectionIdx].theme = document.getElementById('editTheme').value.trim() || 'Без темы';
+  lesson[currentEditSectionIdx].timer = parseInt(document.getElementById('editTimer').value) || 0;
+  lesson[currentEditSectionIdx].tasks = currentEditTasks;
+  
+  closeEditModal();
+  renderLessonList();
+  toast('✅ Раздел успешно обновлён!');
 }
 
 function buildHTMLFile() {
@@ -637,10 +726,8 @@ function buildHTMLFile() {
     return;
   }
 
-  // Очищаем все уведомления с экрана, чтобы они не попали в скачанный файл ученика
   document.querySelectorAll('.toast').forEach(t => t.remove());
 
-  // Для ученика снова "расплющиваем" структуру, чтобы его код работал как и раньше
   let flatTasks = [];
   lesson.forEach(sec => {
     sec.tasks.forEach(t => {
@@ -656,7 +743,6 @@ function buildHTMLFile() {
   const tasksJSON = JSON.stringify(flatTasks);
   let baseHtml = document.documentElement.outerHTML;
 
-  // Ищем точку внедрения и заменяем её
   let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};<\/script>`;
   let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<script id="injection-point">.*?<\/script>/, injectionString);
 
@@ -716,7 +802,7 @@ function clearAllStats() {
 //           ЛОГИКА УЧЕНИКА
 // ==========================================
 
-let classesMap = {}; // { "5": [задания], "6": [задания] ... }
+let classesMap = {}; 
 let currentClassTasks = [];
 let curIdx = 0;
 let currentClassLvl = null;
@@ -745,11 +831,9 @@ function buildClassesList(tasks) {
   const grid = document.getElementById('classGrid');
   let html = '';
   
-  // Сортируем классы по возрастанию (5, 6, 7...)
   const sortedLevels = Object.keys(classesMap).sort((a, b) => parseInt(a) - parseInt(b));
   
   sortedLevels.forEach(lvl => {
-    // Собираем уникальные темы для этого класса
     const uniqueThemes = [...new Set(classesMap[lvl].map(t => t.theme))].join(' • ');
     const count = classesMap[lvl].length;
     
@@ -771,7 +855,6 @@ function startClass(lvl) {
   currentClassLvl = lvl;
   const classTasks = classesMap[lvl];
   
-  // Группируем задачи выбранного класса по темам
   let themesMap = {};
   classTasks.forEach(t => {
     if(!themesMap[t.theme]) themesMap[t.theme] = [];
@@ -798,12 +881,9 @@ function startClass(lvl) {
 
 function startTheme(lvl, theme) {
   currentTheme = theme;
-  currentSessionStats = { errors: [] }; // Сброс статистики текущей сессии
+  currentSessionStats = { errors: [] }; 
   
-  // Оставляем только те задания, которые принадлежат выбранной теме
   currentClassTasks = classesMap[lvl].filter(t => t.theme === theme);
-  
-  // Перемешиваем задания внутри темы
   currentClassTasks.sort(() => Math.random() - 0.5);
   curIdx = 0; 
   lessonDone = false;
@@ -864,7 +944,6 @@ function finishClass() {
   lessonDone = true; 
   checkAchievements();
   
-  // Сохранение статистики ученика для учителя
   let allStats = JSON.parse(localStorage.getItem('nr_all_stats') || '[]');
   allStats.push({
     name: currentStudentName,
@@ -878,15 +957,11 @@ function finishClass() {
   
   document.getElementById('lessonProgress').style.width = '100%';
   
-  // ИСПРАВЛЕНИЕ: Вывод слов, в которых ученик совершил ошибку (без скобок, точек и подчеркиваний)
   let mistakesHtml = '';
   if (currentSessionStats.errors.length > 0) {
     let errorList = currentSessionStats.errors.map(e => {
       let word = e.q;
-      // Убираем квадратные скобки: к[о]рова -> корова
       word = word.replace(/\[.*?\]/, e.right);
-      // Убираем точки и подчеркивания: пом_ик -> помик, в..негрет -> винегрет 
-      // (заменяет любую последовательность точек или подчеркиваний на правильную букву)
       word = word.replace(/[\._]+/, e.right);
       
       return `<span style="display:inline-block; font-size:1.2rem; margin: 5px; padding: 5px 15px; background: rgba(255,51,102,0.2); border: 1px solid #f36; border-radius: 8px;">${word}</span>`;
@@ -920,7 +995,6 @@ function finishClass() {
 
 // --- Рендер задания типа ВВОД (input) ---
 function renderTaskInput(task, area) {
-  // task.d = "к[о]рова"
   let match = task.d.match(/\[(.*?)\]/);
   if (!match) return;
   
@@ -952,17 +1026,16 @@ function renderTaskInput(task, area) {
       document.getElementById('fb').innerHTML = '<span class="correct">🎉 Верно! Отличный нейронный импульс! ⚡</span>';
       addEnergy(10);
       stopTimer();
-      renderNavButtons(true); // Разблокируем кнопку "Далее"
+      renderNavButtons(true);
     } else if (val.length >= ans.length) {
-      // НЕВЕРНЫЙ ВВОД
       inputEl.style.color = '#f36';
       inputEl.style.borderColor = '#f36';
-      inputEl.disabled = true; // Блокируем поле (чтобы дальше пропустить)
+      inputEl.disabled = true; 
       resetCombo();
       currentSessionStats.errors.push({ q: task.d, wrong: val, right: correctLetter });
       document.getElementById('fb').innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correctLetter}</b></span>`;
       stopTimer();
-      renderNavButtons(true); // Разблокируем кнопку "Далее", чтобы ученик прошел дальше
+      renderNavButtons(true);
     }
   });
 }
@@ -971,7 +1044,6 @@ function renderTaskInput(task, area) {
 function renderTaskChoice(task, area) {
   let wrongAnswers = task.wrong.split(',').map(x => x.trim()).filter(x => x);
   let options = [...wrongAnswers, task.right];
-  // Перемешиваем варианты
   options.sort(() => Math.random() - 0.5);
 
   let html = `
@@ -991,10 +1063,7 @@ function renderTaskChoice(task, area) {
 }
 
 function checkChoiceAnswer(btn, selected, correct) {
-  // ИСПРАВЛЕНИЕ: Ранее здесь была ошибка (task is not defined), из-за которой игра зависала. 
-  // Теперь берем текущий вопрос напрямую из массива:
   const currentTask = currentClassTasks[curIdx];
-  
   const container = document.getElementById('optionsContainer');
   const buttons = container.querySelectorAll('button');
   const fb = document.getElementById('fb');
@@ -1008,20 +1077,16 @@ function checkChoiceAnswer(btn, selected, correct) {
     addEnergy(10);
     stopTimer();
     
-    // Блокируем все кнопки
     buttons.forEach(b => b.disabled = true);
-    renderNavButtons(true); // Разблокируем кнопку "Далее"
+    renderNavButtons(true);
   } else {
-    // НЕВЕРНЫЙ ВЫБОР
     btn.style.background = 'rgba(255, 51, 102, 0.3)';
     btn.style.borderColor = '#f36';
     btn.style.color = '#f36';
     resetCombo();
-    // ИСПРАВЛЕНИЕ: Теперь статистика корректно считывает текст вопроса (currentTask.q)
     currentSessionStats.errors.push({ q: currentTask.q, wrong: selected, right: correct });
     fb.innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correct}</b></span>`;
     
-    // Блокируем все кнопки и подсвечиваем правильный вариант
     buttons.forEach(b => {
       b.disabled = true;
       if (b.textContent.toLowerCase() === correct.toLowerCase()) {
@@ -1032,7 +1097,7 @@ function checkChoiceAnswer(btn, selected, correct) {
     });
     
     stopTimer();
-    renderNavButtons(true); // Разблокируем кнопку "Далее", чтобы пропустить ученика дальше
+    renderNavButtons(true);
   }
 }
 
@@ -1042,12 +1107,10 @@ function checkChoiceAnswer(btn, selected, correct) {
 window.addEventListener('DOMContentLoaded', () => {
   updateHUD();
   
-  // Если загружено с массивом заданий (режим ученика)
   if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) {
     buildClassesList(window.INJECTED_TASKS);
     show('title');
   } else {
-    // Режим учителя
     show('menu');
   }
 });
