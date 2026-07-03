@@ -33,7 +33,8 @@
   }
 
   /* Скрытие элементов в зависимости от режима */
-  .mode-student #menu, .mode-student #teacher, .mode-student #statsScreen { display: none !important; }
+  /* ИСПРАВЛЕНИЕ: statsScreen убран из скрытия для ученика, чтобы учитель мог посмотреть статистику из скачанной игры */
+  .mode-student #menu, .mode-student #teacher { display: none !important; }
   .mode-student header { display: none !important; }
   .mode-teacher #title, .mode-teacher #sections, .mode-teacher #student, .mode-teacher #themesScreen { display: none !important; }
 
@@ -245,7 +246,11 @@
     <div class="hud" style="margin: 0;">
       <div class="energy">⚡ <span id="energyHudClasses">0</span></div>
     </div>
-    <button class="btn small" onclick="show('achieveScreen');renderBadges()">🏆 Мои достижения</button>
+    <!-- ИСПРАВЛЕНИЕ: Добавлена кнопка вызова статистики внутри скачанной игры -->
+    <div>
+      <button class="btn small" onclick="show('statsScreen');renderStats()">📊 Статистика</button>
+      <button class="btn small" onclick="show('achieveScreen');renderBadges()">🏆 Мои достижения</button>
+    </div>
   </div>
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 15px var(--neon-blue);margin:30px 0; font-size: 2.5rem;">🧪 Выбери свой класс</h2>
   <div class="grid" id="classGrid"></div>
@@ -280,6 +285,8 @@
   <p style="text-align:center;color:var(--neon-cyan); font-size: 1.1rem; margin-bottom: 20px;">Задание <span id="curNum" style="color:#fff; font-weight:bold;">1</span> из <span id="totNum" style="color:#fff; font-weight:bold;">1</span></p>
   
   <div id="studentArea" style="max-width: 800px; margin: 0 auto;"></div>
+  
+  <div style="text-align:center; margin-top: 30px;" id="navBtns"></div>
 </section>
 
 <!-- ═══ ЭКРАН ДОСТИЖЕНИЙ УЧЕНИКА ═══ -->
@@ -292,7 +299,8 @@
 
 <!-- ═══ ЭКРАН СТАТИСТИКИ УЧИТЕЛЯ ═══ -->
 <section class="screen" id="statsScreen">
-  <button class="btn small" onclick="show('menu')">⬅ Назад в меню</button>
+  <!-- ИСПРАВЛЕНИЕ: Кнопка Назад теперь возвращает либо в Меню, либо к Классам в зависимости от режима -->
+  <button class="btn small" onclick="goBackFromStats()">⬅ Назад</button>
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;">📊 Статистика прохождений</h2>
   <div class="task-box" id="statsList" style="max-width: 800px; margin: 0 auto;"></div>
   <div style="text-align:center; margin-top: 30px;"><button class="btn small" onclick="clearAllStats()">🗑️ Очистить всю статистику</button></div>
@@ -337,6 +345,15 @@ function show(id) {
 }
 
 function goBackFromAchieve() {
+  if (document.documentElement.classList.contains('mode-student')) {
+    show('classesScreen');
+  } else {
+    show('menu');
+  }
+}
+
+// ИСПРАВЛЕНИЕ: Функция для возврата с экрана статистики
+function goBackFromStats() {
   if (document.documentElement.classList.contains('mode-student')) {
     show('classesScreen');
   } else {
@@ -467,7 +484,7 @@ function startTimer(sec) {
       toast('⏱️ Время вышло!');
       sndBad();
       resetCombo();
-      forceShowAnswer();
+      forceShowAnswer(); // Показываем правильный ответ, если не успел
     }
   }, 1000);
 }
@@ -475,6 +492,7 @@ function stopTimer() {
   if (timerInt) { clearInterval(timerInt); timerInt = null; }
 }
 
+// Принудительный показ ответа, когда вышло время
 function forceShowAnswer() {
   const task = currentClassTasks[curIdx];
   const fb = document.getElementById('fb');
@@ -504,7 +522,7 @@ function forceShowAnswer() {
     }
     if (fb) fb.innerHTML = `<span class="wrong">Время вышло! Правильный ответ: <b>${task.right}</b></span>`;
   }
-  setTimeout(() => proceedToNextTask(), 2500);
+  renderNavButtons(true); // Разблокируем кнопку "Далее"
 }
 
 // ==========================================
@@ -526,9 +544,11 @@ function draftTask() {
     const data = document.getElementById('fDataInput').value.trim();
     if (!data) { showCustomAlert('Введите слова с пропущенными буквами!'); return; }
     
+    // Разбиваем по строкам, чтобы добавить сразу несколько слов
     const words = data.split('\n').filter(w => w.trim());
     let addedCount = 0;
     words.forEach(w => {
+      // Проверка правильности формата (наличие квадратных скобок)
       if (w.includes('[') && w.includes(']')) {
         draftTasks.push({ type: 'input', d: w.trim() });
         addedCount++;
@@ -536,6 +556,8 @@ function draftTask() {
     });
     
     if (addedCount === 0) { showCustomAlert('Не найдено слов с квадратными скобками [ ] !'); return; }
+    // ИСПРАВЛЕНИЕ: Убрано слово "в черновик", чтобы никого не пугать
+    toast(`➕ Задание добавлено! (Слов: ${addedCount})`);
     document.getElementById('fDataInput').value = '';
 
   } else if (type === 'choice') {
@@ -546,7 +568,10 @@ function draftTask() {
     if (!q || !right || !wrong) { showCustomAlert('Заполните все поля для теста!'); return; }
     
     draftTasks.push({ type: 'choice', q, right, wrong });
+    // ИСПРАВЛЕНИЕ: Убрано слово "в черновик"
+    toast('➕ Задание добавлено!');
     
+    // Очищаем только поля с ответами и вопросом, чтобы быстро ввести следующее
     document.getElementById('fDataChoice').value = '';
     document.getElementById('fAnsRight').value = '';
     document.getElementById('fAnsWrong').value = '';
@@ -571,6 +596,7 @@ function updateDraftUI() {
 function addLessonSection() {
   const type = document.getElementById('fType').value;
   
+  // Авто-добавление: если учитель забыл нажать "Добавить задание", но заполнил поля
   if (type === 'input' && document.getElementById('fDataInput').value.trim()) {
     draftTask();
   } else if (type === 'choice' && document.getElementById('fDataChoice').value.trim() && document.getElementById('fAnsRight').value.trim() && document.getElementById('fAnsWrong').value.trim()) {
@@ -586,6 +612,7 @@ function addLessonSection() {
   const theme = document.getElementById('fTheme').value.trim() || 'Без темы';
   const timer = parseInt(document.getElementById('fTimer').value) || 0;
 
+  // Формируем один раздел со всеми собранными заданиями
   lesson.push({
     classLvl,
     theme,
@@ -620,6 +647,7 @@ function buildHTMLFile() {
     return;
   }
 
+  // Для ученика снова "расплющиваем" структуру, чтобы его код работал как и раньше
   let flatTasks = [];
   lesson.forEach(sec => {
     sec.tasks.forEach(t => {
@@ -635,6 +663,7 @@ function buildHTMLFile() {
   const tasksJSON = JSON.stringify(flatTasks);
   let baseHtml = document.documentElement.outerHTML;
 
+  // Ищем точку внедрения и заменяем её
   let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};<\/script>`;
   let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<script id="injection-point">.*?<\/script>/, injectionString);
 
@@ -665,7 +694,7 @@ function renderStats() {
       errHtml = '<span style="color:#0f6; font-weight:bold;">Ошибок нет! Идеальное прохождение.</span>';
     } else {
       errHtml = `<ul style="text-align:left; font-size:1rem; margin-top:10px; color:#f36; padding-left: 20px;">` +
-        s.errors.map(e => `<li style="margin-bottom: 5px;">Вопрос: <b>${e.q}</b> | Ответ ученика: <b style="text-decoration:line-through">${e.wrong}</b> | Верно: <b style="color:#0f6">${e.right}</b></li>`).join('') +
+        s.errors.map(e => `<li style="margin-bottom: 5px;">Вопрос/Слово: <b>${e.q}</b> | Ответ ученика: <b style="text-decoration:line-through">${e.wrong}</b> | Правильный ответ: <b style="color:#0f6">${e.right}</b></li>`).join('') +
         `</ul>`;
     }
     html += `<div style="background:rgba(0,0,0,0.4); border:1px solid var(--neon-cyan); padding: 20px; margin-bottom: 15px; border-radius: 12px; text-align:left;">
@@ -694,7 +723,7 @@ function clearAllStats() {
 //           ЛОГИКА УЧЕНИКА
 // ==========================================
 
-let classesMap = {}; 
+let classesMap = {}; // { "5": [задания], "6": [задания] ... }
 let currentClassTasks = [];
 let curIdx = 0;
 let currentClassLvl = null;
@@ -723,9 +752,11 @@ function buildClassesList(tasks) {
   const grid = document.getElementById('classGrid');
   let html = '';
   
+  // Сортируем классы по возрастанию (5, 6, 7...)
   const sortedLevels = Object.keys(classesMap).sort((a, b) => parseInt(a) - parseInt(b));
   
   sortedLevels.forEach(lvl => {
+    // Собираем уникальные темы для этого класса
     const uniqueThemes = [...new Set(classesMap[lvl].map(t => t.theme))].join(' • ');
     const count = classesMap[lvl].length;
     
@@ -747,6 +778,7 @@ function startClass(lvl) {
   currentClassLvl = lvl;
   const classTasks = classesMap[lvl];
   
+  // Группируем задачи выбранного класса по темам
   let themesMap = {};
   classTasks.forEach(t => {
     if(!themesMap[t.theme]) themesMap[t.theme] = [];
@@ -773,9 +805,12 @@ function startClass(lvl) {
 
 function startTheme(lvl, theme) {
   currentTheme = theme;
-  currentSessionStats = { errors: [] }; 
+  currentSessionStats = { errors: [] }; // Сброс статистики текущей сессии
   
+  // Оставляем только те задания, которые принадлежат выбранной теме
   currentClassTasks = classesMap[lvl].filter(t => t.theme === theme);
+  
+  // Перемешиваем задания внутри темы
   currentClassTasks.sort(() => Math.random() - 0.5);
   curIdx = 0; 
   lessonDone = false;
@@ -809,14 +844,25 @@ function renderCurrentStudentTask() {
   }
   
   startTimer(task.timer);
+  renderNavButtons(false);
 }
 
-function proceedToNextTask() {
+function renderNavButtons(taskCompleted) {
+  const nav = document.getElementById('navBtns'); 
+  let html = '';
+  
+  if (curIdx < currentClassTasks.length - 1) {
+    html += `<button class="btn" id="nextBtn" onclick="nextTask()" ${!taskCompleted ? 'disabled' : ''}>Далее ➡</button>`;
+  } else {
+    html += `<button class="btn" id="finishBtn" onclick="finishClass()" ${!taskCompleted ? 'disabled' : ''}>🏁 Завершить тренировку</button>`;
+  }
+  nav.innerHTML = html;
+}
+
+function nextTask() {
   if (curIdx < currentClassTasks.length - 1) {
     curIdx++;
     renderCurrentStudentTask();
-  } else {
-    finishClass();
   }
 }
 
@@ -825,7 +871,7 @@ function finishClass() {
   lessonDone = true; 
   checkAchievements();
   
-  // Сохраняем в localStorage учителя (если играют на одном устройстве)
+  // Сохранение статистики ученика для учителя
   let allStats = JSON.parse(localStorage.getItem('nr_all_stats') || '[]');
   allStats.push({
     name: currentStudentName,
@@ -837,37 +883,50 @@ function finishClass() {
   });
   localStorage.setItem('nr_all_stats', JSON.stringify(allStats));
   
-  // Формируем отчет об ошибках для экрана ученика
-  let errHtml = '';
-  if (currentSessionStats.errors.length === 0) {
-    errHtml = '<p style="color:#0f6; font-weight:bold; font-size:1.3rem;">Ошибок нет! Идеальное прохождение!</p>';
+  document.getElementById('lessonProgress').style.width = '100%';
+  
+  // ИСПРАВЛЕНИЕ: Вывод слов, в которых ученик совершил ошибку (без скобок и точек)
+  let mistakesHtml = '';
+  if (currentSessionStats.errors.length > 0) {
+    let errorList = currentSessionStats.errors.map(e => {
+      let word = e.q;
+      // Убираем квадратные скобки: к[о]рова -> корова
+      word = word.replace(/\[.*?\]/, e.right);
+      // Убираем точки: в..негрет -> винегрет (заменяет любую последовательность точек на правильную букву)
+      word = word.replace(/\.+/, e.right);
+      
+      return `<span style="display:inline-block; font-size:1.2rem; margin: 5px; padding: 5px 15px; background: rgba(255,51,102,0.2); border: 1px solid #f36; border-radius: 8px;">${word}</span>`;
+    }).join('');
+    
+    mistakesHtml = `
+      <div style="margin: 25px 0; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: 1px solid var(--neon-cyan);">
+        <h4 style="color:#f36; margin-bottom: 15px; font-size: 1.3rem;">Слова, в которых были допущены ошибки:</h4>
+        ${errorList}
+      </div>
+    `;
   } else {
-    errHtml = `<ul style="text-align:left; font-size:1.1rem; color:#f36; padding: 15px 25px; background: rgba(0,0,0,0.3); border-radius: 12px; max-height: 250px; overflow-y: auto;">` +
-      currentSessionStats.errors.map(e => `<li style="margin-bottom: 10px;">Слово/Вопрос: <b>${e.q}</b><br>Твой ответ: <b style="text-decoration:line-through">${e.wrong}</b> | Правильно: <b style="color:#0f6">${e.right}</b></li>`).join('') +
-      `</ul>`;
+    mistakesHtml = `<p style="color:#0f6; font-size:1.3rem; margin:25px 0; font-weight:bold;">Ошибок нет! Идеальное прохождение!</p>`;
   }
 
-  document.getElementById('lessonProgress').style.width = '100%';
   document.getElementById('studentArea').innerHTML = `
     <div class="task-box" style="text-align:center">
-      <h2 style="color:#fff;text-shadow:0 0 20px var(--neon-blue); font-size: 2.2rem; margin-bottom:10px;">🏁 Тренировка завершена!</h2>
-      <h3 style="color:var(--neon-cyan); margin-bottom: 20px; font-size: 1.5rem;">Ученик: ${currentStudentName}</h3>
-      <p style="font-size:1.5rem;margin:10px">Накоплено энергии: <b style="color:var(--neon-blue); font-size: 2rem;">${energy}</b> ⚡</p>
+      <h2 style="color:#fff;text-shadow:0 0 20px var(--neon-blue); font-size: 2.2rem; margin-bottom:20px;">🏁 Тренировка завершена!</h2>
+      <div class="tube" style="width:80px;height:180px;margin:30px auto"><div class="liquid" style="height:100%"></div></div>
+      <p style="font-size:1.5rem;margin:20px">Накоплено энергии: <b style="color:var(--neon-blue); font-size: 2rem;">${energy}</b> ⚡</p>
       
-      <div style="margin: 30px 0;">
-        <h4 style="color:#fff; margin-bottom:15px; font-size: 1.3rem;">Отчет для учителя:</h4>
-        ${errHtml}
-      </div>
+      ${mistakesHtml}
 
       <button class="btn" onclick="startTheme('${currentClassLvl}', '${currentTheme}')">🔄 Пройти заново</button>
       <button class="btn" onclick="backToThemes()">📚 К выбору тем</button>
     </div>
   `;
+  document.getElementById('navBtns').innerHTML = ''; 
   sndWin();
 }
 
 // --- Рендер задания типа ВВОД (input) ---
 function renderTaskInput(task, area) {
+  // task.d = "к[о]рова"
   let match = task.d.match(/\[(.*?)\]/);
   if (!match) return;
   
@@ -899,16 +958,17 @@ function renderTaskInput(task, area) {
       document.getElementById('fb').innerHTML = '<span class="correct">🎉 Верно! Отличный нейронный импульс! ⚡</span>';
       addEnergy(10);
       stopTimer();
-      setTimeout(() => proceedToNextTask(), 1200);
+      renderNavButtons(true); // Разблокируем кнопку "Далее"
     } else if (val.length >= ans.length) {
+      // НЕВЕРНЫЙ ВВОД
       inputEl.style.color = '#f36';
       inputEl.style.borderColor = '#f36';
-      inputEl.disabled = true; 
+      inputEl.disabled = true; // Блокируем поле (чтобы дальше пропустить)
       resetCombo();
       currentSessionStats.errors.push({ q: task.d, wrong: val, right: correctLetter });
       document.getElementById('fb').innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correctLetter}</b></span>`;
       stopTimer();
-      setTimeout(() => proceedToNextTask(), 2500);
+      renderNavButtons(true); // Разблокируем кнопку "Далее", чтобы ученик прошел дальше
     }
   });
 }
@@ -917,6 +977,7 @@ function renderTaskInput(task, area) {
 function renderTaskChoice(task, area) {
   let wrongAnswers = task.wrong.split(',').map(x => x.trim()).filter(x => x);
   let options = [...wrongAnswers, task.right];
+  // Перемешиваем варианты
   options.sort(() => Math.random() - 0.5);
 
   let html = `
@@ -936,6 +997,10 @@ function renderTaskChoice(task, area) {
 }
 
 function checkChoiceAnswer(btn, selected, correct) {
+  // ИСПРАВЛЕНИЕ: Ранее здесь была ошибка (task is not defined), из-за которой игра зависала. 
+  // Теперь берем текущий вопрос напрямую из массива:
+  const currentTask = currentClassTasks[curIdx];
+  
   const container = document.getElementById('optionsContainer');
   const buttons = container.querySelectorAll('button');
   const fb = document.getElementById('fb');
@@ -948,16 +1013,21 @@ function checkChoiceAnswer(btn, selected, correct) {
     fb.innerHTML = '<span class="correct">🎉 Идеально! ⚡</span>';
     addEnergy(10);
     stopTimer();
+    
+    // Блокируем все кнопки
     buttons.forEach(b => b.disabled = true);
-    setTimeout(() => proceedToNextTask(), 1200);
+    renderNavButtons(true); // Разблокируем кнопку "Далее"
   } else {
+    // НЕВЕРНЫЙ ВЫБОР
     btn.style.background = 'rgba(255, 51, 102, 0.3)';
     btn.style.borderColor = '#f36';
     btn.style.color = '#f36';
     resetCombo();
-    currentSessionStats.errors.push({ q: task.q, wrong: selected, right: correct });
+    // ИСПРАВЛЕНИЕ: Теперь статистика корректно считывает текст вопроса (currentTask.q)
+    currentSessionStats.errors.push({ q: currentTask.q, wrong: selected, right: correct });
     fb.innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correct}</b></span>`;
     
+    // Блокируем все кнопки и подсвечиваем правильный вариант
     buttons.forEach(b => {
       b.disabled = true;
       if (b.textContent.toLowerCase() === correct.toLowerCase()) {
@@ -968,7 +1038,7 @@ function checkChoiceAnswer(btn, selected, correct) {
     });
     
     stopTimer();
-    setTimeout(() => proceedToNextTask(), 2500);
+    renderNavButtons(true); // Разблокируем кнопку "Далее", чтобы пропустить ученика дальше
   }
 }
 
@@ -978,10 +1048,12 @@ function checkChoiceAnswer(btn, selected, correct) {
 window.addEventListener('DOMContentLoaded', () => {
   updateHUD();
   
+  // Если загружено с массивом заданий (режим ученика)
   if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) {
     buildClassesList(window.INJECTED_TASKS);
     show('title');
   } else {
+    // Режим учителя
     show('menu');
   }
 });
