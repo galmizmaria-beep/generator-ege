@@ -230,7 +230,10 @@
     <h3 style="color:#fff;text-shadow:0 0 8px var(--neon-blue); font-size: 1.4rem;">📋 Готовые задания (<span id="taskCount">0</span>)</h3>
     <ul class="task-list" id="lessonList"></ul>
     
-    <button class="btn" style="width: 100%; font-size: 1.2rem; padding: 18px; margin-top: 20px;" onclick="buildHTMLFile()">💾 Скачать игру для учеников</button>
+    <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+      <button class="btn" style="flex: 1; font-size: 1.1rem; padding: 18px; margin: 0;" onclick="buildHTMLFile()">💾 Скачать файл для ученика</button>
+      <button id="copyGeniallyBtn" class="btn" style="flex: 1; font-size: 1.1rem; padding: 18px; margin: 0; border-color: var(--neon-purple); background: rgba(123,47,247,0.3);" onclick="copyGeniallyCode()">📋 Скопировать код для Genially</button>
+    </div>
     <div id="linkResult" style="text-align: center;"></div>
   </div>
 </section>
@@ -631,11 +634,9 @@ function renderLessonList() {
   }).join('');
 }
 
-function buildHTMLFile() {
-  if (lesson.length === 0) {
-    showCustomAlert('Добавьте хотя бы один урок перед скачиванием!');
-    return;
-  }
+// Новая вспомогательная функция генерации кода
+function generateStudentHTML() {
+  if (lesson.length === 0) return null;
 
   // Очищаем все уведомления с экрана, чтобы они не попали в скачанный файл ученика
   document.querySelectorAll('.toast').forEach(t => t.remove());
@@ -658,7 +659,15 @@ function buildHTMLFile() {
 
   // Ищем точку внедрения и заменяем её
   let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};<\/script>`;
-  let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<script id="injection-point">.*?<\/script>/, injectionString);
+  return '<!DOCTYPE html>\n' + baseHtml.replace(/<script id="injection-point">.*?<\/script>/, injectionString);
+}
+
+function buildHTMLFile() {
+  const newHtml = generateStudentHTML();
+  if (!newHtml) {
+    showCustomAlert('Добавьте хотя бы один урок перед скачиванием!');
+    return;
+  }
 
   const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -671,6 +680,35 @@ function buildHTMLFile() {
   URL.revokeObjectURL(url);
 
   document.getElementById('linkResult').innerHTML = `<p style="margin-top:20px;color:#0f6; font-size:1.1rem;">✅ Файл успешно скачан! Отправьте его ученикам.</p>`;
+}
+
+function copyGeniallyCode() {
+  const newHtml = generateStudentHTML();
+  if (!newHtml) {
+    showCustomAlert('Добавьте хотя бы один урок перед копированием!');
+    return;
+  }
+
+  navigator.clipboard.writeText(newHtml).then(() => {
+    const btn = document.getElementById('copyGeniallyBtn');
+    const originalText = '📋 Скопировать код для Genially';
+    
+    // Временное изменение стилей и текста кнопки
+    btn.innerHTML = '✅ Скопировано!';
+    btn.style.background = 'rgba(0, 255, 100, 0.3)';
+    btn.style.borderColor = '#0f6';
+    btn.style.color = '#0f6';
+    
+    // Возвращаем обратно через 2.5 секунды
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.style.background = 'rgba(123,47,247,0.3)';
+      btn.style.borderColor = 'var(--neon-purple)';
+      btn.style.color = 'var(--neon-cyan)';
+    }, 2500);
+  }).catch(() => {
+    showCustomAlert('Не удалось скопировать код. Ваш браузер может не поддерживать эту функцию, либо попробуйте скачать файл.');
+  });
 }
 
 function renderStats() {
