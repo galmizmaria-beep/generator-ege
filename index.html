@@ -160,16 +160,11 @@
 
 <!-- ═══ ГЛАВНОЕ МЕНЮ (для учителя) ═══ -->
 <section class="screen active" id="menu">
-  <div class="grid">
+  <div class="grid" style="display: flex; justify-content: center;">
     <div class="card" onclick="show('teacher')">
       <div class="icon">👨‍🔬</div>
       <h3>Режим учителя</h3>
       <p>Создать урок, темы и скачать игру</p>
-    </div>
-    <div class="card" onclick="show('statsScreen');renderStats()">
-      <div class="icon">📊</div>
-      <h3>Статистика учеников</h3>
-      <p>Посмотреть результаты и ошибки</p>
     </div>
   </div>
 </section>
@@ -636,16 +631,14 @@ function renderLessonList() {
   }).join('');
 }
 
-function removeTask(i) {
-  lesson.splice(i, 1);
-  renderLessonList();
-}
-
 function buildHTMLFile() {
   if (lesson.length === 0) {
     showCustomAlert('Добавьте хотя бы один урок перед скачиванием!');
     return;
   }
+
+  // Очищаем все уведомления с экрана, чтобы они не попали в скачанный файл ученика
+  document.querySelectorAll('.toast').forEach(t => t.remove());
 
   // Для ученика снова "расплющиваем" структуру, чтобы его код работал как и раньше
   let flatTasks = [];
@@ -885,15 +878,16 @@ function finishClass() {
   
   document.getElementById('lessonProgress').style.width = '100%';
   
-  // ИСПРАВЛЕНИЕ: Вывод слов, в которых ученик совершил ошибку (без скобок и точек)
+  // ИСПРАВЛЕНИЕ: Вывод слов, в которых ученик совершил ошибку (без скобок, точек и подчеркиваний)
   let mistakesHtml = '';
   if (currentSessionStats.errors.length > 0) {
     let errorList = currentSessionStats.errors.map(e => {
       let word = e.q;
       // Убираем квадратные скобки: к[о]рова -> корова
       word = word.replace(/\[.*?\]/, e.right);
-      // Убираем точки: в..негрет -> винегрет (заменяет любую последовательность точек на правильную букву)
-      word = word.replace(/\.+/, e.right);
+      // Убираем точки и подчеркивания: пом_ик -> помик, в..негрет -> винегрет 
+      // (заменяет любую последовательность точек или подчеркиваний на правильную букву)
+      word = word.replace(/[\._]+/, e.right);
       
       return `<span style="display:inline-block; font-size:1.2rem; margin: 5px; padding: 5px 15px; background: rgba(255,51,102,0.2); border: 1px solid #f36; border-radius: 8px;">${word}</span>`;
     }).join('');
