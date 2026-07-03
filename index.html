@@ -10,7 +10,7 @@
 
 <!-- Скрипт мгновенного переключения режима (убирает мигание экранов) -->
 <script>
-  if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) { 
+  if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) {
     document.documentElement.classList.remove('mode-teacher');
     document.documentElement.classList.add('mode-student');
   } else {
@@ -35,7 +35,7 @@
   /* Скрытие элементов в зависимости от режима */
   .mode-student #menu, .mode-student #teacher { display: none !important; }
   .mode-student header { display: none !important; }
-  .mode-teacher #title, .mode-teacher #sections, .mode-teacher #student { display: none !important; }
+  .mode-teacher #title, .mode-teacher #sections, .mode-teacher #student, .mode-teacher #themesScreen { display: none !important; }
 
   header { text-align: center; padding: 40px 20px 20px; }
   h1.logo { font-size: 3rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); animation: pulse 2s infinite ease-in-out; }
@@ -99,6 +99,13 @@
   .progress-bar { height: 12px; background: rgba(0,229,255,.15); border-radius: 6px; overflow: hidden; margin: 15px 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
   .progress-bar div { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); width: 0%; transition: width .4s ease-out; box-shadow: 0 0 10px var(--neon-blue);}
 
+  /* Кастомное модальное окно */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,8,24,0.9); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+  .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
+  .modal-box { background: var(--panel); border: 2px solid var(--neon-cyan); border-radius: 18px; padding: 30px; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 0 30px var(--neon-blue); }
+  .modal-box p { color: #fff; font-size: 1.2rem; margin-bottom: 25px; text-shadow: 0 0 8px var(--neon-blue); line-height: 1.5; }
+  .modal-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+
   /* ═══ ТИТУЛЬНЫЙ ЭКРАН УЧЕНИКА ═══ */
   #title { text-align: center; padding: 40px 20px; display: flex; flex-direction: column; justify-content: center; min-height: 80vh;}
   .title-logo { font-size: 3.5rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-purple); margin-bottom: 10px; animation: pulse 2.5s infinite ease-in-out; }
@@ -128,6 +135,14 @@
     <button class="btn small" id="soundBtn" onclick="toggleSound()">🔊 Звук</button>
   </div>
 </header>
+
+<!-- Кастомное модальное окно -->
+<div id="customModalOverlay" class="modal-overlay">
+  <div class="modal-box">
+    <p id="modalMessage"></p>
+    <div class="modal-buttons" id="modalButtons"></div>
+  </div>
+</div>
 
 <!-- ═══ ТИТУЛЬНЫЙ ЭКРАН (для ученика) ═══ -->
 <section class="screen" id="title">
@@ -235,10 +250,22 @@
   <div class="grid" id="classGrid"></div>
 </section>
 
+<!-- ═══ ЭКРАН ВЫБОРА ТЕМЫ (для ученика) ═══ -->
+<section class="screen" id="themesScreen">
+  <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+    <button class="btn small" onclick="show('classesScreen')">⬅ К классам</button>
+    <div class="hud" style="margin: 0;">
+      <div class="energy">⚡ <span id="energyHudThemes">0</span></div>
+    </div>
+  </div>
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 15px var(--neon-blue);margin:30px 0; font-size: 2.5rem;" id="themesTitle">🧪 Выбери тему</h2>
+  <div class="grid" id="themesGrid"></div>
+</section>
+
 <!-- ═══ ТРЕНАЖЁР УЧЕНИКА ═══ -->
 <section class="screen" id="student">
   <div style="display: flex; justify-content: space-between; align-items: center;">
-    <button class="btn small" onclick="backToClasses()">⬅ К классам</button>
+    <button class="btn small" onclick="backToThemes()">⬅ К темам</button>
     <div class="hud" style="margin: 0;">
       <div class="energy">⚡ <span id="energyHudStudent">0</span></div>
       <div class="energy">🔥 <span id="comboHudStudent">0</span></div>
@@ -272,6 +299,28 @@
 </footer>
 
 <script>
+// --- Кастомные модальные окна ---
+function showCustomAlert(msg, onConfirm) {
+  document.getElementById('modalMessage').innerHTML = msg;
+  document.getElementById('modalButtons').innerHTML = `<button class="btn small" onclick="closeCustomModal(); if(window.modalConfirmCb) window.modalConfirmCb();">ОК</button>`;
+  window.modalConfirmCb = onConfirm;
+  document.getElementById('customModalOverlay').classList.add('active');
+}
+
+function showCustomConfirm(msg, onConfirm) {
+  document.getElementById('modalMessage').innerHTML = msg;
+  document.getElementById('modalButtons').innerHTML = `
+    <button class="btn small" style="border-color: #f36; color: #f36; box-shadow: 0 0 8px rgba(255,51,102,0.4);" onclick="closeCustomModal()">Отмена</button>
+    <button class="btn small" onclick="closeCustomModal(); if(window.modalConfirmCb) window.modalConfirmCb();">Подтвердить</button>
+  `;
+  window.modalConfirmCb = onConfirm;
+  document.getElementById('customModalOverlay').classList.add('active');
+}
+
+function closeCustomModal() {
+  document.getElementById('customModalOverlay').classList.remove('active');
+}
+
 // --- Базовая навигация ---
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -324,8 +373,9 @@ function updateHUD() {
   document.getElementById('combo').textContent = cStr;
   document.getElementById('tube').style.height = Math.min(100, energy / 2) + '%';
   
-  // Обновляем HUD ученика на экранах классов и тренажера
+  // Обновляем HUD ученика на экранах
   if(document.getElementById('energyHudClasses')) document.getElementById('energyHudClasses').textContent = eStr;
+  if(document.getElementById('energyHudThemes')) document.getElementById('energyHudThemes').textContent = eStr;
   if(document.getElementById('energyHudStudent')) document.getElementById('energyHudStudent').textContent = eStr;
   if(document.getElementById('comboHudStudent')) document.getElementById('comboHudStudent').textContent = cStr;
 }
@@ -381,11 +431,11 @@ function renderBadges() {
 }
 
 function resetProgress() {
-  if (confirm('Сбросить весь прогресс (энергию и достижения)?')) {
+  showCustomConfirm('Сбросить весь прогресс (энергию и достижения)?', () => {
     localStorage.removeItem('nr_state');
     energy = 0; combo = 0; totalCorrect = 0; achievements = {};
     updateHUD(); renderBadges();
-  }
+  });
 }
 
 // --- Таймер ---
@@ -468,7 +518,7 @@ function draftTask() {
 
   if (type === 'input') {
     const data = document.getElementById('fDataInput').value.trim();
-    if (!data) return alert('Введите слова с пропущенными буквами!');
+    if (!data) { showCustomAlert('Введите слова с пропущенными буквами!'); return; }
     
     // Разбиваем по строкам, чтобы добавить сразу несколько слов
     const words = data.split('\n').filter(w => w.trim());
@@ -481,7 +531,7 @@ function draftTask() {
       }
     });
     
-    if (addedCount === 0) return alert('Не найдено слов с квадратными скобками [ ] !');
+    if (addedCount === 0) { showCustomAlert('Не найдено слов с квадратными скобками [ ] !'); return; }
     toast(`➕ Добавлено слов: ${addedCount}`);
     document.getElementById('fDataInput').value = '';
 
@@ -490,7 +540,7 @@ function draftTask() {
     const right = document.getElementById('fAnsRight').value.trim();
     const wrong = document.getElementById('fAnsWrong').value.trim();
     
-    if (!q || !right || !wrong) return alert('Заполните все поля для теста!');
+    if (!q || !right || !wrong) { showCustomAlert('Заполните все поля для теста!'); return; }
     
     draftTasks.push({ type: 'choice', q, right, wrong });
     toast('➕ Задание добавлено в черновик!');
@@ -528,7 +578,8 @@ function addLessonSection() {
   }
 
   if (draftTasks.length === 0) {
-    return alert('Сначала добавьте задания с помощью кнопки "➕ Добавить задание"!');
+    showCustomAlert('Сначала добавьте задания с помощью кнопки "➕ Добавить задание"!');
+    return;
   }
 
   const classLvl = document.getElementById('fClass').value;
@@ -567,7 +618,7 @@ function removeTask(i) {
 
 function buildHTMLFile() {
   if (lesson.length === 0) {
-    alert('Добавьте хотя бы один урок перед скачиванием!');
+    showCustomAlert('Добавьте хотя бы один урок перед скачиванием!');
     return;
   }
 
@@ -612,6 +663,7 @@ let classesMap = {}; // { "5": [задания], "6": [задания] ... }
 let currentClassTasks = [];
 let curIdx = 0;
 let currentClassLvl = null;
+let currentTheme = null;
 
 function goToClasses() {
   show('classesScreen');
@@ -641,7 +693,7 @@ function buildClassesList(tasks) {
         <h3 style="font-size: 1.8rem; margin-bottom: 15px;">${lvl} класс</h3>
         <p style="color: var(--neon-cyan); font-weight: bold; margin-bottom: 10px;">Темы:</p>
         <p style="font-style: italic;">${uniqueThemes}</p>
-        <p style="margin-top: 15px; color: #fff; background: rgba(0,229,255,.2); border-radius: 10px; padding: 5px;">Заданий: <b>${count}</b></p>
+        <p style="margin-top: 15px; color: #fff; background: rgba(0,229,255,.2); border-radius: 10px; padding: 5px;">Всего заданий: <b>${count}</b></p>
       </div>
     `;
   });
@@ -651,22 +703,53 @@ function buildClassesList(tasks) {
 
 function startClass(lvl) {
   currentClassLvl = lvl;
-  currentClassTasks = classesMap[lvl];
-  // Перемешиваем задания внутри класса, чтобы было интереснее
+  const classTasks = classesMap[lvl];
+  
+  // Группируем задачи выбранного класса по темам
+  let themesMap = {};
+  classTasks.forEach(t => {
+    if(!themesMap[t.theme]) themesMap[t.theme] = [];
+    themesMap[t.theme].push(t);
+  });
+  
+  const grid = document.getElementById('themesGrid');
+  let html = '';
+  for(let theme in themesMap) {
+    html += `
+      <div class="card" onclick="startTheme('${lvl}', '${theme}')">
+        <div class="icon">📘</div>
+        <h3 style="font-size: 1.5rem; margin-bottom: 15px;">${theme}</h3>
+        <p style="color: #fff; background: rgba(0,229,255,.2); border-radius: 10px; padding: 5px;">Заданий: <b>${themesMap[theme].length}</b></p>
+      </div>
+    `;
+  }
+  
+  grid.innerHTML = html;
+  document.getElementById('themesTitle').textContent = `🏫 ${lvl} класс — Темы`;
+  updateHUD();
+  show('themesScreen');
+}
+
+function startTheme(lvl, theme) {
+  currentTheme = theme;
+  // Оставляем только те задания, которые принадлежат выбранной теме
+  currentClassTasks = classesMap[lvl].filter(t => t.theme === theme);
+  
+  // Перемешиваем задания внутри темы
   currentClassTasks.sort(() => Math.random() - 0.5);
   curIdx = 0; 
   lessonDone = false;
   
-  document.getElementById('studentTitle').textContent = `🏫 ${lvl} класс`;
+  document.getElementById('studentTitle').textContent = `🏫 ${lvl} класс: ${theme}`;
   document.getElementById('totNum').textContent = currentClassTasks.length;
   
   show('student');
   renderCurrentStudentTask();
 }
 
-function backToClasses() {
+function backToThemes() {
   stopTimer();
-  show('classesScreen');
+  show('themesScreen');
 }
 
 function renderCurrentStudentTask() {
@@ -720,8 +803,8 @@ function finishClass() {
       <div class="tube" style="width:80px;height:180px;margin:30px auto"><div class="liquid" style="height:100%"></div></div>
       <p style="font-size:1.5rem;margin:20px">Накоплено энергии: <b style="color:var(--neon-blue); font-size: 2rem;">${energy}</b> ⚡</p>
       <p style="color:var(--neon-cyan); font-size: 1.2rem; margin-bottom: 30px;">Мозг заряжен на 100%! Отличная работа!</p>
-      <button class="btn" onclick="startClass('${currentClassLvl}')">🔄 Пройти заново</button>
-      <button class="btn" onclick="backToClasses()">📚 Вернуться к классам</button>
+      <button class="btn" onclick="startTheme('${currentClassLvl}', '${currentTheme}')">🔄 Пройти заново</button>
+      <button class="btn" onclick="backToThemes()">📚 К выбору тем</button>
     </div>
   `;
   document.getElementById('navBtns').innerHTML = ''; 
