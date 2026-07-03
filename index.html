@@ -6,7 +6,7 @@
 <title>Лаборатория русского языка</title>
 
 <!-- Точка внедрения данных (для скачанного файла) -->
-<script id="injection-point">window.INJECTED_TASKS = [];</script> 
+<script id="injection-point">window.INJECTED_TASKS = [];</script>
 
 <!-- Скрипт мгновенного переключения режима (убирает мигание экранов) -->
 <script>
@@ -687,12 +687,34 @@ function renderEditTasks() {
     return;
   }
   ul.innerHTML = currentEditTasks.map((t, idx) => {
-    let text = t.type === 'input' ? `✏️ ${t.d}` : `🎯 ${t.q} (Ответ: ${t.right})`;
-    return `<li>
-      <span style="font-size:0.95rem;">${text}</span>
-      <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0 0 0 10px; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
-    </li>`;
+    if (t.type === 'input') {
+      return `<li style="flex-direction: column; align-items: stretch; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">✏️ Ввод ответа</span>
+          <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
+        </div>
+        <input type="text" value="${t.d.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'd', this.value)" placeholder="Слово с [п]ропуском" style="margin:0; padding:8px; font-size:1rem;">
+      </li>`;
+    } else {
+      return `<li style="flex-direction: column; align-items: stretch; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">🎯 Выбор вариантов</span>
+          <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
+        </div>
+        <input type="text" value="${t.q.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'q', this.value)" placeholder="Слово / Вопрос" style="margin:0; padding:8px; font-size:1rem;">
+        <div style="display: flex; gap: 10px;">
+          <input type="text" value="${t.right.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'right', this.value)" placeholder="Правильный ответ" style="margin:0; padding:8px; font-size:1rem; flex:1;">
+          <input type="text" value="${t.wrong.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'wrong', this.value)" placeholder="Неправильные (через запятую)" style="margin:0; padding:8px; font-size:1rem; flex:2;">
+        </div>
+      </li>`;
+    }
   }).join('');
+}
+
+function updateEditTask(idx, field, val) {
+  if (currentEditTasks[idx]) {
+    currentEditTasks[idx][field] = val;
+  }
 }
 
 function removeEditTask(idx) {
