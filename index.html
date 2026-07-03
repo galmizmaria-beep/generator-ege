@@ -33,7 +33,7 @@
   }
 
   /* Скрытие элементов в зависимости от режима */
-  .mode-student #menu, .mode-student #teacher { display: none !important; }
+  .mode-student #menu, .mode-student #teacher, .mode-student #statsScreen { display: none !important; }
   .mode-student header { display: none !important; }
   .mode-teacher #title, .mode-teacher #sections, .mode-teacher #student, .mode-teacher #themesScreen { display: none !important; }
 
@@ -151,10 +151,7 @@
     <p class="title-sub">Битва за грамотность</p>
     <div class="hero-stage">
       <img src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" alt="Герои">
-      
-      <!-- Поле для ввода имени -->
-      <input type="text" id="studentNameInput" placeholder="Ваше имя и фамилия" style="max-width: 350px; text-align: center; font-size: 1.2rem; font-weight: bold; color: var(--neon-cyan); margin-bottom: 0px;">
-      
+      <input type="text" id="studentNameInput" placeholder="Введите ваше имя..." style="max-width: 350px; text-align: center; margin-bottom: -10px; font-size: 1.3rem;">
       <button class="btn play-btn" onclick="goToClasses()">▶ Играть</button>
     </div>
   </div>
@@ -168,11 +165,10 @@
       <h3>Режим учителя</h3>
       <p>Создать урок, темы и скачать игру</p>
     </div>
-    <!-- Перенаправлено на статистику учителя -->
-    <div class="card" onclick="show('achieveScreen');renderTeacherStats()">
+    <div class="card" onclick="show('statsScreen');renderStats()">
       <div class="icon">📊</div>
-      <h3>Статистика</h3>
-      <p>Смотреть результаты учеников</p>
+      <h3>Статистика учеников</h3>
+      <p>Посмотреть результаты и ошибки</p>
     </div>
   </div>
 </section>
@@ -288,12 +284,20 @@
   <div style="text-align:center; margin-top: 30px;" id="navBtns"></div>
 </section>
 
-<!-- ═══ ЭКРАН ДОСТИЖЕНИЙ / СТАТИСТИКИ ═══ -->
+<!-- ═══ ЭКРАН ДОСТИЖЕНИЙ УЧЕНИКА ═══ -->
 <section class="screen" id="achieveScreen">
   <button class="btn small" onclick="goBackFromAchieve()">⬅ Назад</button>
-  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;" id="achieveTitle">🏆 Твои мутации знаний</h2>
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;">🏆 Твои мутации знаний</h2>
   <div class="task-box" id="badgeList" style="text-align:center; max-width: 800px; margin: 0 auto;"></div>
-  <div id="achieveBottomBtn" style="text-align:center; margin-top: 30px;"><button class="btn small" onclick="resetProgress()">🗑️ Сбросить прогресс</button></div>
+  <div style="text-align:center; margin-top: 30px;"><button class="btn small" onclick="resetProgress()">🗑️ Сбросить прогресс</button></div>
+</section>
+
+<!-- ═══ ЭКРАН СТАТИСТИКИ УЧИТЕЛЯ ═══ -->
+<section class="screen" id="statsScreen">
+  <button class="btn small" onclick="show('menu')">⬅ Назад в меню</button>
+  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;">📊 Статистика прохождений</h2>
+  <div class="task-box" id="statsList" style="max-width: 800px; margin: 0 auto;"></div>
+  <div style="text-align:center; margin-top: 30px;"><button class="btn small" onclick="clearAllStats()">🗑️ Очистить всю статистику</button></div>
 </section>
 
 <footer>
@@ -363,24 +367,22 @@ const sndOK = () => { beep(660, .12); setTimeout(() => beep(880, .15), 90) };
 const sndBad = () => beep(160, .3, 'sawtooth');
 const sndWin = () => { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, .2), i * 100)) };
 
-// --- Прогресс и сохранения (Ученик) ---
+// --- Прогресс и сохранения ---
 let state = JSON.parse(localStorage.getItem('nr_state') || '{}');
 let energy = state.energy || 0, combo = 0, totalCorrect = state.totalCorrect || 0;
 let achievements = state.achievements || {};
-
-// Переменные для статистики текущего сеанса игры ученика
-let currentStudentName = "";
-let currentSessionStats = null;
 
 function saveState() { localStorage.setItem('nr_state', JSON.stringify({ energy, totalCorrect, achievements })); }
 
 function updateHUD() {
   const eStr = energy.toString();
   const cStr = combo.toString();
+  // Обновляем шапку (если видна)
   document.getElementById('energy').textContent = eStr;
   document.getElementById('combo').textContent = cStr;
   document.getElementById('tube').style.height = Math.min(100, energy / 2) + '%';
   
+  // Обновляем HUD ученика на экранах
   if(document.getElementById('energyHudClasses')) document.getElementById('energyHudClasses').textContent = eStr;
   if(document.getElementById('energyHudThemes')) document.getElementById('energyHudThemes').textContent = eStr;
   if(document.getElementById('energyHudStudent')) document.getElementById('energyHudStudent').textContent = eStr;
@@ -389,9 +391,7 @@ function updateHUD() {
 
 function addEnergy(n) { 
   combo++; 
-  let gained = n * combo;
-  energy += gained; 
-  if(currentSessionStats) currentSessionStats.energyEarned += gained;
+  energy += n * combo; 
   totalCorrect++; 
   sndOK(); 
   updateHUD(); 
@@ -436,8 +436,6 @@ function toast(msg) {
 }
 
 function renderBadges() {
-  document.getElementById('achieveTitle').textContent = "🏆 Твои мутации знаний";
-  document.getElementById('achieveBottomBtn').style.display = 'block';
   document.getElementById('badgeList').innerHTML = BADGES.map(b => `<span class="badge ${achievements[b.id] ? 'unlocked' : ''}">${b.name}</span>`).join('');
 }
 
@@ -448,98 +446,6 @@ function resetProgress() {
     updateHUD(); renderBadges();
   });
 }
-
-// --- Статистика для Учителя ---
-function renderTeacherStats() {
-  document.getElementById('achieveTitle').textContent = "📊 Статистика учеников";
-  document.getElementById('achieveBottomBtn').style.display = 'none';
-
-  const container = document.getElementById('badgeList');
-  let globalStats = JSON.parse(localStorage.getItem('nr_global_stats') || '[]');
-
-  let html = `
-    <div style="margin-bottom:20px; background:rgba(0,0,0,0.3); padding:15px; border-radius:12px; border: 1px solid rgba(0,229,255,0.3);">
-      <p style="color:var(--neon-cyan); font-size:0.95rem; margin-bottom:10px;">Если ученик играл на другом устройстве, вставьте присланный им код сюда:</p>
-      <input type="text" id="importCodeInput" placeholder="Вставьте код..." style="max-width:300px; display:inline-block; margin-right:10px; padding: 10px;">
-      <button class="btn small" onclick="importStatsCode()">📥 Добавить</button>
-      <br><br>
-      <button class="btn small" style="border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="clearTeacherStats()">🗑️ Очистить всю статистику</button>
-    </div>
-  `;
-
-  if (globalStats.length === 0) {
-    html += `<p style="color:#a9d8e8; font-size:1.2rem; margin-top:30px;">Статистики пока нет. Отправьте игру ученикам!</p>`;
-  } else {
-    let byName = {};
-    globalStats.forEach(s => {
-      let n = s.name || "Аноним";
-      if (!byName[n]) byName[n] = [];
-      byName[n].push(s);
-    });
-
-    for (let name in byName) {
-      html += `<div style="background: var(--panel); border: 1px solid var(--neon-cyan); border-radius: 12px; margin-bottom: 20px; padding: 20px; text-align:left; box-shadow: 0 0 15px rgba(0,229,255,.1);">`;
-      html += `<h3 style="color:#fff; text-shadow:0 0 10px var(--neon-blue); border-bottom:2px solid rgba(0,229,255,.3); padding-bottom:10px; margin-bottom:15px; font-size:1.5rem;">🧑‍🎓 ${name}</h3>`;
-      
-      byName[name].forEach((sess) => {
-        html += `<div style="margin-bottom: 15px; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 10px; border-left: 4px solid ${sess.mistakes.length === 0 ? '#0f6' : '#f36'};">`;
-        html += `<p style="color:var(--neon-cyan); font-size:1.05rem; margin-bottom:8px;"><b>Кл:</b> ${sess.lvl} | <b>Тема:</b> ${sess.theme} | <span style="opacity:0.7; font-size:0.9rem;">${sess.date}</span></p>`;
-        html += `<p style="color:#fff; margin-bottom:8px;">Энергия: <b style="color:var(--neon-blue);">${sess.energyEarned} ⚡</b> | Верно: <b style="color:#0f6;">${sess.correct} / ${sess.total}</b></p>`;
-        
-        if (sess.mistakes.length > 0) {
-          html += `<p style="color:#f36; font-size:1rem; margin-bottom:5px;"><b>Ошибки (${sess.mistakes.length}):</b></p><ul style="list-style:none; padding-left:10px; font-size:0.95rem; color:#dff6ff;">`;
-          sess.mistakes.forEach(m => {
-            html += `<li style="margin-bottom:4px;">• <span style="color:#a9d8e8">${m.question}</span> ❌ <i style="color:#f36;">${m.wrong}</i> (Правильный ответ: <b style="color:#0f6;">${m.right}</b>)</li>`;
-          });
-          html += `</ul>`;
-        } else {
-          html += `<p style="color:#0f6; font-weight:bold; margin-top:5px;">Ошибок нет! Блестящий результат! 🎉</p>`;
-        }
-        html += `</div>`;
-      });
-      html += `</div>`;
-    }
-  }
-  container.innerHTML = html;
-}
-
-function copyStatsCode(code) {
-  navigator.clipboard.writeText(code).then(() => {
-    toast('✅ Код скопирован! Отправьте его учителю.');
-  }).catch(() => {
-    showCustomAlert('Не удалось скопировать код автоматически. Скопируйте его вручную: <br><br><textarea rows="4" readonly style="font-size:0.8rem; width:100%;">'+code+'</textarea>');
-  });
-}
-
-function importStatsCode() {
-  const input = document.getElementById('importCodeInput');
-  const code = input.value.trim();
-  if (!code) return;
-  try {
-    const decoded = JSON.parse(decodeURIComponent(atob(code)));
-    if (decoded && decoded.name) {
-      let globalStats = JSON.parse(localStorage.getItem('nr_global_stats') || '[]');
-      globalStats.push(decoded);
-      localStorage.setItem('nr_global_stats', JSON.stringify(globalStats));
-      input.value = '';
-      renderTeacherStats();
-      toast('✅ Данные ученика успешно добавлены!');
-    } else {
-      showCustomAlert('Неверный формат кода!');
-    }
-  } catch(e) {
-    showCustomAlert('Ошибка при чтении кода! Проверьте, полностью ли он скопирован.');
-  }
-}
-
-function clearTeacherStats() {
-  showCustomConfirm('Вы уверены, что хотите удалить ВСЮ статистику учеников?', () => {
-    localStorage.removeItem('nr_global_stats');
-    renderTeacherStats();
-    toast('🗑️ Статистика очищена');
-  });
-}
-
 
 // --- Таймер ---
 let timerInt = null;
@@ -576,12 +482,6 @@ function forceShowAnswer() {
   const task = currentClassTasks[curIdx];
   const fb = document.getElementById('fb');
   if (!task) return;
-
-  if (currentSessionStats) {
-     let q = task.type === 'input' ? task.d.replace(/\[(.*?)\]/, '...') : task.q;
-     let r = task.type === 'input' ? task.d.match(/\[(.*?)\]/)[1] : task.right;
-     currentSessionStats.mistakes.push({ question: q, right: r, wrong: 'Время вышло' });
-  }
 
   if (task.type === 'input') {
     let match = task.d.match(/\[(.*?)\]/);
@@ -706,7 +606,6 @@ function addLessonSection() {
   draftTasks = [];
   updateDraftUI();
   renderLessonList();
-  toast('✅ Урок успешно сформирован!');
 }
 
 function renderLessonList() {
@@ -764,6 +663,45 @@ function buildHTMLFile() {
   document.getElementById('linkResult').innerHTML = `<p style="margin-top:20px;color:#0f6; font-size:1.1rem;">✅ Файл успешно скачан! Отправьте его ученикам.</p>`;
 }
 
+function renderStats() {
+  const list = document.getElementById('statsList');
+  let stats = JSON.parse(localStorage.getItem('nr_all_stats') || '[]');
+  if (stats.length === 0) {
+    list.innerHTML = "<p style='text-align:center; color:#a9d8e8;'>Нет данных о прохождениях учеников.</p>";
+    return;
+  }
+  let html = '';
+  stats.forEach((s) => {
+    let errHtml = '';
+    if (s.errors.length === 0) {
+      errHtml = '<span style="color:#0f6; font-weight:bold;">Ошибок нет! Идеальное прохождение.</span>';
+    } else {
+      errHtml = `<ul style="text-align:left; font-size:1rem; margin-top:10px; color:#f36; padding-left: 20px;">` +
+        s.errors.map(e => `<li style="margin-bottom: 5px;">Вопрос/Слово: <b>${e.q}</b> | Ответ ученика: <b style="text-decoration:line-through">${e.wrong}</b> | Правильный ответ: <b style="color:#0f6">${e.right}</b></li>`).join('') +
+        `</ul>`;
+    }
+    html += `<div style="background:rgba(0,0,0,0.4); border:1px solid var(--neon-cyan); padding: 20px; margin-bottom: 15px; border-radius: 12px; text-align:left;">
+      <h4 style="color:#fff; font-size: 1.4rem; text-shadow: 0 0 8px var(--neon-blue); margin-bottom: 5px;">Ученик: ${s.name}</h4>
+      <p style="color:var(--neon-cyan); font-size: 1.1rem; margin-bottom: 5px;">Класс: ${s.classLvl} | Тема: ${s.theme}</p>
+      <p style="color:#a9d8e8; font-size: 0.9rem; margin-bottom: 10px;">Дата: ${s.date}</p>
+      <p style="color:#ffdf00; font-size: 1.2rem; font-weight:bold; margin-bottom: 15px;">Набрано энергии: ${s.energy} ⚡</p>
+      <div style="background:rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px;">
+        <h5 style="color:#fff; margin-bottom:10px; font-size: 1.1rem;">Анализ ошибок:</h5>
+        ${errHtml}
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function clearAllStats() {
+  showCustomConfirm('Вы уверены, что хотите удалить всю статистику прохождений учеников?', () => {
+    localStorage.removeItem('nr_all_stats');
+    renderStats();
+    toast('✅ Статистика успешно очищена');
+  });
+}
+
 // ==========================================
 //           ЛОГИКА УЧЕНИКА
 // ==========================================
@@ -773,16 +711,16 @@ let currentClassTasks = [];
 let curIdx = 0;
 let currentClassLvl = null;
 let currentTheme = null;
+let currentStudentName = "Неизвестный ученик";
+let currentSessionStats = { errors: [] };
 
 function goToClasses() {
   const nameInput = document.getElementById('studentNameInput');
-  if (nameInput) {
-    const val = nameInput.value.trim();
-    if (!val) {
-      showCustomAlert('Пожалуйста, введите ваше имя перед началом игры!');
-      return;
-    }
-    currentStudentName = val;
+  if (nameInput && nameInput.value.trim() !== '') {
+    currentStudentName = nameInput.value.trim();
+  } else {
+    showCustomAlert('Пожалуйста, введите ваше имя перед началом битвы за грамотность!');
+    return;
   }
   show('classesScreen');
 }
@@ -850,20 +788,10 @@ function startClass(lvl) {
 
 function startTheme(lvl, theme) {
   currentTheme = theme;
+  currentSessionStats = { errors: [] }; // Сброс статистики текущей сессии
+  
   // Оставляем только те задания, которые принадлежат выбранной теме
   currentClassTasks = classesMap[lvl].filter(t => t.theme === theme);
-  
-  // Создаем объект для статистики текущего прохождения
-  currentSessionStats = {
-    name: currentStudentName || "Аноним",
-    lvl: lvl,
-    theme: theme,
-    date: new Date().toLocaleString(),
-    total: currentClassTasks.length,
-    correct: 0,
-    mistakes: [],
-    energyEarned: 0
-  };
   
   // Перемешиваем задания внутри темы
   currentClassTasks.sort(() => Math.random() - 0.5);
@@ -926,15 +854,17 @@ function finishClass() {
   lessonDone = true; 
   checkAchievements();
   
-  // Формируем код для сохранения
-  let sessionStr = "";
-  if (currentSessionStats) {
-    let globalStats = JSON.parse(localStorage.getItem('nr_global_stats') || '[]');
-    globalStats.push(currentSessionStats);
-    localStorage.setItem('nr_global_stats', JSON.stringify(globalStats));
-    // Кодируем данные сессии для передачи учителю
-    sessionStr = btoa(encodeURIComponent(JSON.stringify(currentSessionStats)));
-  }
+  // Сохранение статистики ученика для учителя
+  let allStats = JSON.parse(localStorage.getItem('nr_all_stats') || '[]');
+  allStats.push({
+    name: currentStudentName,
+    classLvl: currentClassLvl,
+    theme: currentTheme,
+    energy: energy,
+    errors: currentSessionStats.errors,
+    date: new Date().toLocaleString()
+  });
+  localStorage.setItem('nr_all_stats', JSON.stringify(allStats));
   
   document.getElementById('lessonProgress').style.width = '100%';
   document.getElementById('studentArea').innerHTML = `
@@ -945,7 +875,6 @@ function finishClass() {
       <p style="color:var(--neon-cyan); font-size: 1.2rem; margin-bottom: 30px;">Мозг заряжен на 100%! Отличная работа!</p>
       <button class="btn" onclick="startTheme('${currentClassLvl}', '${currentTheme}')">🔄 Пройти заново</button>
       <button class="btn" onclick="backToThemes()">📚 К выбору тем</button>
-      ${sessionStr ? `<br><br><button class="btn small" style="background: rgba(123,47,247,0.3); border-color: var(--neon-purple);" onclick="copyStatsCode('${sessionStr}')">📋 Скопировать код результатов для учителя</button>` : ''}
     </div>
   `;
   document.getElementById('navBtns').innerHTML = ''; 
@@ -980,7 +909,6 @@ function renderTaskInput(task, area) {
     let ans = correctLetter.trim().toLowerCase();
     
     if (val === ans) {
-      if(currentSessionStats) currentSessionStats.correct++;
       inputEl.style.color = '#0f6';
       inputEl.style.borderColor = '#0f6';
       inputEl.disabled = true;
@@ -990,17 +918,11 @@ function renderTaskInput(task, area) {
       renderNavButtons(true); // Разблокируем кнопку "Далее"
     } else if (val.length >= ans.length) {
       // НЕВЕРНЫЙ ВВОД
-      if (currentSessionStats) {
-        currentSessionStats.mistakes.push({
-          question: task.d.replace(/\[(.*?)\]/, '...'),
-          right: correctLetter,
-          wrong: val
-        });
-      }
       inputEl.style.color = '#f36';
       inputEl.style.borderColor = '#f36';
       inputEl.disabled = true; // Блокируем поле (чтобы дальше пропустить)
       resetCombo();
+      currentSessionStats.errors.push({ q: task.d, wrong: val, right: correctLetter });
       document.getElementById('fb').innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correctLetter}</b></span>`;
       stopTimer();
       renderNavButtons(true); // Разблокируем кнопку "Далее", чтобы ученик прошел дальше
@@ -1037,7 +959,6 @@ function checkChoiceAnswer(btn, selected, correct) {
   const fb = document.getElementById('fb');
 
   if (selected.toLowerCase() === correct.toLowerCase()) {
-    if(currentSessionStats) currentSessionStats.correct++;
     btn.style.background = 'rgba(0, 255, 100, 0.3)';
     btn.style.borderColor = '#0f6';
     btn.style.color = '#0f6';
@@ -1051,17 +972,11 @@ function checkChoiceAnswer(btn, selected, correct) {
     renderNavButtons(true); // Разблокируем кнопку "Далее"
   } else {
     // НЕВЕРНЫЙ ВЫБОР
-    if (currentSessionStats) {
-      currentSessionStats.mistakes.push({
-        question: task.q,
-        right: correct,
-        wrong: selected
-      });
-    }
     btn.style.background = 'rgba(255, 51, 102, 0.3)';
     btn.style.borderColor = '#f36';
     btn.style.color = '#f36';
     resetCombo();
+    currentSessionStats.errors.push({ q: task.q, wrong: selected, right: correct });
     fb.innerHTML = `<span class="wrong">Ошибка. Правильный ответ: <b>${correct}</b></span>`;
     
     // Блокируем все кнопки и подсвечиваем правильный вариант
