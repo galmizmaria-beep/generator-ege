@@ -6,7 +6,7 @@
 <title>Лаборатория русского языка</title>
 
 <!-- Точка внедрения данных (для скачанного файла) -->
-<script id="injection-point">window.INJECTED_TASKS = [];</script>
+<script id="injection-point">window.INJECTED_TASKS = []; window.GAME_CONFIG = null;</script>
 
 <!-- Скрипт мгновенного переключения режима (убирает мигание экранов) -->
 <script>
@@ -36,6 +36,11 @@
   .mode-student #menu, .mode-student #teacher { display: none !important; }
   .mode-student header { display: none !important; }
   .mode-teacher #title, .mode-teacher #sections, .mode-teacher #student, .mode-teacher #themesScreen { display: none !important; }
+  
+  /* Скрытие меню и плашки HUD в режиме учителя согласно запросу */
+  .mode-teacher #menu { display: none !important; }
+  .mode-teacher header .hud { display: none !important; }
+  .mode-teacher #teacher > button:first-of-type { display: none !important; } /* Скрывает кнопку "Назад в меню" */
 
   header { text-align: center; padding: 40px 20px 20px; }
   h1.logo { font-size: 3rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); animation: pulse 2s infinite ease-in-out; }
@@ -158,6 +163,10 @@
     
     <label>🎓 Класс:</label>
     <select id="editClass">
+      <option value="1">1 класс</option>
+      <option value="2">2 класс</option>
+      <option value="3">3 класс</option>
+      <option value="4">4 класс</option>
       <option value="5">5 класс</option>
       <option value="6">6 класс</option>
       <option value="7">7 класс</option>
@@ -176,6 +185,35 @@
     <h4 style="color:var(--neon-cyan); margin-top:20px; font-size:1.1rem;">📋 Задания в этом разделе (можно удалить лишние):</h4>
     <ul class="task-edit-list" id="editTaskList"></ul>
     
+    <!-- ДОБАВЛЕНИЕ НОВЫХ ЗАДАНИЙ В РЕДАКТОРЕ -->
+    <div style="margin-top: 20px; border-top: 1px solid rgba(0,229,255,.3); padding-top: 20px;">
+      <h4 style="color:var(--neon-cyan); font-size:1.1rem;">➕ Добавить задание в этот раздел:</h4>
+      <select id="editNewType" onchange="toggleEditTypeFields()">
+        <option value="input">✏️ Ввод ответа</option>
+        <option value="choice">🎯 Выбор вариантов</option>
+      </select>
+      
+      <div id="editTypeInputWrap">
+        <input type="text" id="editDataInput" placeholder="Слово с [п]ропуском">
+      </div>
+      
+      <div id="editTypeChoiceWrap" style="display:none;">
+        <input type="text" id="editDataChoice" placeholder="Слово / Вопрос">
+        <input type="text" id="editAnsRight" placeholder="Правильный ответ">
+        <input type="text" id="editAnsWrong" placeholder="Неправильные (через запятую)">
+      </div>
+      
+      <label style="margin-top:10px;">Картинка (URL или файл):</label>
+      <input type="text" id="editImgUrl" placeholder="Ссылка на картинку">
+      <input type="file" id="editImgFile" accept="image/*" onchange="encodeFile(this, 'editImg')">
+      
+      <label>Аудио (URL или файл):</label>
+      <input type="text" id="editAudioUrl" placeholder="Ссылка на аудио">
+      <input type="file" id="editAudioFile" accept="audio/*" onchange="encodeFile(this, 'editAudio')">
+      
+      <button class="btn small" style="width:100%; border-color: var(--neon-purple); background: rgba(123,47,247,0.3);" onclick="addEditTask()">Добавить задание</button>
+    </div>
+
     <div style="text-align:center; margin-top:25px; display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
       <button class="btn small" style="border-color: #f36; color: #f36; background: rgba(255,51,102,0.1); box-shadow: none;" onclick="closeEditModal()">Отмена</button>
       <button class="btn small" onclick="saveEditedSection()">💾 Сохранить изменения</button>
@@ -197,7 +235,7 @@
 </section>
 
 <!-- ═══ ГЛАВНОЕ МЕНЮ (для учителя) ═══ -->
-<section class="screen active" id="menu">
+<section class="screen" id="menu">
   <div class="grid" style="display: flex; justify-content: center;">
     <div class="card" onclick="show('teacher')">
       <div class="icon">👨‍🔬</div>
@@ -208,15 +246,31 @@
 </section>
 
 <!-- ═══ РЕДАКТОР УЧИТЕЛЯ ═══ -->
-<section class="screen" id="teacher">
+<section class="screen active" id="teacher">
   <button class="btn small" onclick="show('menu')">⬅ Назад в меню</button>
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--neon-blue);margin:20px 0; font-size: 2rem;">Конструктор урока</h2>
   
+  <div class="task-box" style="max-width: 800px; margin: 0 auto 20px;">
+    <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">⚙️ Настройки игры (тексты / язык)</h3>
+    <label>Заголовок игры:</label>
+    <input type="text" id="cfgTitle" value="Лаборатория русского языка">
+    <label>Подзаголовок:</label>
+    <input type="text" id="cfgSub" value="Битва за грамотность">
+    <label>Плейсхолдер для имени:</label>
+    <input type="text" id="cfgName" value="Введите ваше имя...">
+    <label>Текст кнопки "Играть":</label>
+    <input type="text" id="cfgPlay" value="Играть">
+  </div>
+
   <div class="task-box" style="max-width: 800px; margin: 0 auto;">
     <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">1. Создание задания</h3>
     
     <label>🎓 Выберите класс:</label>
     <select id="fClass">
+      <option value="1">1 класс</option>
+      <option value="2">2 класс</option>
+      <option value="3">3 класс</option>
+      <option value="4">4 класс</option>
       <option value="5">5 класс</option>
       <option value="6">6 класс</option>
       <option value="7">7 класс</option>
@@ -253,6 +307,17 @@
       
       <label>Неправильные ответы (через запятую):</label>
       <input type="text" id="fAnsWrong" placeholder="Например: е, а, о">
+    </div>
+
+    <div style="background: rgba(0,229,255,0.05); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px dashed var(--neon-cyan);">
+      <h4 style="color:#a9d8e8; margin-bottom: 10px;">Медиафайлы (необязательно)</h4>
+      <label>Картинка (URL или файл):</label>
+      <input type="text" id="fImgUrl" placeholder="Вставьте ссылку на картинку">
+      <input type="file" id="fImgFile" accept="image/*" onchange="encodeFile(this, 'img')">
+      
+      <label>Аудио (URL или файл):</label>
+      <input type="text" id="fAudioUrl" placeholder="Вставьте ссылку на аудио">
+      <input type="file" id="fAudioFile" accept="audio/*" onchange="encodeFile(this, 'audio')">
     </div>
 
     <button class="btn small" style="width: 100%; margin-top: 15px; border-color: var(--neon-purple); background: rgba(123,47,247,0.3);" onclick="draftTask()">➕ Добавить задание</button>
@@ -557,6 +622,23 @@ function forceShowAnswer() {
 // ==========================================
 let lesson = [];
 let draftTasks = [];
+let currentImgBase64 = null;
+let currentAudioBase64 = null;
+let editImgBase64 = null;
+let editAudioBase64 = null;
+
+function encodeFile(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    if (type === 'img') currentImgBase64 = e.target.result;
+    if (type === 'audio') currentAudioBase64 = e.target.result;
+    if (type === 'editImg') editImgBase64 = e.target.result;
+    if (type === 'editAudio') editAudioBase64 = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
 function toggleTypeFields() {
   const type = document.getElementById('fType').value;
@@ -566,6 +648,8 @@ function toggleTypeFields() {
 
 function draftTask() {
   const type = document.getElementById('fType').value;
+  let img = currentImgBase64 || document.getElementById('fImgUrl').value.trim();
+  let audio = currentAudioBase64 || document.getElementById('fAudioUrl').value.trim();
 
   if (type === 'input') {
     const data = document.getElementById('fDataInput').value.trim();
@@ -575,7 +659,7 @@ function draftTask() {
     let addedCount = 0;
     words.forEach(w => {
       if (w.includes('[') && w.includes(']')) {
-        draftTasks.push({ type: 'input', d: w.trim() });
+        draftTasks.push({ type: 'input', d: w.trim(), img, audio });
         addedCount++;
       }
     });
@@ -591,13 +675,20 @@ function draftTask() {
     
     if (!q || !right || !wrong) { showCustomAlert('Заполните все поля для теста!'); return; }
     
-    draftTasks.push({ type: 'choice', q, right, wrong });
+    draftTasks.push({ type: 'choice', q, right, wrong, img, audio });
     toast('➕ Задание добавлено!');
     
     document.getElementById('fDataChoice').value = '';
     document.getElementById('fAnsRight').value = '';
     document.getElementById('fAnsWrong').value = '';
   }
+  
+  currentImgBase64 = null;
+  currentAudioBase64 = null;
+  document.getElementById('fImgUrl').value = '';
+  document.getElementById('fImgFile').value = '';
+  document.getElementById('fAudioUrl').value = '';
+  document.getElementById('fAudioFile').value = '';
   
   updateDraftUI();
 }
@@ -680,6 +771,44 @@ function openEditModal(i) {
   document.getElementById('editSectionModal').classList.add('active');
 }
 
+function toggleEditTypeFields() {
+  const type = document.getElementById('editNewType').value;
+  document.getElementById('editTypeInputWrap').style.display = type === 'input' ? 'block' : 'none';
+  document.getElementById('editTypeChoiceWrap').style.display = type === 'choice' ? 'block' : 'none';
+}
+
+function addEditTask() {
+  const type = document.getElementById('editNewType').value;
+  let img = editImgBase64 || document.getElementById('editImgUrl').value.trim();
+  let audio = editAudioBase64 || document.getElementById('editAudioUrl').value.trim();
+  
+  if (type === 'input') {
+    const d = document.getElementById('editDataInput').value.trim();
+    if (!d || !d.includes('[') || !d.includes(']')) { showCustomAlert('Введите слово с пропусками в скобках []!'); return; }
+    currentEditTasks.push({ type: 'input', d, img, audio });
+    document.getElementById('editDataInput').value = '';
+  } else {
+    const q = document.getElementById('editDataChoice').value.trim();
+    const right = document.getElementById('editAnsRight').value.trim();
+    const wrong = document.getElementById('editAnsWrong').value.trim();
+    if (!q || !right || !wrong) { showCustomAlert('Заполните все поля!'); return; }
+    currentEditTasks.push({ type: 'choice', q, right, wrong, img, audio });
+    document.getElementById('editDataChoice').value = '';
+    document.getElementById('editAnsRight').value = '';
+    document.getElementById('editAnsWrong').value = '';
+  }
+  
+  editImgBase64 = null;
+  editAudioBase64 = null;
+  document.getElementById('editImgUrl').value = '';
+  document.getElementById('editImgFile').value = '';
+  document.getElementById('editAudioUrl').value = '';
+  document.getElementById('editAudioFile').value = '';
+  
+  renderEditTasks();
+  toast('➕ Задание добавлено в раздел!');
+}
+
 function renderEditTasks() {
   const ul = document.getElementById('editTaskList');
   if (currentEditTasks.length === 0) {
@@ -687,10 +816,11 @@ function renderEditTasks() {
     return;
   }
   ul.innerHTML = currentEditTasks.map((t, idx) => {
+    let mediaBadge = (t.img ? '🖼️ ' : '') + (t.audio ? '🎵' : '');
     if (t.type === 'input') {
       return `<li style="flex-direction: column; align-items: stretch; gap: 10px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">✏️ Ввод ответа</span>
+          <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">✏️ Ввод ответа ${mediaBadge}</span>
           <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
         </div>
         <input type="text" value="${t.d.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'd', this.value)" placeholder="Слово с [п]ропуском" style="margin:0; padding:8px; font-size:1rem;">
@@ -698,7 +828,7 @@ function renderEditTasks() {
     } else {
       return `<li style="flex-direction: column; align-items: stretch; gap: 10px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">🎯 Выбор вариантов</span>
+          <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">🎯 Выбор вариантов ${mediaBadge}</span>
           <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
         </div>
         <input type="text" value="${t.q.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'q', this.value)" placeholder="Слово / Вопрос" style="margin:0; padding:8px; font-size:1rem;">
@@ -763,9 +893,16 @@ function buildHTMLFile() {
   });
 
   const tasksJSON = JSON.stringify(flatTasks);
+  const gameConfig = {
+    title: document.getElementById('cfgTitle').value.trim() || 'Лаборатория русского языка',
+    sub: document.getElementById('cfgSub').value.trim() || 'Битва за грамотность',
+    nameHolder: document.getElementById('cfgName').value.trim() || 'Введите ваше имя...',
+    playBtn: document.getElementById('cfgPlay').value.trim() || 'Играть'
+  };
+
   let baseHtml = document.documentElement.outerHTML;
 
-  let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};<\/script>`;
+  let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};\nwindow.GAME_CONFIG = ${JSON.stringify(gameConfig)};<\/script>`;
   let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<script id="injection-point">.*?<\/script>/, injectionString);
 
   const blob = new Blob([newHtml], { type: 'text/html;charset=utf-8' });
@@ -1023,9 +1160,14 @@ function renderTaskInput(task, area) {
   let correctLetter = match[1];
   let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" style="width: 60px; text-align: center; display: inline-block; font-size: 1.8rem; padding: 5px;" id="answerInput" autocomplete="off">`);
 
+  let mediaHtml = '';
+  if (task.img) mediaHtml += `<img src="${task.img}" style="max-width:100%; max-height: 250px; border-radius:12px; margin-bottom:15px; box-shadow:0 0 10px var(--neon-blue);"><br>`;
+  if (task.audio) mediaHtml += `<audio controls src="${task.audio}" style="margin-bottom:15px; width:100%; outline:none;"></audio>`;
+
   area.innerHTML = `
     <div class="task-box" style="text-align:center;">
       <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px;">📝 Тема: ${task.theme}</h3>
+      ${mediaHtml}
       <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">Вставь пропущенную букву:</p>
       <div class="word-slot" style="font-size:2.5rem; letter-spacing: 5px; margin-bottom: 20px;">
         ${displayWord}
@@ -1068,9 +1210,14 @@ function renderTaskChoice(task, area) {
   let options = [...wrongAnswers, task.right];
   options.sort(() => Math.random() - 0.5);
 
+  let mediaHtml = '';
+  if (task.img) mediaHtml += `<img src="${task.img}" style="max-width:100%; max-height: 250px; border-radius:12px; margin-bottom:15px; box-shadow:0 0 10px var(--neon-blue);"><br>`;
+  if (task.audio) mediaHtml += `<audio controls src="${task.audio}" style="margin-bottom:15px; width:100%; outline:none;"></audio>`;
+
   let html = `
     <div class="task-box" style="text-align:center;">
       <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px;">📝 Тема: ${task.theme}</h3>
+      ${mediaHtml}
       <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">Выберите правильный вариант:</p>
       <p style="font-size: 2.2rem; font-weight: bold; margin-bottom: 35px; letter-spacing: 2px;">${task.q}</p>
       <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;" id="optionsContainer">
@@ -1130,10 +1277,21 @@ window.addEventListener('DOMContentLoaded', () => {
   updateHUD();
   
   if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) {
+    if (window.GAME_CONFIG) {
+      document.querySelectorAll('.logo, .title-logo').forEach(el => el.textContent = window.GAME_CONFIG.title);
+      document.querySelectorAll('.subtitle, .title-sub').forEach(el => el.textContent = window.GAME_CONFIG.sub);
+      
+      const nameInp = document.getElementById('studentNameInput');
+      if (nameInp && window.GAME_CONFIG.nameHolder) nameInp.placeholder = window.GAME_CONFIG.nameHolder;
+      
+      const pBtn = document.querySelector('.play-btn');
+      if (pBtn && window.GAME_CONFIG.playBtn) pBtn.innerHTML = '▶ ' + window.GAME_CONFIG.playBtn;
+    }
+    
     buildClassesList(window.INJECTED_TASKS);
     show('title');
   } else {
-    show('menu');
+    show('teacher');
   }
 });
 </script>
