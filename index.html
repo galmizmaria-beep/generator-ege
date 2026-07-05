@@ -878,11 +878,12 @@ const sndBad = () => beep(160, .3, 'sawtooth');
 const sndWin = () => { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, .2), i * 100)) };
 
 // --- Прогресс и сохранения ---
-let state = JSON.parse(localStorage.getItem('nr_state') || '{}');
-let energy = state.energy || 0, combo = 0, totalCorrect = state.totalCorrect || 0;
-let achievements = state.achievements || {};
+// Убрано использование localStorage для полного сброса при каждом запуске
+let energy = 0, combo = 0, totalCorrect = 0;
+let achievements = {};
+let allSessionStats = [];
 
-function saveState() { localStorage.setItem('nr_state', JSON.stringify({ energy, totalCorrect, achievements })); }
+function saveState() { /* Теперь данные живут только до перезагрузки страницы */ }
 
 function updateHUD() {
   const eStr = energy.toString();
@@ -950,7 +951,6 @@ function renderBadges() {
 
 function resetProgress() {
   showCustomConfirm('Сбросить весь прогресс (энергию и достижения)? / Reset all progress?', () => {
-    localStorage.removeItem('nr_state');
     energy = 0; combo = 0; totalCorrect = 0; achievements = {};
     updateHUD(); renderBadges();
   });
@@ -1039,26 +1039,61 @@ let editAudioBase64 = null;
 let cfgHeroBase64 = null;
 let cfgBgBase64 = null;
 
+function handleEncoded(result, type) {
+  if (type === 'img') currentImgBase64 = result;
+  if (type === 'audio') currentAudioBase64 = result;
+  if (type === 'editImg') editImgBase64 = result;
+  if (type === 'editAudio') editAudioBase64 = result;
+  if (type === 'cfgBg') {
+      cfgBgBase64 = result;
+      updatePreview();
+  }
+  if (type === 'cfgHero') {
+      cfgHeroBase64 = result;
+      document.getElementById('miniHeroPreview').src = cfgHeroBase64;
+      updatePreview();
+  }
+}
+
 function encodeFile(input, type) {
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (type === 'img') currentImgBase64 = e.target.result;
-    if (type === 'audio') currentAudioBase64 = e.target.result;
-    if (type === 'editImg') editImgBase64 = e.target.result;
-    if (type === 'editAudio') editAudioBase64 = e.target.result;
-    if (type === 'cfgBg') {
-        cfgBgBase64 = e.target.result;
-        updatePreview();
-    }
-    if (type === 'cfgHero') {
-        cfgHeroBase64 = e.target.result;
-        document.getElementById('miniHeroPreview').src = cfgHeroBase64;
-        updatePreview();
-    }
-  };
-  reader.readAsDataURL(file);
+
+  // Автоматическое сжатие для картинок
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const MAX_SIZE = 800; // Оптимальный максимальный размер
+        
+        if (width > height && width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        } else if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        // Сжатие в JPEG с качеством 70%
+        handleEncoded(canvas.toDataURL('image/jpeg', 0.7), type);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // Для аудио и прочего оставляем как есть
+    const reader = new FileReader();
+    reader.onload = (e) => handleEncoded(e.target.result, type);
+    reader.readAsDataURL(file);
+  }
 }
 
 function toggleTypeFields() {
@@ -1335,7 +1370,7 @@ function buildHTMLFile() {
 
 function renderStats() {
   const list = document.getElementById('statsList');
-  let stats = JSON.parse(localStorage.getItem('nr_all_stats') || '[]');
+  let stats = allSessionStats || [];
   if (stats.length === 0) {
     list.innerHTML = `<p style='text-align:center; color:#a9d8e8;'>${t('noStats')}</p>`;
     return;
@@ -1366,7 +1401,7 @@ function renderStats() {
 
 function clearAllStats() {
   showCustomConfirm(t('clearStats') + '?', () => {
-    localStorage.removeItem('nr_all_stats');
+    allSessionStats = [];
     renderStats();
     toast('✅');
   });
@@ -1497,12 +1532,12 @@ function nextTask() {
 
 function finishClass() {
   stopTimer(); lessonDone = true; checkAchievements();
-  let allStats = JSON.parse(localStorage.getItem('nr_all_stats') || '[]');
-  allStats.push({
+  
+  allSessionStats.push({
     name: currentStudentName, classLvl: currentClassLvl, theme: currentTheme,
     energy: energy, errors: currentSessionStats.errors, date: new Date().toLocaleString()
   });
-  localStorage.setItem('nr_all_stats', JSON.stringify(allStats));
+  
   document.getElementById('lessonProgress').style.width = '100%';
   
   let mistakesHtml = '';
@@ -1692,6 +1727,10 @@ function checkFullWordAnswer() {
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
   updateHUD();
+  
+  // Принудительно очищаем поле имени, чтобы браузер не подставлял старое из кеша
+  const nameInpLoad = document.getElementById('studentNameInput');
+  if (nameInpLoad) nameInpLoad.value = '';
   
   if (window.INJECTED_TASKS && window.INJECTED_TASKS.length > 0) {
     if (window.GAME_CONFIG) {
