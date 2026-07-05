@@ -130,8 +130,8 @@
   .badge.unlocked { opacity: 1; box-shadow: 0 0 15px var(--panel-glow); animation: pop .5s; background: rgba(0,229,255,.25);}
   @keyframes pop { 0% { transform: scale(.5); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
   
-  /* Уведомления появляются слева ВНИЗУ (чтобы не мешать редактору и предпросмотру) */
-  .toast { position: fixed; bottom: 20px; left: 20px; border-radius: 12px; padding: 15px 25px; z-index: 9999; animation: slideIn .4s; color: #fff; font-size: 1.1rem; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-cyan);}
+  /* Уведомления появляются слева (чтобы не перекрывать окно предпросмотра) */
+  .toast { position: fixed; top: 20px; left: 20px; border-radius: 12px; padding: 15px 25px; z-index: 9999; animation: slideIn .4s; color: #fff; font-size: 1.1rem;}
   @keyframes slideIn { from { transform: translateX(-120%); } to { transform: translateX(0); } }
   
   .task-list { list-style: none; margin: 15px 0; }
@@ -566,7 +566,8 @@ function hexToRgba(hex, alpha) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Отслеживаем изменения для окна предпросмотра (БЕЗ изменения стилей родительского окна)['cfgTitle', 'cfgSub', 'cfgName', 'cfgPlay', 'cfgLang', 'cfgHeroUrl', 'cfgBgUrl',
+// Отслеживаем изменения для окна предпросмотра (БЕЗ изменения стилей родительского окна)
+['cfgTitle', 'cfgSub', 'cfgName', 'cfgPlay', 'cfgLang', 'cfgHeroUrl', 'cfgBgUrl',
  'cfgPanelBg', 'cfgPanelGlow', 'cfgBtnBg', 'cfgBtnGlow', 'cfgFont', 'cfgQSize', 'cfgAnsSize',
  'cfgTitleColor', 'cfgSubColor', 'cfgBgColor', 'cfgNameInputBg', 'cfgThemeLabelColor', 
  'cfgThemeTextColor', 'cfgFullWordBg'].forEach(id => {
@@ -626,57 +627,24 @@ function applyStylesFromConfig(config) {
     }
 }
 
-// Вспомогательная функция для бесшумного обновления экрана выбора классов/тем
-function injectLiveUpdateFunction() {
-    return `
-    <script>
-    window.updateLivePreview = function(config, tasks) {
-        window.GAME_CONFIG = config;
-        window.INJECTED_TASKS = tasks;
-        
-        // 1. Обновляем стили без перезагрузки
-        applyStylesFromConfig(config);
-
-        // 2. Обновляем текстовые поля
-        document.querySelectorAll('.logo, .title-logo').forEach(el => el.textContent = config.title);
-        document.querySelectorAll('.subtitle, .title-sub').forEach(el => el.textContent = config.sub);
-        const nameInp = document.getElementById('studentNameInput');
-        if (nameInp && config.nameHolder) nameInp.placeholder = config.nameHolder;
-        const pBtn = document.querySelector('.play-btn');
-        if (pBtn && config.playBtn) pBtn.innerHTML = '▶ ' + config.playBtn;
-
-        // 3. Если находимся на экране выбора - тихо перерисовываем его, чтобы обновились задания
-        if (document.getElementById('classesScreen').classList.contains('active')) {
-            buildClassesList(tasks);
-        } else if (document.getElementById('themesScreen').classList.contains('active')) {
-            if(currentClassLvl) {
-                // Тихо собираем список для текущего класса
-                const classTasks = classesMap[currentClassLvl];
-                if(classTasks) {
-                    let themesMap = {};
-                    classTasks.forEach(task => {
-                        if(!themesMap[task.theme]) themesMap[task.theme] = [];
-                        themesMap[task.theme].push(task);
-                    });
-                    const grid = document.getElementById('themesGrid');
-                    let html = '';
-                    for(let theme in themesMap) {
-                        html += \`
-                          <div class="card" onclick="startTheme('\${currentClassLvl}', '\${theme.replace(/'/g, "\\\\'")}')">
-                            <div class="icon">📘</div>
-                            <h3 style="font-size: 1.5rem; margin-bottom: 15px; color: var(--theme-text-color);">\${theme}</h3>
-                            <p style="color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--panel-border); border-radius: 10px; padding: 5px;">\${t('tasksInTheme')} <b>\${themesMap[theme].length}</b></p>
-                          </div>
-                        \`;
-                    }
-                    grid.innerHTML = html;
-                }
-            }
-        }
-    };
-    <\/script>
-    `;
-}
+// Функция мгновенного обновления предпросмотра (запускается внутри фрейма)
+window.updateLivePreview = function(config, tasks) {
+    window.GAME_CONFIG = config;
+    if (tasks) window.INJECTED_TASKS = tasks;
+    
+    applyStylesFromConfig(config);
+    
+    document.querySelectorAll('.logo, .title-logo').forEach(el => el.textContent = config.title);
+    document.querySelectorAll('.subtitle, .title-sub').forEach(el => el.textContent = config.sub);
+    
+    const nameInp = document.getElementById('studentNameInput');
+    if (nameInp && config.nameHolder) nameInp.placeholder = config.nameHolder;
+    
+    const pBtn = document.querySelector('.play-btn');
+    if (pBtn && config.playBtn) pBtn.innerHTML = '▶ ' + config.playBtn;
+    
+    if (config.lang) currentLang = config.lang;
+};
 
 let previewTimeout;
 function updatePreview() {
@@ -724,7 +692,7 @@ function updatePreview() {
         let iframeEl = document.getElementById('previewFrame');
         if (!iframeEl) return;
 
-        // Если iframe уже был загружен и готов принимать обновления - отправляем их напрямую
+        // Если iframe уже был загружен и готов принимать обновления - отправляем их напрямую (без мерцания)
         if (iframeEl.contentWindow && typeof iframeEl.contentWindow.updateLivePreview === 'function') {
             iframeEl.contentWindow.updateLivePreview(gameConfig, flatTasks);
             return;
@@ -732,25 +700,24 @@ function updatePreview() {
 
         // Если это самая первая загрузка редактора - формируем iframe
         let htmlClone = document.documentElement.cloneNode(true);
+        // Удаляем все активные уведомления из клона, чтобы они не застревали внутри предпросмотра
+        htmlClone.querySelectorAll('.toast').forEach(t => t.remove()); 
+        
         let prev = htmlClone.querySelector('#previewFrame');
         if (prev) prev.removeAttribute('srcdoc'); 
         let baseHtml = htmlClone.outerHTML;
         
-        // Внедряем стиль, который скрывает футер, данные игры И функцию тихого обновления
-        let injectionString = `
-            <style>footer { display: none !important; }</style>
-            <script id="injection-point">
-                window.INJECTED_TASKS = ${tasksJSON};
-                window.GAME_CONFIG = ${JSON.stringify(gameConfig)};
-                window.IS_PREVIEW = true;
-            <\/script>
-            ${injectLiveUpdateFunction()}
-        `;
+        // Внедряем стиль, который скрывает футер внутри окна предпросмотра
+        let injectionString = `<style>footer { display: none !important; }</style><script id="injection-point">
+            window.INJECTED_TASKS = ${tasksJSON};
+            window.GAME_CONFIG = ${JSON.stringify(gameConfig)};
+            window.IS_PREVIEW = true;
+        <\/script>`;
         
         let newHtml = baseHtml.replace(/<script id="injection-point">.*?<\/script>/s, injectionString);
         iframeEl.srcdoc = newHtml;
 
-    }, 300); // Таймер снижен для мгновенного отклика
+    }, 100); 
 }
 
 // ==========================================
@@ -1001,11 +968,12 @@ function forceShowAnswer() {
 
   if (task.type === 'input') {
     let match = task.d.match(/\[(.*?)\]/);
+    let correctWordFull = task.d.replace(/\[(.*?)\]/, '$1');
     if (match) {
       let inputEl = document.getElementById('answerInput');
       if (inputEl && !inputEl.disabled) {
         inputEl.disabled = true;
-        if (fb) fb.innerHTML = `<span class="wrong">${t('timeUp')} ${t('correctWord')} <b>${match[1]}</b></span>`;
+        if (fb) fb.innerHTML = `<span class="wrong">${t('timeUp')} ${t('correctWord')} <b>${correctWordFull}</b></span>`;
       }
     }
   } else if (task.type === 'choice') {
@@ -1420,7 +1388,7 @@ function buildClassesList(tasks) {
         <div class="icon">🏫</div>
         <h3 style="font-size: 1.8rem; margin-bottom: 15px;">${lvl} ${t('classLvl')}</h3>
         <p style="color: var(--theme-label-color); font-weight: bold; margin-bottom: 10px;">${t('themes')}</p>
-        <p style="font-style: italic; color: var(--theme-text-color);">${uniqueThemes}</p>
+        <p style="font-style: italic;">${uniqueThemes}</p>
         <p style="margin-top: 15px; color: #fff; background: rgba(0,0,0,.3); border: 1px solid var(--panel-border); border-radius: 10px; padding: 5px;">${t('totalTasks')} <b>${count}</b></p>
       </div>
     `;
@@ -1516,7 +1484,7 @@ function finishClass() {
     let errorList = currentSessionStats.errors.map(e => {
       let word = e.q;
       if (word.includes('[')) {
-        word = word.replace(/\[.*?\]/, e.right);
+        word = word.replace(/\[(.*?)\]/, e.right);
       }
       return `<span style="display:inline-block; font-size:1.2rem; margin: 5px; padding: 5px 15px; background: rgba(255,51,102,0.2); border: 1px solid #f36; border-radius: 8px;">${word}</span>`;
     }).join('');
@@ -1549,7 +1517,9 @@ function renderTaskInput(task, area) {
   if (!match) return;
   
   let correctLetter = match[1];
-  let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" class="dyn-ans" style="width: 2em; text-align: center; display: inline-block; padding: 5px;" id="answerInput" autocomplete="off">`);
+  let correctWordFull = task.d.replace(/\[(.*?)\]/, '$1');
+  
+  let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" class="dyn-ans" style="width: 1.5em; text-align: center; display: inline-block; padding: 0 5px; margin: 0 5px; background: rgba(0,0,0,0.3); border: 2px dashed var(--panel-glow); color: var(--neon-cyan); border-radius: 8px;" id="answerInput" autocomplete="off">`);
 
   let mediaHtml = '';
   if (task.img) mediaHtml += `<img src="${task.img}" style="max-width:100%; max-height: 250px; border-radius:12px; margin-bottom:15px; box-shadow:0 0 10px var(--panel-glow);"><br>`;
@@ -1559,8 +1529,8 @@ function renderTaskInput(task, area) {
     <div class="task-box" style="text-align:center;">
       <h3 style="margin-bottom: 25px; text-shadow: 0 0 5px var(--theme-label-color);"><span style="color:var(--theme-label-color);">📝 ${t('themeWord')}:</span> <span style="color:var(--theme-text-color);">${task.theme}</span></h3>
       ${mediaHtml}
-      <p class="dyn-q" style="color: #a9d8e8;">${t('insertLetter')}</p>
-      <div class="word-slot dyn-ans" style="letter-spacing: 5px; margin-bottom: 20px;">
+      <p class="dyn-q" style="color: #a9d8e8; margin-bottom: 30px;">${t('insertLetter')}</p>
+      <div class="word-slot dyn-ans" style="letter-spacing: 2px; margin-bottom: 20px;">
         ${displayWord}
       </div>
       <div class="feedback" id="fb"></div>
@@ -1574,13 +1544,13 @@ function renderTaskInput(task, area) {
     let val = inputEl.value.trim().toLowerCase();
     let ans = correctLetter.trim().toLowerCase();
     if (val === ans) {
-      inputEl.style.color = '#0f6'; inputEl.style.borderColor = '#0f6'; inputEl.disabled = true;
+      inputEl.style.color = '#0f6'; inputEl.style.borderColor = '#0f6'; inputEl.style.background = 'rgba(0,255,100,0.1)'; inputEl.disabled = true;
       document.getElementById('fb').innerHTML = `<span class="correct">${t('fbCorrectInput')}</span>`;
       addEnergy(10); stopTimer(); renderNavButtons(true);
     } else if (val.length >= ans.length) {
-      inputEl.style.color = '#f36'; inputEl.style.borderColor = '#f36'; inputEl.disabled = true; 
+      inputEl.style.color = '#f36'; inputEl.style.borderColor = '#f36'; inputEl.style.background = 'rgba(255,51,102,0.1)'; inputEl.disabled = true; 
       resetCombo(); currentSessionStats.errors.push({ q: task.d, wrong: val, right: correctLetter });
-      document.getElementById('fb').innerHTML = `<span class="wrong">${t('fbWrong')} <b>${correctLetter}</b></span>`;
+      document.getElementById('fb').innerHTML = `<span class="wrong">${t('fbWrong')} <b>${correctWordFull}</b></span>`;
       stopTimer(); renderNavButtons(true);
     }
   });
@@ -1600,7 +1570,7 @@ function renderTaskChoice(task, area) {
     <div class="task-box" style="text-align:center;">
       <h3 style="margin-bottom: 25px; text-shadow: 0 0 5px var(--theme-label-color);"><span style="color:var(--theme-label-color);">📝 ${t('themeWord')}:</span> <span style="color:var(--theme-text-color);">${task.theme}</span></h3>
       ${mediaHtml}
-      <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">${t('chooseOption')}</p>
+      <p class="dyn-q" style="color: #a9d8e8; margin-bottom: 30px;">${t('chooseOption')}</p>
       <p class="dyn-q">${task.q}</p>
       <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;" id="optionsContainer">
   `;
@@ -1644,7 +1614,7 @@ function renderTaskFullWord(task, area) {
       <h3 style="margin-bottom: 25px; text-shadow: 0 0 5px var(--theme-label-color);"><span style="color:var(--theme-label-color);">📝 ${t('themeWord')}:</span> <span style="color:var(--theme-text-color);">${task.theme}</span></h3>
       ${mediaHtml}
       ${task.q ? `<p class="dyn-q">${task.q}</p>` : ''}
-      <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 15px;">${t('typeWord')}</p>
+      <p class="dyn-q" style="color: #a9d8e8; margin-bottom: 15px;">${t('typeWord')}</p>
       <input type="text" id="fullWordInput" class="dyn-ans" autocomplete="off" style="max-width: 350px; text-align: center; margin-bottom: 15px;">
       <br>
       <button class="btn" id="checkFullWordBtn" onclick="checkFullWordAnswer()">${t('checkBtn')}</button>
