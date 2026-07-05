@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru"> 
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -661,12 +661,22 @@ function updatePreview() {
     previewTimeout = setTimeout(() => {
         let flatTasks = [];
         
-        if (lesson.length === 0) {
+        // Сначала добавляем уже готовые (сохраненные) уроки
+        lesson.forEach(sec => {
+            sec.tasks.forEach(t => { flatTasks.push({ classLvl: sec.classLvl, theme: sec.theme, timer: sec.timer, ...t }); });
+        });
+
+        // Затем добавляем черновики (чтобы они отображались СРАЗУ же в окне предпросмотра)
+        if (draftTasks.length > 0) {
+            let cLvl = document.getElementById('fClass').value || "1";
+            let thm = document.getElementById('fTheme').value.trim() || "Текущее задание";
+            let tmr = parseInt(document.getElementById('fTimer').value) || 0;
+            draftTasks.forEach(t => { flatTasks.push({ classLvl: cLvl, theme: thm, timer: tmr, ...t }); });
+        }
+
+        // И только если вообще нет ни сохраненных, ни черновых заданий, показываем "Тест предпросмотра"
+        if (flatTasks.length === 0) {
             flatTasks.push({ classLvl: "1", theme: "Тест предпросмотра", timer: 0, type: "input", d: "т[е]ст" });
-        } else {
-            lesson.forEach(sec => {
-                sec.tasks.forEach(t => { flatTasks.push({ classLvl: sec.classLvl, theme: sec.theme, timer: sec.timer, ...t }); });
-            });
         }
 
         const tasksJSON = JSON.stringify(flatTasks);
@@ -1100,6 +1110,7 @@ function draftTask() {
   document.getElementById('fAudioFile').value = '';
   
   updateDraftUI();
+  updatePreview(); // Обновление превью сразу при добавлении задания в черновик
 }
 
 function updateDraftUI() {
@@ -1490,13 +1501,15 @@ function finishClass() {
   if (currentSessionStats.errors.length > 0) {
     let errorList = currentSessionStats.errors.map(e => {
       let word = e.q;
-      // Подстановка правильной буквы вместо пропусков для наглядности
+      // Подстановка правильной буквы вместо пропусков для наглядности (ИЛИ вывод целого слова для full_word)
       if (word.includes('[')) {
         word = word.replace(/\[(.*?)\]/, e.right);
       } else if (word.includes('..')) {
         word = word.replace(/\.\.+/, e.right);
       } else if (word.includes('_')) {
         word = word.replace(/_+/, e.right);
+      } else {
+        word = e.right; // Для заданий типа "ввод целого слова" - показываем правильное слово, а не вопрос "Кто это?"
       }
       
       return `<span style="display:inline-block; font-size:1.2rem; margin: 5px; padding: 5px 15px; background: rgba(255,51,102,0.2); border: 1px solid #f36; border-radius: 8px;">${word}</span>`;
