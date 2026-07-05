@@ -281,12 +281,12 @@
   </div>
 </section>
 
-<!-- ═══ РЕДАКТОР УЧИТЕЛЯ (РАЗДЕЛЕННЫЙ ЭКРАН) ═══ -->
-<section class="screen active" id="teacher" style="max-width: 100%; padding: 0 20px;">
-  <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch; height: 85vh; min-height: 700px;">
+<!-- ═══ РЕДАКТОР УЧИТЕЛЯ (РАЗДЕЛЕННЫЙ ЭКРАН 16:9) ═══ -->
+<section class="screen active" id="teacher" style="max-width: 1400px; padding: 0 20px; margin: 0 auto;">
+  <div style="display: flex; gap: 20px; aspect-ratio: 16/9; max-height: 75vh; min-height: 500px; width: 100%;">
     
     <!-- ЛЕВАЯ ПАНЕЛЬ ИНСТРУМЕНТОВ -->
-    <div class="teacher-sidebar" style="flex: 1 1 450px; overflow-y: auto; padding-right: 15px; padding-bottom: 50px;">
+    <div class="teacher-sidebar" style="flex: 1; overflow-y: auto; padding-right: 15px; padding-bottom: 20px;">
       
       <button class="btn small" onclick="show('menu')" style="margin-bottom: 15px;">⬅ Назад в меню</button>
       <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--panel-glow);margin:10px 0 20px; font-size: 2rem;">Конструктор урока</h2>
@@ -445,7 +445,7 @@
     </div>
 
     <!-- ПРАВАЯ ПАНЕЛЬ ПРЕДПРОСМОТРА -->
-    <div style="flex: 1 1 500px; display: flex; flex-direction: column; background: var(--bg-dark); border: 2px solid var(--panel-glow); border-radius: 20px; overflow: hidden; box-shadow: 0 0 20px var(--panel-glow);">
+    <div style="flex: 1.5; display: flex; flex-direction: column; background: var(--bg-dark); border: 2px solid var(--panel-glow); border-radius: 20px; overflow: hidden; box-shadow: 0 0 20px var(--panel-glow);">
       <div style="background: rgba(0,0,0,0.8); padding: 10px; text-align: center; border-bottom: 2px solid var(--panel-glow);">
         <span style="color: var(--neon-cyan); font-weight: bold; letter-spacing: 1px; font-size: 1.1rem;">👁️ ИГРА (ЖИВОЙ ПРЕДПРОСМОТР)</span>
       </div>
@@ -625,7 +625,6 @@ function updatePreview() {
     previewTimeout = setTimeout(() => {
         let flatTasks = [];
         
-        // Создаем тестовое задание для предпросмотра, если список пуст
         if (lesson.length === 0) {
             flatTasks.push({ classLvl: "1", theme: "Тест предпросмотра", timer: 0, type: "input", d: "т[е]ст" });
         } else {
@@ -657,12 +656,12 @@ function updatePreview() {
         let iframeEl = document.getElementById('previewFrame');
         if (!iframeEl) return;
 
-        let tempSrc = iframeEl.srcdoc;
-        iframeEl.removeAttribute('srcdoc'); // Очищаем, чтобы код iframe не попал в копию
+        iframeEl.removeAttribute('srcdoc'); 
         
         let baseHtml = document.documentElement.outerHTML;
         
-        let injectionString = `<script id="injection-point">
+        // Внедряем стиль, который скрывает футер только внутри окна предпросмотра!
+        let injectionString = `<style>footer { display: none !important; }</style><script id="injection-point">
             window.INJECTED_TASKS = ${tasksJSON};
             window.GAME_CONFIG = ${JSON.stringify(gameConfig)};
             window.IS_PREVIEW = true;
@@ -1236,7 +1235,7 @@ function buildHTMLFile() {
   };
 
   let iframeEl = document.getElementById('previewFrame');
-  if (iframeEl) iframeEl.removeAttribute('srcdoc'); // Убираем код iframe, чтобы он не продублировался в файле
+  if (iframeEl) iframeEl.removeAttribute('srcdoc'); 
 
   let baseHtml = document.documentElement.outerHTML;
   let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};\nwindow.GAME_CONFIG = ${JSON.stringify(gameConfig)};<\/script>`;
@@ -1251,7 +1250,7 @@ function buildHTMLFile() {
   URL.revokeObjectURL(url);
   document.getElementById('linkResult').innerHTML = `<p style="margin-top:20px;color:#0f6; font-size:1.1rem;">✅ Файл успешно скачан! Отправьте его ученикам.</p>`;
 
-  setTimeout(updatePreview, 100); // Возвращаем iframe после скачивания
+  setTimeout(updatePreview, 100); 
 }
 
 function renderStats() {
