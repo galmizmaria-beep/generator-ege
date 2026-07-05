@@ -21,8 +21,7 @@
 
 <style>
   /* 
-    Новые CSS-переменные для визуальной настройки игры учителем.
-    По умолчанию стоят стандартные "неоновые" цвета лаборатории.
+    CSS-переменные для визуальной настройки игры учителем.
   */
   :root {
     --neon-blue: #00e5ff; 
@@ -39,8 +38,8 @@
     --btn-bg: rgba(5,10,30,0.6);
     --btn-glow: #00e5ff;
     
-    --q-size: 2.2rem;   /* Размер текста вопроса */
-    --ans-size: 2.5rem; /* Размер букв/ввода ответа */
+    --q-size: 2.2rem;   
+    --ans-size: 2.5rem; 
   }
 
   * {margin: 0; padding: 0; box-sizing: border-box; font-family: var(--main-font);}
@@ -166,6 +165,10 @@
     .card h3 { font-size: 1.1rem; }
     .hud { gap: 15px; }
   }
+
+  /* Для плавности левой панели редактора */
+  .teacher-sidebar::-webkit-scrollbar { width: 8px; }
+  .teacher-sidebar::-webkit-scrollbar-thumb { background: var(--panel-glow); border-radius: 4px; }
 </style>
 </head>
 <body>
@@ -278,164 +281,177 @@
   </div>
 </section>
 
-<!-- ═══ РЕДАКТОР УЧИТЕЛЯ ═══ -->
-<section class="screen active" id="teacher">
-  <button class="btn small" onclick="show('menu')">⬅ Назад в меню</button>
-  <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--panel-glow);margin:20px 0; font-size: 2rem;">Конструктор урока</h2>
-  
-  <div class="task-box" style="max-width: 800px; margin: 0 auto 20px;">
-    <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">⚙️ Текстовые настройки</h3>
-    <label>Заголовок игры:</label>
-    <input type="text" id="cfgTitle" value="Лаборатория русского языка">
-    <label>Подзаголовок:</label>
-    <input type="text" id="cfgSub" value="Битва за грамотность">
-    <label>Плейсхолдер для имени:</label>
-    <input type="text" id="cfgName" value="Введите ваше имя...">
-    <label>Текст кнопки "Играть":</label>
-    <input type="text" id="cfgPlay" value="Играть">
+<!-- ═══ РЕДАКТОР УЧИТЕЛЯ (РАЗДЕЛЕННЫЙ ЭКРАН) ═══ -->
+<section class="screen active" id="teacher" style="max-width: 100%; padding: 0 20px;">
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch; height: 85vh; min-height: 700px;">
     
-    <label style="margin-top:20px;">🌐 Язык интерфейса ученика / Student UI Language:</label>
-    <select id="cfgLang">
-      <option value="ru">Русский (Russian)</option>
-      <option value="en">English (Английский)</option>
-    </select>
-  </div>
-
-  <!-- БЛОК ВИЗУАЛЬНЫХ НАСТРОЕК С ЖИВЫМ ПРЕДПРОСМОТРОМ -->
-  <div class="task-box" style="max-width: 800px; margin: 0 auto 20px; border-color: var(--neon-purple); background: rgba(123,47,247,0.1);">
-    <h3 style="color:#fff; margin-bottom: 15px; font-size: 1.4rem; text-shadow: 0 0 10px var(--neon-purple);">🎨 Визуальные настройки (Живой предпросмотр)</h3>
-    <p style="color:#a9d8e8; margin-bottom: 20px; font-size:0.9rem;">Все изменения цветов и шрифтов сразу применяются к этому редактору, чтобы вы могли оценить дизайн до скачивания игры.</p>
-    
-    <label>🖼️ Фоновая картинка игры (URL или файл):</label>
-    <input type="text" id="cfgBgUrl" placeholder="Ссылка на фон (пусто = стандартный градиент)">
-    <input type="file" id="cfgBgFile" accept="image/*" onchange="encodeFile(this, 'cfgBg')">
-
-    <label style="margin-top:20px;">🦸‍♂️ Главная картинка (вместо профессора и вируса):</label>
-    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-        <img id="miniHeroPreview" src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 2px solid var(--panel-glow);">
-        <div style="flex: 1;">
-            <input type="text" id="cfgHeroUrl" placeholder="URL вашей картинки" style="margin: 0 0 5px 0;">
-            <input type="file" id="cfgHeroFile" accept="image/*" onchange="encodeFile(this, 'cfgHero')" style="margin:0;">
-        </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-        <div>
-            <label>Цвет фона плашек:</label>
-            <input type="color" id="cfgPanelBg" value="#0a142d">
-        </div>
-        <div>
-            <label>Свечение плашек (акцент):</label>
-            <input type="color" id="cfgPanelGlow" value="#00e5ff">
-        </div>
-        <div>
-            <label>Цвет фона кнопок:</label>
-            <input type="color" id="cfgBtnBg" value="#050a1e">
-        </div>
-        <div>
-            <label>Свечение кнопок:</label>
-            <input type="color" id="cfgBtnGlow" value="#00e5ff">
-        </div>
-    </div>
-
-    <label style="margin-top: 20px;">Шрифт игры:</label>
-    <select id="cfgFont">
-      <option value="'Trebuchet MS', sans-serif">Trebuchet MS (Стандартный)</option>
-      <option value="Arial, sans-serif">Arial</option>
-      <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans MS (Игровой)</option>
-      <option value="Georgia, serif">Georgia (Книжный)</option>
-      <option value="'Courier New', monospace">Courier New (Печатный)</option>
-      <option value="Impact, sans-serif">Impact (Крупный)</option>
-    </select>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
-      <div>
-        <label>Размер текста вопроса: <span id="valQSize" style="color:#fff;">2.2</span></label>
-        <input type="range" id="cfgQSize" min="1" max="4" step="0.1" value="2.2" style="cursor:pointer;">
+    <!-- ЛЕВАЯ ПАНЕЛЬ ИНСТРУМЕНТОВ -->
+    <div class="teacher-sidebar" style="flex: 1 1 450px; overflow-y: auto; padding-right: 15px; padding-bottom: 50px;">
+      
+      <button class="btn small" onclick="show('menu')" style="margin-bottom: 15px;">⬅ Назад в меню</button>
+      <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--panel-glow);margin:10px 0 20px; font-size: 2rem;">Конструктор урока</h2>
+      
+      <div class="task-box" style="margin: 0 0 20px;">
+        <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">⚙️ Текстовые настройки</h3>
+        <label>Заголовок игры:</label>
+        <input type="text" id="cfgTitle" value="Лаборатория русского языка">
+        <label>Подзаголовок:</label>
+        <input type="text" id="cfgSub" value="Битва за грамотность">
+        <label>Плейсхолдер для имени:</label>
+        <input type="text" id="cfgName" value="Введите ваше имя...">
+        <label>Текст кнопки "Играть":</label>
+        <input type="text" id="cfgPlay" value="Играть">
+        
+        <label style="margin-top:20px;">🌐 Язык интерфейса ученика / Student UI Language:</label>
+        <select id="cfgLang">
+          <option value="ru">Русский (Russian)</option>
+          <option value="en">English (Английский)</option>
+        </select>
       </div>
-      <div>
-        <label>Размер ответов/букв: <span id="valAnsSize" style="color:#fff;">2.5</span></label>
-        <input type="range" id="cfgAnsSize" min="1" max="5" step="0.1" value="2.5" style="cursor:pointer;">
+
+      <!-- БЛОК ВИЗУАЛЬНЫХ НАСТРОЕК -->
+      <div class="task-box" style="margin: 0 0 20px; border-color: var(--neon-purple); background: rgba(123,47,247,0.1);">
+        <h3 style="color:#fff; margin-bottom: 15px; font-size: 1.4rem; text-shadow: 0 0 10px var(--neon-purple);">🎨 Визуальные настройки</h3>
+        <p style="color:#a9d8e8; margin-bottom: 20px; font-size:0.9rem;">Изменения автоматически отображаются в окне предпросмотра справа.</p>
+        
+        <label>🖼️ Фоновая картинка игры (URL или файл):</label>
+        <input type="text" id="cfgBgUrl" placeholder="Ссылка на фон (пусто = стандартный градиент)">
+        <input type="file" id="cfgBgFile" accept="image/*" onchange="encodeFile(this, 'cfgBg')">
+
+        <label style="margin-top:20px;">🦸‍♂️ Главная картинка (вместо профессора и вируса):</label>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+            <img id="miniHeroPreview" src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 2px solid var(--panel-glow);">
+            <div style="flex: 1;">
+                <input type="text" id="cfgHeroUrl" placeholder="URL вашей картинки" style="margin: 0 0 5px 0;">
+                <input type="file" id="cfgHeroFile" accept="image/*" onchange="encodeFile(this, 'cfgHero')" style="margin:0;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <div>
+                <label>Цвет фона плашек:</label>
+                <input type="color" id="cfgPanelBg" value="#0a142d">
+            </div>
+            <div>
+                <label>Свечение плашек (акцент):</label>
+                <input type="color" id="cfgPanelGlow" value="#00e5ff">
+            </div>
+            <div>
+                <label>Цвет фона кнопок:</label>
+                <input type="color" id="cfgBtnBg" value="#050a1e">
+            </div>
+            <div>
+                <label>Свечение кнопок:</label>
+                <input type="color" id="cfgBtnGlow" value="#00e5ff">
+            </div>
+        </div>
+
+        <label style="margin-top: 20px;">Шрифт игры:</label>
+        <select id="cfgFont">
+          <option value="'Trebuchet MS', sans-serif">Trebuchet MS (Стандартный)</option>
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans MS (Игровой)</option>
+          <option value="Georgia, serif">Georgia (Книжный)</option>
+          <option value="'Courier New', monospace">Courier New (Печатный)</option>
+          <option value="Impact, sans-serif">Impact (Крупный)</option>
+        </select>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+          <div>
+            <label>Размер текста вопроса: <span id="valQSize" style="color:#fff;">2.2</span></label>
+            <input type="range" id="cfgQSize" min="1" max="4" step="0.1" value="2.2" style="cursor:pointer;">
+          </div>
+          <div>
+            <label>Размер ответов/букв: <span id="valAnsSize" style="color:#fff;">2.5</span></label>
+            <input type="range" id="cfgAnsSize" min="1" max="5" step="0.1" value="2.5" style="cursor:pointer;">
+          </div>
+        </div>
       </div>
+
+      <div class="task-box" style="margin: 0 0 20px;">
+        <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">1. Создание задания</h3>
+        
+        <label>🎓 Выберите класс:</label>
+        <select id="fClass">
+          <option value="1">1 класс</option><option value="2">2 класс</option><option value="3">3 класс</option>
+          <option value="4">4 класс</option><option value="5">5 класс</option><option value="6">6 класс</option>
+          <option value="7">7 класс</option><option value="8">8 класс</option><option value="9">9 класс</option>
+          <option value="10">10 класс</option><option value="11">11 класс</option>
+        </select>
+
+        <label>📝 Название темы:</label>
+        <input type="text" id="fTheme" placeholder="Например: Правописание чередующихся гласных">
+
+        <label>⚙️ Тип задания:</label>
+        <select id="fType" onchange="toggleTypeFields()">
+          <option value="input">✏️ Ввод буквы (пропуск)</option>
+          <option value="choice">🎯 Выбор из нескольких вариантов</option>
+          <option value="full_word">📝 Ввод целого слова</option>
+        </select>
+
+        <!-- Поля для ввода ответа -->
+        <div id="typeInputWrap">
+          <label>Слова для отработки (каждое с новой строки). Букву для пропуска берите в [квадратные скобки]:<br>
+            <span style="font-size:0.85rem; font-weight:normal; color:#a9d8e8;">Пример: к[о]рова<br>с[о]бака</span>
+          </label>
+          <textarea id="fDataInput" rows="6" placeholder="к[о]рова&#10;с[о]бака"></textarea>
+        </div>
+
+        <!-- Поля для выбора вариантов -->
+        <div id="typeChoiceWrap" style="display:none;">
+          <label>Слово с пропуском или вопрос:</label>
+          <input type="text" id="fDataChoice" placeholder="Например: в..негрет">
+          <label>Правильный ответ:</label>
+          <input type="text" id="fAnsRight" placeholder="Например: и">
+          <label>Неправильные ответы (через запятую):</label>
+          <input type="text" id="fAnsWrong" placeholder="Например: е, а, о">
+        </div>
+
+        <!-- Поля для ввода полного слова -->
+        <div id="typeFullWordWrap" style="display:none;">
+          <label>Слово, вопрос или подсказка (можно оставить пустым, если прикрепляете картинку):</label>
+          <input type="text" id="fDataFullWord" placeholder="Например: Кто изображен на картинке?">
+          <label>Правильный ответ (слово целиком):</label>
+          <input type="text" id="fAnsFullWord" placeholder="Например: собака">
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px dashed var(--panel-glow);">
+          <h4 style="color:#fff; margin-bottom: 10px;">Медиафайлы (необязательно)</h4>
+          <label>Картинка (URL или файл):</label>
+          <input type="text" id="fImgUrl" placeholder="Вставьте ссылку на картинку">
+          <input type="file" id="fImgFile" accept="image/*" onchange="encodeFile(this, 'img')">
+          <label>Аудио (URL или файл):</label>
+          <input type="text" id="fAudioUrl" placeholder="Вставьте ссылку на аудио">
+          <input type="file" id="fAudioFile" accept="audio/*" onchange="encodeFile(this, 'audio')">
+        </div>
+
+        <button class="btn small" style="width: 100%; margin-top: 15px; border-color: var(--neon-purple); background: rgba(123,47,247,0.3);" onclick="draftTask()">➕ Добавить задание</button>
+        <div id="draftStatus" style="text-align: center; color: #0f6; font-size: 1.1rem; font-weight: bold; margin-top: 10px; display: none;">Заданий для раздела: <span id="draftCount">0</span></div>
+
+        <label style="margin-top: 15px;">⏱️ Таймер на задание (секунды, 0 = без таймера):</label>
+        <input type="number" id="fTimer" value="0" style="max-width:150px">
+        
+        <button class="btn" style="width: 100%; margin: 15px 0 0 0;" onclick="addLessonSection()">🚀 Добавить урок (сформировать раздел)</button>
+      </div>
+
+      <div class="task-box" style="margin: 0 0 20px;">
+        <h3 style="color:#fff;text-shadow:0 0 8px var(--panel-glow); font-size: 1.4rem;">📋 Готовые задания (<span id="taskCount">0</span>)</h3>
+        <ul class="task-list" id="lessonList"></ul>
+        
+        <button class="btn" style="width: 100%; font-size: 1.2rem; padding: 18px; margin-top: 20px;" onclick="buildHTMLFile()">💾 Скачать игру для учеников</button>
+        <div id="linkResult" style="text-align: center;"></div>
+      </div>
+
     </div>
-  </div>
 
-  <div class="task-box" style="max-width: 800px; margin: 0 auto;">
-    <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">1. Создание задания</h3>
-    
-    <label>🎓 Выберите класс:</label>
-    <select id="fClass">
-      <option value="1">1 класс</option><option value="2">2 класс</option><option value="3">3 класс</option>
-      <option value="4">4 класс</option><option value="5">5 класс</option><option value="6">6 класс</option>
-      <option value="7">7 класс</option><option value="8">8 класс</option><option value="9">9 класс</option>
-      <option value="10">10 класс</option><option value="11">11 класс</option>
-    </select>
-
-    <label>📝 Название темы:</label>
-    <input type="text" id="fTheme" placeholder="Например: Правописание чередующихся гласных">
-
-    <label>⚙️ Тип задания:</label>
-    <select id="fType" onchange="toggleTypeFields()">
-      <option value="input">✏️ Ввод буквы (пропуск)</option>
-      <option value="choice">🎯 Выбор из нескольких вариантов</option>
-      <option value="full_word">📝 Ввод целого слова</option>
-    </select>
-
-    <!-- Поля для ввода ответа (массовое добавление) -->
-    <div id="typeInputWrap">
-      <label>Слова для отработки (каждое с новой строки). Букву для пропуска берите в [квадратные скобки]:<br>
-        <span style="font-size:0.85rem; font-weight:normal; color:#a9d8e8;">Пример: к[о]рова<br>с[о]бака</span>
-      </label>
-      <textarea id="fDataInput" rows="6" placeholder="к[о]рова&#10;с[о]бака"></textarea>
+    <!-- ПРАВАЯ ПАНЕЛЬ ПРЕДПРОСМОТРА -->
+    <div style="flex: 1 1 500px; display: flex; flex-direction: column; background: var(--bg-dark); border: 2px solid var(--panel-glow); border-radius: 20px; overflow: hidden; box-shadow: 0 0 20px var(--panel-glow);">
+      <div style="background: rgba(0,0,0,0.8); padding: 10px; text-align: center; border-bottom: 2px solid var(--panel-glow);">
+        <span style="color: var(--neon-cyan); font-weight: bold; letter-spacing: 1px; font-size: 1.1rem;">👁️ ИГРА (ЖИВОЙ ПРЕДПРОСМОТР)</span>
+      </div>
+      <iframe id="previewFrame" style="flex: 1; border: none; width: 100%; height: 100%; background: #000;" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
 
-    <!-- Поля для выбора вариантов -->
-    <div id="typeChoiceWrap" style="display:none;">
-      <label>Слово с пропуском или вопрос:</label>
-      <input type="text" id="fDataChoice" placeholder="Например: в..негрет">
-      
-      <label>Правильный ответ:</label>
-      <input type="text" id="fAnsRight" placeholder="Например: и">
-      
-      <label>Неправильные ответы (через запятую):</label>
-      <input type="text" id="fAnsWrong" placeholder="Например: е, а, о">
-    </div>
-
-    <!-- Поля для ввода полного слова -->
-    <div id="typeFullWordWrap" style="display:none;">
-      <label>Слово, вопрос или подсказка (можно оставить пустым, если прикрепляете картинку):</label>
-      <input type="text" id="fDataFullWord" placeholder="Например: Кто изображен на картинке?">
-      
-      <label>Правильный ответ (слово целиком):</label>
-      <input type="text" id="fAnsFullWord" placeholder="Например: собака">
-    </div>
-
-    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px dashed var(--panel-glow);">
-      <h4 style="color:#fff; margin-bottom: 10px;">Медиафайлы (необязательно)</h4>
-      <label>Картинка (URL или файл):</label>
-      <input type="text" id="fImgUrl" placeholder="Вставьте ссылку на картинку">
-      <input type="file" id="fImgFile" accept="image/*" onchange="encodeFile(this, 'img')">
-      
-      <label>Аудио (URL или файл):</label>
-      <input type="text" id="fAudioUrl" placeholder="Вставьте ссылку на аудио">
-      <input type="file" id="fAudioFile" accept="audio/*" onchange="encodeFile(this, 'audio')">
-    </div>
-
-    <button class="btn small" style="width: 100%; margin-top: 15px; border-color: var(--neon-purple); background: rgba(123,47,247,0.3);" onclick="draftTask()">➕ Добавить задание</button>
-    <div id="draftStatus" style="text-align: center; color: #0f6; font-size: 1.1rem; font-weight: bold; margin-top: 10px; display: none;">Заданий для раздела: <span id="draftCount">0</span></div>
-
-    <label style="margin-top: 15px;">⏱️ Таймер на задание (секунды, 0 = без таймера):</label>
-    <input type="number" id="fTimer" value="0" style="max-width:150px">
-    
-    <button class="btn" style="width: 100%; margin: 15px 0 0 0;" onclick="addLessonSection()">🚀 Добавить урок (сформировать раздел)</button>
-  </div>
-
-  <div class="task-box" style="max-width: 800px; margin: 20px auto;">
-    <h3 style="color:#fff;text-shadow:0 0 8px var(--panel-glow); font-size: 1.4rem;">📋 Готовые задания (<span id="taskCount">0</span>)</h3>
-    <ul class="task-list" id="lessonList"></ul>
-    
-    <button class="btn" style="width: 100%; font-size: 1.2rem; padding: 18px; margin-top: 20px;" onclick="buildHTMLFile()">💾 Скачать игру для учеников</button>
-    <div id="linkResult" style="text-align: center;"></div>
   </div>
 </section>
 
@@ -512,7 +528,7 @@
 
 <script>
 // ==========================================
-//    ВИЗУАЛЬНЫЕ НАСТРОЙКИ (ЖИВОЙ ПРЕДПРОСМОТР)
+//    ВИЗУАЛЬНЫЕ НАСТРОЙКИ И ЖИВОЙ ПРЕДПРОСМОТР
 // ==========================================
 function hexToRgba(hex, alpha) {
     let r = parseInt(hex.slice(1, 3), 16),
@@ -521,29 +537,42 @@ function hexToRgba(hex, alpha) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Привязываем события обновления превью ко всем полям настроек
+['cfgTitle', 'cfgSub', 'cfgName', 'cfgPlay', 'cfgLang', 'cfgHeroUrl', 'cfgBgUrl'].forEach(id => {
+    let el = document.getElementById(id);
+    if(el) el.addEventListener('input', updatePreview);
+});
+
 document.getElementById('cfgPanelBg').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--panel-bg', hexToRgba(e.target.value, 0.85));
+    updatePreview();
 });
 document.getElementById('cfgPanelGlow').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--panel-glow', e.target.value);
     document.documentElement.style.setProperty('--panel-border', hexToRgba(e.target.value, 0.4));
+    updatePreview();
 });
 document.getElementById('cfgBtnBg').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--btn-bg', hexToRgba(e.target.value, 0.6));
+    updatePreview();
 });
 document.getElementById('cfgBtnGlow').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--btn-glow', e.target.value);
+    updatePreview();
 });
 document.getElementById('cfgFont').addEventListener('change', (e) => {
     document.documentElement.style.setProperty('--main-font', e.target.value);
+    updatePreview();
 });
 document.getElementById('cfgQSize').addEventListener('input', (e) => {
     document.getElementById('valQSize').textContent = e.target.value;
     document.documentElement.style.setProperty('--q-size', e.target.value + 'rem');
+    updatePreview();
 });
 document.getElementById('cfgAnsSize').addEventListener('input', (e) => {
     document.getElementById('valAnsSize').textContent = e.target.value;
     document.documentElement.style.setProperty('--ans-size', e.target.value + 'rem');
+    updatePreview();
 });
 document.getElementById('cfgHeroUrl').addEventListener('input', (e) => {
     document.getElementById('miniHeroPreview').src = e.target.value;
@@ -588,6 +617,62 @@ function applyStylesFromConfig(config) {
     }
 }
 
+let previewTimeout;
+function updatePreview() {
+    if (window.IS_PREVIEW) return; 
+
+    clearTimeout(previewTimeout);
+    previewTimeout = setTimeout(() => {
+        let flatTasks = [];
+        
+        // Создаем тестовое задание для предпросмотра, если список пуст
+        if (lesson.length === 0) {
+            flatTasks.push({ classLvl: "1", theme: "Тест предпросмотра", timer: 0, type: "input", d: "т[е]ст" });
+        } else {
+            lesson.forEach(sec => {
+                sec.tasks.forEach(t => { flatTasks.push({ classLvl: sec.classLvl, theme: sec.theme, timer: sec.timer, ...t }); });
+            });
+        }
+
+        const tasksJSON = JSON.stringify(flatTasks);
+        const gameConfig = {
+            title: document.getElementById('cfgTitle').value.trim() || 'Лаборатория русского языка',
+            sub: document.getElementById('cfgSub').value.trim() || 'Битва за грамотность',
+            nameHolder: document.getElementById('cfgName').value.trim() || 'Введите ваше имя...',
+            playBtn: document.getElementById('cfgPlay').value.trim() || 'Играть',
+            lang: document.getElementById('cfgLang').value,
+            bgImage: cfgBgBase64 || document.getElementById('cfgBgUrl').value.trim(),
+            heroImg: cfgHeroBase64 || document.getElementById('cfgHeroUrl').value.trim(),
+            styles: {
+                panelBg: document.getElementById('cfgPanelBg').value,
+                panelGlow: document.getElementById('cfgPanelGlow').value,
+                btnBg: document.getElementById('cfgBtnBg').value,
+                btnGlow: document.getElementById('cfgBtnGlow').value,
+                font: document.getElementById('cfgFont').value,
+                qSize: document.getElementById('cfgQSize').value,
+                ansSize: document.getElementById('cfgAnsSize').value
+            }
+        };
+
+        let iframeEl = document.getElementById('previewFrame');
+        if (!iframeEl) return;
+
+        let tempSrc = iframeEl.srcdoc;
+        iframeEl.removeAttribute('srcdoc'); // Очищаем, чтобы код iframe не попал в копию
+        
+        let baseHtml = document.documentElement.outerHTML;
+        
+        let injectionString = `<script id="injection-point">
+            window.INJECTED_TASKS = ${tasksJSON};
+            window.GAME_CONFIG = ${JSON.stringify(gameConfig)};
+            window.IS_PREVIEW = true;
+        <\/script>`;
+        
+        let newHtml = baseHtml.replace(/<script id="injection-point">.*?<\/script>/s, injectionString);
+        iframeEl.srcdoc = newHtml;
+
+    }, 600);
+}
 
 // ==========================================
 //           ЛОКАЛИЗАЦИЯ И СЛОВАРИ
@@ -879,6 +964,7 @@ let currentAudioBase64 = null;
 let editImgBase64 = null;
 let editAudioBase64 = null;
 let cfgHeroBase64 = null;
+let cfgBgBase64 = null;
 
 function encodeFile(input, type) {
   const file = input.files[0];
@@ -892,11 +978,13 @@ function encodeFile(input, type) {
     if (type === 'cfgBg') {
         cfgBgBase64 = e.target.result;
         applyBackground(cfgBgBase64);
+        updatePreview();
     }
     if (type === 'cfgHero') {
         cfgHeroBase64 = e.target.result;
         document.getElementById('miniHeroPreview').src = cfgHeroBase64;
         document.getElementById('mainHeroImg').src = cfgHeroBase64;
+        updatePreview();
     }
   };
   reader.readAsDataURL(file);
@@ -987,10 +1075,15 @@ function addLessonSection() {
 
   lesson.push({ classLvl, theme, timer, tasks: [...draftTasks] });
   draftTasks = []; updateDraftUI(); renderLessonList();
+  updatePreview();
 }
 
 function removeTask(i) {
-  showCustomConfirm('Удалить этот раздел из урока?', () => { lesson.splice(i, 1); renderLessonList(); });
+  showCustomConfirm('Удалить этот раздел из урока?', () => { 
+      lesson.splice(i, 1); 
+      renderLessonList(); 
+      updatePreview();
+  });
 }
 
 function renderLessonList() {
@@ -1110,6 +1203,7 @@ function saveEditedSection() {
   lesson[currentEditSectionIdx].timer = parseInt(document.getElementById('editTimer').value) || 0;
   lesson[currentEditSectionIdx].tasks = currentEditTasks;
   closeEditModal(); renderLessonList(); toast('✅ Раздел успешно обновлён!');
+  updatePreview();
 }
 
 function buildHTMLFile() {
@@ -1141,6 +1235,9 @@ function buildHTMLFile() {
     }
   };
 
+  let iframeEl = document.getElementById('previewFrame');
+  if (iframeEl) iframeEl.removeAttribute('srcdoc'); // Убираем код iframe, чтобы он не продублировался в файле
+
   let baseHtml = document.documentElement.outerHTML;
   let injectionString = `<script id="injection-point">window.INJECTED_TASKS = ${tasksJSON};\nwindow.GAME_CONFIG = ${JSON.stringify(gameConfig)};<\/script>`;
   let newHtml = '<!DOCTYPE html>\n' + baseHtml.replace(/<script id="injection-point">.*?<\/script>/, injectionString);
@@ -1153,6 +1250,8 @@ function buildHTMLFile() {
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   document.getElementById('linkResult').innerHTML = `<p style="margin-top:20px;color:#0f6; font-size:1.1rem;">✅ Файл успешно скачан! Отправьте его ученикам.</p>`;
+
+  setTimeout(updatePreview, 100); // Возвращаем iframe после скачивания
 }
 
 function renderStats() {
@@ -1540,6 +1639,11 @@ window.addEventListener('DOMContentLoaded', () => {
     show('title');
   } else {
     show('teacher');
+
+    // Если мы в режиме учителя и окно предпросмотра активно, загружаем его впервые:
+    if (!window.IS_PREVIEW) {
+        updatePreview();
+    }
   }
 });
 </script>
