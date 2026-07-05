@@ -647,9 +647,17 @@ function updatePreview() {
         let iframeEl = document.getElementById('previewFrame');
         if (!iframeEl) return;
 
-        iframeEl.removeAttribute('srcdoc'); 
-        
-        let baseHtml = document.documentElement.outerHTML;
+        // Если iframe уже был загружен и готов принимать обновления - отправляем их напрямую
+        if (iframeEl.contentWindow && iframeEl.contentWindow.updateLivePreview) {
+            iframeEl.contentWindow.updateLivePreview(gameConfig, flatTasks);
+            return;
+        }
+
+        // Если это самая первая загрузка редактора - формируем iframe
+        let htmlClone = document.documentElement.cloneNode(true);
+        let prev = htmlClone.querySelector('#previewFrame');
+        if (prev) prev.removeAttribute('srcdoc'); 
+        let baseHtml = htmlClone.outerHTML;
         
         // Внедряем стиль, который скрывает футер внутри окна предпросмотра
         let injectionString = `<style>footer { display: none !important; }</style><script id="injection-point">
@@ -661,7 +669,7 @@ function updatePreview() {
         let newHtml = baseHtml.replace(/<script id="injection-point">.*?<\/script>/s, injectionString);
         iframeEl.srcdoc = newHtml;
 
-    }, 600);
+    }, 300); // Таймер снижен для мгновенного отклика
 }
 
 // ==========================================
@@ -911,7 +919,7 @@ function forceShowAnswer() {
   if (!task) return;
 
   if (task.type === 'input') {
-    let match = task.d.match(/\[(.*?)\]/);
+    let match = task.d.match(/$$(.*?)$$/);
     if (match) {
       let inputEl = document.getElementById('answerInput');
       if (inputEl && !inputEl.disabled) {
@@ -954,6 +962,8 @@ let currentImgBase64 = null;
 let currentAudioBase64 = null;
 let editImgBase64 = null;
 let editAudioBase64 = null;
+let cfgHeroBase64 = null;
+let cfgBgBase64 = null;
 
 function encodeFile(input, type) {
   const file = input.files[0];
@@ -1422,7 +1432,7 @@ function finishClass() {
     let errorList = currentSessionStats.errors.map(e => {
       let word = e.q;
       if (word.includes('[')) {
-        word = word.replace(/\[.*?\]/, e.right);
+        word = word.replace(/$$.*?$$/, e.right);
       }
       return `<span style="display:inline-block; font-size:1.2rem; margin: 5px; padding: 5px 15px; background: rgba(255,51,102,0.2); border: 1px solid #f36; border-radius: 8px;">${word}</span>`;
     }).join('');
@@ -1451,11 +1461,11 @@ function finishClass() {
 
 // --- Рендер задания типа ВВОД (input) ---
 function renderTaskInput(task, area) {
-  let match = task.d.match(/\[(.*?)\]/);
+  let match = task.d.match(/$$(.*?)$$/);
   if (!match) return;
   
   let correctLetter = match[1];
-  let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" class="dyn-ans" style="width: 2em; text-align: center; display: inline-block; padding: 5px;" id="answerInput" autocomplete="off">`);
+  let displayWord = task.d.replace(/$$.*?$$/, `<input type="text" maxlength="${correctLetter.length}" class="dyn-ans" style="width: 2em; text-align: center; display: inline-block; padding: 5px;" id="answerInput" autocomplete="off">`);
 
   let mediaHtml = '';
   if (task.img) mediaHtml += `<img src="${task.img}" style="max-width:100%; max-height: 250px; border-radius:12px; margin-bottom:15px; box-shadow:0 0 10px var(--panel-glow);"><br>`;
