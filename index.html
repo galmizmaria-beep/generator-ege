@@ -226,10 +226,10 @@
     </select>
     
     <label>📝 Тема:</label>
-    <input type="text" id="editTheme">
+    <input type="text" id="editTheme" autocomplete="off">
     
     <label>⏱️ Таймер (сек, 0 = без таймера):</label>
-    <input type="number" id="editTimer">
+    <input type="number" id="editTimer" autocomplete="off">
     
     <h4 style="color:var(--neon-cyan); margin-top:20px; font-size:1.1rem;">📋 Задания в этом разделе (можно удалить лишние):</h4>
     <ul class="task-edit-list" id="editTaskList"></ul>
@@ -244,26 +244,26 @@
       </select>
       
       <div id="editTypeInputWrap">
-        <input type="text" id="editDataInput" placeholder="Слово с [п]ропуском">
+        <input type="text" id="editDataInput" placeholder="Слово с [п]ропуском" autocomplete="off">
       </div>
       
       <div id="editTypeChoiceWrap" style="display:none;">
-        <input type="text" id="editDataChoice" placeholder="Слово / Вопрос">
-        <input type="text" id="editAnsRight" placeholder="Правильный ответ">
-        <input type="text" id="editAnsWrong" placeholder="Неправильные (через запятую)">
+        <input type="text" id="editDataChoice" placeholder="Слово / Вопрос" autocomplete="off">
+        <input type="text" id="editAnsRight" placeholder="Правильный ответ" autocomplete="off">
+        <input type="text" id="editAnsWrong" placeholder="Неправильные (через запятую)" autocomplete="off">
       </div>
 
       <div id="editTypeFullWordWrap" style="display:none;">
-        <input type="text" id="editDataFullWord" placeholder="Задание / Вопрос (или прикрепите картинку ниже)">
-        <input type="text" id="editAnsFullWord" placeholder="Правильный ответ (слово целиком)">
+        <input type="text" id="editDataFullWord" placeholder="Задание / Вопрос (или прикрепите картинку ниже)" autocomplete="off">
+        <input type="text" id="editAnsFullWord" placeholder="Правильный ответ (слово целиком)" autocomplete="off">
       </div>
       
       <label style="margin-top:10px;">Картинка (URL или файл):</label>
-      <input type="text" id="editImgUrl" placeholder="Ссылка на картинку">
+      <input type="text" id="editImgUrl" placeholder="Ссылка на картинку" autocomplete="off">
       <input type="file" id="editImgFile" accept="image/*" onchange="encodeFile(this, 'editImg')">
       
       <label>Аудио (URL или файл):</label>
-      <input type="text" id="editAudioUrl" placeholder="Ссылка на аудио">
+      <input type="text" id="editAudioUrl" placeholder="Ссылка на аудио" autocomplete="off">
       <input type="file" id="editAudioFile" accept="audio/*" onchange="encodeFile(this, 'editAudio')">
       
       <button class="btn small" style="width:100%; border-color: var(--neon-purple); background: rgba(123,47,247,0.3);" onclick="addEditTask()">Добавить задание</button>
@@ -283,7 +283,6 @@
     <p class="title-sub">Битва за грамотность</p>
     <div class="hero-stage">
       <img id="mainHeroImg" src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" alt="Герои">
-      <!-- ИЗМЕНЕНО: Добавлен атрибут autocomplete="off" -->
       <input type="text" id="studentNameInput" placeholder="Введите ваше имя..." autocomplete="off" style="max-width: 350px; text-align: center; margin-bottom: -10px; font-size: 1.3rem;">
       <button class="btn play-btn" onclick="goToClasses()">▶ Играть</button>
     </div>
@@ -302,13 +301,13 @@
       <div class="task-box" style="margin: 0 0 20px; box-shadow: 0 0 15px rgba(0,229,255,0.2); border-color: rgba(0,229,255,0.4);">
         <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">⚙️ Текстовые настройки</h3>
         <label>Заголовок игры:</label>
-        <input type="text" id="cfgTitle" value="Лаборатория русского языка">
+        <input type="text" id="cfgTitle" value="Лаборатория русского языка" autocomplete="off">
         <label>Подзаголовок:</label>
-        <input type="text" id="cfgSub" value="Битва за грамотность">
+        <input type="text" id="cfgSub" value="Битва за грамотность" autocomplete="off">
         <label>Плейсхолдер для имени:</label>
-        <input type="text" id="cfgName" value="Введите ваше имя...">
+        <input type="text" id="cfgName" value="Введите ваше имя..." autocomplete="off">
         <label>Текст кнопки "Играть":</label>
-        <input type="text" id="cfgPlay" value="Играть">
+        <input type="text" id="cfgPlay" value="Играть" autocomplete="off">
         
         <label style="margin-top:20px;">🌐 Язык интерфейса ученика / Student UI Language:</label>
         <select id="cfgLang">
@@ -323,14 +322,14 @@
         <p style="color:#a9d8e8; margin-bottom: 20px; font-size:0.9rem;">Изменения автоматически отображаются в окне предпросмотра справа.</p>
         
         <label>🖼️ Фоновая картинка игры (URL или файл):</label>
-        <input type="text" id="cfgBgUrl" placeholder="Ссылка на фон (пусто = стандартный градиент)">
+        <input type="text" id="cfgBgUrl" placeholder="Ссылка на фон (пусто = стандартный градиент)" autocomplete="off">
         <input type="file" id="cfgBgFile" accept="image/*" onchange="encodeFile(this, 'cfgBg')">
 
         <label style="margin-top:20px;">🦸‍♂️ Главная картинка (вместо профессора и вируса):</label>
         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
             <img id="miniHeroPreview" src="https://github.com/galmizmaria-beep/generator-ege/blob/refs/heads/main/ChatGPT%20Image%201%20%D0%B8%D1%8E%D0%BB.%202026%20%D0%B3.,%2008_43_31.png?raw=true" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 2px solid #18d4ff;">
             <div style="flex: 1;">
-                <input type="text" id="cfgHeroUrl" placeholder="URL вашей картинки" style="margin: 0 0 5px 0;">
+                <input type="text" id="cfgHeroUrl" placeholder="URL вашей картинки" style="margin: 0 0 5px 0;" autocomplete="off">
                 <input type="file" id="cfgHeroFile" accept="image/*" onchange="encodeFile(this, 'cfgHero')" style="margin:0;">
             </div>
         </div>
@@ -417,7 +416,7 @@
         </select>
 
         <label>📝 Название темы:</label>
-        <input type="text" id="fTheme" placeholder="Например: Правописание чередующихся гласных">
+        <input type="text" id="fTheme" placeholder="Например: Правописание чередующихся гласных" autocomplete="off">
 
         <label>⚙️ Тип задания:</label>
         <select id="fType" onchange="toggleTypeFields()">
@@ -431,34 +430,34 @@
           <label>Слова для отработки (каждое с новой строки). Букву для пропуска берите в [квадратные скобки]:<br>
             <span style="font-size:0.85rem; font-weight:normal; color:#a9d8e8;">Пример: к[о]рова<br>с[о]бака</span>
           </label>
-          <textarea id="fDataInput" rows="6" placeholder="к[о]рова&#10;с[о]бака"></textarea>
+          <textarea id="fDataInput" rows="6" placeholder="к[о]рова&#10;с[о]бака" autocomplete="off"></textarea>
         </div>
 
         <!-- Поля для выбора вариантов -->
         <div id="typeChoiceWrap" style="display:none;">
           <label>Слово с пропуском или вопрос:</label>
-          <input type="text" id="fDataChoice" placeholder="Например: в..негрет">
+          <input type="text" id="fDataChoice" placeholder="Например: в..негрет" autocomplete="off">
           <label>Правильный ответ:</label>
-          <input type="text" id="fAnsRight" placeholder="Например: и">
+          <input type="text" id="fAnsRight" placeholder="Например: и" autocomplete="off">
           <label>Неправильные ответы (через запятую):</label>
-          <input type="text" id="fAnsWrong" placeholder="Например: е, а, о">
+          <input type="text" id="fAnsWrong" placeholder="Например: е, а, о" autocomplete="off">
         </div>
 
         <!-- Поля для ввода полного слова -->
         <div id="typeFullWordWrap" style="display:none;">
           <label>Слово, вопрос или подсказка (можно оставить пустым, если прикрепляете картинку):</label>
-          <input type="text" id="fDataFullWord" placeholder="Например: Кто изображен на картинке?">
+          <input type="text" id="fDataFullWord" placeholder="Например: Кто изображен на картинке?" autocomplete="off">
           <label>Правильный ответ (слово целиком):</label>
-          <input type="text" id="fAnsFullWord" placeholder="Например: собака">
+          <input type="text" id="fAnsFullWord" placeholder="Например: собака" autocomplete="off">
         </div>
 
         <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px dashed #18d4ff;">
           <h4 style="color:#fff; margin-bottom: 10px;">Медиафайлы (необязательно)</h4>
           <label>Картинка (URL или файл):</label>
-          <input type="text" id="fImgUrl" placeholder="Вставьте ссылку на картинку">
+          <input type="text" id="fImgUrl" placeholder="Вставьте ссылку на картинку" autocomplete="off">
           <input type="file" id="fImgFile" accept="image/*" onchange="encodeFile(this, 'img')">
           <label>Аудио (URL или файл):</label>
-          <input type="text" id="fAudioUrl" placeholder="Вставьте ссылку на аудио">
+          <input type="text" id="fAudioUrl" placeholder="Вставьте ссылку на аудио" autocomplete="off">
           <input type="file" id="fAudioFile" accept="audio/*" onchange="encodeFile(this, 'audio')">
         </div>
 
@@ -466,7 +465,7 @@
         <div id="draftStatus" style="text-align: center; color: #0f6; font-size: 1.1rem; font-weight: bold; margin-top: 10px; display: none;">Заданий для раздела: <span id="draftCount">0</span></div>
 
         <label style="margin-top: 15px;">⏱️ Таймер на задание (секунды, 0 = без таймера):</label>
-        <input type="number" id="fTimer" value="0" style="max-width:150px">
+        <input type="number" id="fTimer" value="0" style="max-width:150px" autocomplete="off">
         
         <button class="btn" style="width: 100%; margin: 15px 0 0 0;" onclick="addLessonSection()">🚀 Добавить урок (сформировать раздел)</button>
       </div>
@@ -665,6 +664,11 @@ window.updateLivePreview = function(config, tasks) {
     if (pBtn && config.playBtn) pBtn.innerHTML = '▶ ' + config.playBtn;
     
     if (config.lang) currentLang = config.lang;
+    
+    // Мгновенное применение переводов для интерфейса при смене языка
+    if (typeof applyTranslations === 'function') {
+        applyTranslations();
+    }
 };
 
 let previewTimeout;
@@ -821,6 +825,25 @@ const L = {
 
 function t(key) { return L[currentLang][key] || key; }
 function tBadge(id) { return L[currentLang].achievements[id] || id; }
+
+// Функция перевода статических элементов
+function applyTranslations() {
+    const setHtml = (id, text) => { let el = document.getElementById(id); if (el) el.innerHTML = text; };
+    setHtml('btnStatsMenu', t('statsBtn'));
+    setHtml('btnAchieveMenu', t('achieveBtn'));
+    setHtml('classesTitle', t('classesTitle'));
+    setHtml('btnBackToClasses', t('backToClasses'));
+    setHtml('btnBackToThemes', t('backToThemes'));
+    setHtml('studentTitle', t('simulator'));
+    setHtml('btnBackAchieve', t('backBtn'));
+    setHtml('achievementsTitle', t('achievementsTitle'));
+    setHtml('btnResetProg', t('resetProgress'));
+    setHtml('btnBackStats', t('backBtn'));
+    setHtml('statsTitle', t('statsTitle'));
+    setHtml('btnClearStats', t('clearStats'));
+    let sndBtn = document.getElementById('soundBtn');
+    if (sndBtn) sndBtn.textContent = soundOn ? t('sound') : t('soundMute');
+}
 
 // --- Кастомные модальные окна ---
 function showCustomAlert(msg, onConfirm) {
@@ -1273,7 +1296,7 @@ function renderEditTasks() {
           <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">✏️ Ввод ответа ${mediaBadge}</span>
           <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
         </div>
-        <input type="text" value="${t.d.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'd', this.value)" style="margin:0; padding:8px; font-size:1rem;">
+        <input type="text" value="${t.d.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'd', this.value)" style="margin:0; padding:8px; font-size:1rem;" autocomplete="off">
       </li>`;
     } else if (t.type === 'choice') {
       return `<li style="flex-direction: column; align-items: stretch; gap: 10px;">
@@ -1281,10 +1304,10 @@ function renderEditTasks() {
           <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">🎯 Выбор вариантов ${mediaBadge}</span>
           <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
         </div>
-        <input type="text" value="${t.q.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'q', this.value)" style="margin:0; padding:8px; font-size:1rem;">
+        <input type="text" value="${t.q.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'q', this.value)" style="margin:0; padding:8px; font-size:1rem;" autocomplete="off">
         <div style="display: flex; gap: 10px;">
-          <input type="text" value="${t.right.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'right', this.value)" style="margin:0; padding:8px; font-size:1rem; flex:1;">
-          <input type="text" value="${t.wrong.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'wrong', this.value)" style="margin:0; padding:8px; font-size:1rem; flex:2;">
+          <input type="text" value="${t.right.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'right', this.value)" style="margin:0; padding:8px; font-size:1rem; flex:1;" autocomplete="off">
+          <input type="text" value="${t.wrong.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'wrong', this.value)" style="margin:0; padding:8px; font-size:1rem; flex:2;" autocomplete="off">
         </div>
       </li>`;
     } else if (t.type === 'full_word') {
@@ -1293,8 +1316,8 @@ function renderEditTasks() {
           <span style="font-size:0.95rem; color:var(--neon-cyan); font-weight:bold;">📝 Ввод целого слова ${mediaBadge}</span>
           <button class="btn small" style="padding:4px 10px; font-size:0.85rem; margin:0; border-color:#f36; color:#f36; background: rgba(255,51,102,0.1);" onclick="removeEditTask(${idx})">🗑️</button>
         </div>
-        <input type="text" value="${t.q ? t.q.replace(/"/g, '&quot;') : ''}" oninput="updateEditTask(${idx}, 'q', this.value)" style="margin:0; padding:8px; font-size:1rem;" placeholder="Вопрос (необязательно)">
-        <input type="text" value="${t.right.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'right', this.value)" style="margin:0; padding:8px; font-size:1rem;" placeholder="Правильный ответ">
+        <input type="text" value="${t.q ? t.q.replace(/"/g, '&quot;') : ''}" oninput="updateEditTask(${idx}, 'q', this.value)" style="margin:0; padding:8px; font-size:1rem;" placeholder="Вопрос (необязательно)" autocomplete="off">
+        <input type="text" value="${t.right.replace(/"/g, '&quot;')}" oninput="updateEditTask(${idx}, 'right', this.value)" style="margin:0; padding:8px; font-size:1rem;" placeholder="Правильный ответ" autocomplete="off">
       </li>`;
     }
   }).join('');
@@ -1753,19 +1776,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     
     // Перевод статических элементов интерфейса
-    document.getElementById('btnStatsMenu').innerHTML = t('statsBtn');
-    document.getElementById('btnAchieveMenu').innerHTML = t('achieveBtn');
-    document.getElementById('classesTitle').innerHTML = t('classesTitle');
-    document.getElementById('btnBackToClasses').innerHTML = t('backToClasses');
-    document.getElementById('btnBackToThemes').innerHTML = t('backToThemes');
-    document.getElementById('studentTitle').innerHTML = t('simulator');
-    document.getElementById('btnBackAchieve').innerHTML = t('backBtn');
-    document.getElementById('achievementsTitle').innerHTML = t('achievementsTitle');
-    document.getElementById('btnResetProg').innerHTML = t('resetProgress');
-    document.getElementById('btnBackStats').innerHTML = t('backBtn');
-    document.getElementById('statsTitle').innerHTML = t('statsTitle');
-    document.getElementById('btnClearStats').innerHTML = t('clearStats');
-    document.getElementById('soundBtn').textContent = soundOn ? t('sound') : t('soundMute');
+    applyTranslations();
     
     buildClassesList(window.INJECTED_TASKS);
     show('title');
