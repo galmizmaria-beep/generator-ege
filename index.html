@@ -69,6 +69,13 @@
   .mode-teacher #menu { display: none !important; }
   .mode-teacher header .hud { display: none !important; }
 
+  /* Подвал игры (белый цвет) */
+  .mode-student footer,
+  .mode-student footer p,
+  .mode-student footer a {
+    color: #ffffff !important;
+  }
+
   header { text-align: center; padding: 40px 20px 20px; }
   h1.logo { font-size: 3rem; letter-spacing: 2px; color: var(--title-color); text-transform: uppercase; text-shadow: 0 0 10px var(--panel-glow), 0 0 20px var(--panel-glow); animation: pulse 2s infinite ease-in-out; }
   @keyframes pulse { 
@@ -525,7 +532,7 @@
   <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px var(--panel-glow);margin:20px 0; font-size: 1.8rem;" id="studentTitle">🎓 Тренажёр</h2>
   
   <div class="progress-bar"><div id="lessonProgress"></div></div>
-  <p style="text-align:center;color:var(--neon-cyan); font-size: 1.1rem; margin-bottom: 20px;" id="taskProgressText">Задание <span id="curNum" style="color:#fff; font-weight:bold;">1</span> из <span id="totNum" style="color:#fff; font-weight:bold;">1</span></p>
+  <p style="text-align:center;color:var(--theme-label-color); font-size: 1.1rem; margin-bottom: 20px;" id="taskProgressText">Задание <span id="curNum" style="font-weight:bold;">1</span> из <span id="totNum" style="font-weight:bold;">1</span></p>
   
   <div id="studentArea" style="max-width: 800px; margin: 0 auto;"></div>
   
@@ -1441,7 +1448,7 @@ function renderCurrentStudentTask() {
   combo = 0; updateHUD();
   const task = currentClassTasks[curIdx];
   
-  document.getElementById('taskProgressText').innerHTML = `${t('taskWord')} <span id="curNum" style="color:#fff; font-weight:bold;">${curIdx + 1}</span> ${t('ofWord')} <span id="totNum" style="color:#fff; font-weight:bold;">${currentClassTasks.length}</span>`;
+  document.getElementById('taskProgressText').innerHTML = `${t('taskWord')} <span id="curNum" style="font-weight:bold;">${curIdx + 1}</span> ${t('ofWord')} <span id="totNum" style="font-weight:bold;">${currentClassTasks.length}</span>`;
   document.getElementById('lessonProgress').style.width = ((curIdx) / currentClassTasks.length * 100) + '%';
   
   const area = document.getElementById('studentArea'); 
@@ -1483,9 +1490,15 @@ function finishClass() {
   if (currentSessionStats.errors.length > 0) {
     let errorList = currentSessionStats.errors.map(e => {
       let word = e.q;
+      // Подстановка правильной буквы вместо пропусков для наглядности
       if (word.includes('[')) {
         word = word.replace(/\[(.*?)\]/, e.right);
+      } else if (word.includes('..')) {
+        word = word.replace(/\.\.+/, e.right);
+      } else if (word.includes('_')) {
+        word = word.replace(/_+/, e.right);
       }
+      
       return `<span style="display:inline-block; font-size:1.2rem; margin: 5px; padding: 5px 15px; background: rgba(255,51,102,0.2); border: 1px solid #f36; border-radius: 8px;">${word}</span>`;
     }).join('');
     mistakesHtml = `
@@ -1519,7 +1532,8 @@ function renderTaskInput(task, area) {
   let correctLetter = match[1];
   let correctWordFull = task.d.replace(/\[(.*?)\]/, '$1');
   
-  let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" class="dyn-ans" style="width: 1.5em; text-align: center; display: inline-block; padding: 0 5px; margin: 0 5px; background: rgba(0,0,0,0.3); border: 2px dashed var(--panel-glow); color: var(--neon-cyan); border-radius: 8px;" id="answerInput" autocomplete="off">`);
+  // Квадратик для ввода: увеличен и выровнен
+  let displayWord = task.d.replace(/\[.*?\]/, `<input type="text" maxlength="${correctLetter.length}" class="dyn-ans" style="width: 1.2em; height: 1.2em; text-align: center; display: inline-block; padding: 0; margin: 0 4px; vertical-align: middle; line-height: 1; background: rgba(0,0,0,0.3); border: 2px dashed var(--panel-glow); color: var(--neon-cyan); border-radius: 8px; font-size: inherit; font-family: inherit;" id="answerInput" autocomplete="off">`);
 
   let mediaHtml = '';
   if (task.img) mediaHtml += `<img src="${task.img}" style="max-width:100%; max-height: 250px; border-radius:12px; margin-bottom:15px; box-shadow:0 0 10px var(--panel-glow);"><br>`;
