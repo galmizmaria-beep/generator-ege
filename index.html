@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru"> 
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -637,7 +637,15 @@ function applyStylesFromConfig(config) {
 // Функция мгновенного обновления предпросмотра (запускается внутри фрейма)
 window.updateLivePreview = function(config, tasks) {
     window.GAME_CONFIG = config;
-    if (tasks) window.INJECTED_TASKS = tasks;
+    if (tasks) {
+        window.INJECTED_TASKS = tasks;
+        if (typeof buildClassesList === 'function') {
+            buildClassesList(tasks);
+            if (typeof currentClassLvl !== 'undefined' && currentClassLvl && document.getElementById('themesScreen').classList.contains('active')) {
+                startClass(currentClassLvl);
+            }
+        }
+    }
     
     applyStylesFromConfig(config);
     
