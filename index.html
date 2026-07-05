@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Лаборатория русского языка</title>
+<title>Конструктор для создания браузерной игры</title>
 
 <!-- Точка внедрения данных (для скачанного файла) -->
 <script id="injection-point">window.INJECTED_TASKS = []; window.GAME_CONFIG = null;</script>
@@ -41,6 +41,10 @@
     --sub-color: #18d4ff;
     --bg-color: #050818;
     --name-input-bg: rgba(5,10,30,0.8);
+    --full-word-bg: rgba(5,10,30,0.8);
+    
+    --theme-label-color: #7b2ff7;
+    --theme-text-color: #7b2ff7;
     
     --q-size: 2.2rem;   
     --ans-size: 2.5rem; 
@@ -109,6 +113,7 @@
   label { display: block; margin-top: 10px; color: var(--neon-cyan); font-size: 0.95rem; font-weight: bold;}
   
   #studentNameInput { background: var(--name-input-bg); }
+  #fullWordInput { background: var(--full-word-bg); }
 
   .task-box { border-radius: 20px; padding: 30px; margin: 20px 0; }
   
@@ -181,8 +186,8 @@
 <body>
 
 <header>
-  <h1 class="logo">Лаборатория русского языка</h1>
-  <p class="subtitle">Битва за грамотность</p>
+  <h1 class="logo">Конструктор для создания браузерной игры</h1>
+  <p class="subtitle"></p>
   <div class="hud">
     <div class="energy">⚡ <span id="energy">0</span></div>
     <div class="tube"><div class="liquid" id="tube"></div></div>
@@ -284,7 +289,7 @@
     <!-- ЛЕВАЯ ПАНЕЛЬ ИНСТРУМЕНТОВ -->
     <div class="teacher-sidebar" style="flex: 1; overflow-y: auto; padding-right: 15px; padding-bottom: 20px;">
       
-      <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px #18d4ff;margin:10px 0 20px; font-size: 2rem;">Конструктор урока</h2>
+      <h2 style="text-align:center;color:#fff;text-shadow:0 0 10px #18d4ff;margin:10px 0 20px; font-size: 2rem;">Панель управления</h2>
       
       <div class="task-box" style="margin: 0 0 20px; box-shadow: 0 0 15px rgba(0,229,255,0.2); border-color: rgba(0,229,255,0.4);">
         <h3 style="color:var(--neon-cyan); margin-bottom: 15px; font-size: 1.4rem;">⚙️ Текстовые настройки</h3>
@@ -339,6 +344,19 @@
                 <label>Фон ввода имени:</label>
                 <input type="color" id="cfgNameInputBg" value="#050a1e">
             </div>
+            <div>
+                <label>Цвет слова "Тема":</label>
+                <input type="color" id="cfgThemeLabelColor" value="#7b2ff7">
+            </div>
+            <div>
+                <label>Цвет названия темы:</label>
+                <input type="color" id="cfgThemeTextColor" value="#7b2ff7">
+            </div>
+            <div>
+                <label>Фон ввода целого слова:</label>
+                <input type="color" id="cfgFullWordBg" value="#050a1e">
+            </div>
+            <div></div> <!-- Пустая колонка для выравнивания сетки -->
             <div>
                 <label>Цвет фона плашек:</label>
                 <input type="color" id="cfgPanelBg" value="#0a142d">
@@ -551,7 +569,8 @@ function hexToRgba(hex, alpha) {
 // Отслеживаем изменения для окна предпросмотра (БЕЗ изменения стилей родительского окна)
 ['cfgTitle', 'cfgSub', 'cfgName', 'cfgPlay', 'cfgLang', 'cfgHeroUrl', 'cfgBgUrl',
  'cfgPanelBg', 'cfgPanelGlow', 'cfgBtnBg', 'cfgBtnGlow', 'cfgFont', 'cfgQSize', 'cfgAnsSize',
- 'cfgTitleColor', 'cfgSubColor', 'cfgBgColor', 'cfgNameInputBg'].forEach(id => {
+ 'cfgTitleColor', 'cfgSubColor', 'cfgBgColor', 'cfgNameInputBg', 'cfgThemeLabelColor', 
+ 'cfgThemeTextColor', 'cfgFullWordBg'].forEach(id => {
     let el = document.getElementById(id);
     if(el) el.addEventListener('input', (e) => {
         if(id === 'cfgQSize') document.getElementById('valQSize').textContent = e.target.value;
@@ -584,6 +603,10 @@ function applyStylesFromConfig(config) {
         if(s.titleColor) r.setProperty('--title-color', s.titleColor);
         if(s.subColor) r.setProperty('--sub-color', s.subColor);
         if(s.nameInputBg) r.setProperty('--name-input-bg', hexToRgba(s.nameInputBg, 0.8));
+        if(s.fullWordBg) r.setProperty('--full-word-bg', hexToRgba(s.fullWordBg, 0.8));
+        
+        if(s.themeLabelColor) r.setProperty('--theme-label-color', s.themeLabelColor);
+        if(s.themeTextColor) r.setProperty('--theme-text-color', s.themeTextColor);
         
         if(s.panelBg) r.setProperty('--panel-bg', hexToRgba(s.panelBg, 0.85));
         if(s.panelGlow) {
@@ -634,6 +657,9 @@ function updatePreview() {
                 subColor: document.getElementById('cfgSubColor').value,
                 bgColor: document.getElementById('cfgBgColor').value,
                 nameInputBg: document.getElementById('cfgNameInputBg').value,
+                themeLabelColor: document.getElementById('cfgThemeLabelColor').value,
+                themeTextColor: document.getElementById('cfgThemeTextColor').value,
+                fullWordBg: document.getElementById('cfgFullWordBg').value,
                 panelBg: document.getElementById('cfgPanelBg').value,
                 panelGlow: document.getElementById('cfgPanelGlow').value,
                 btnBg: document.getElementById('cfgBtnBg').value,
@@ -863,7 +889,7 @@ function checkAchievements() {
 }
 
 function toast(msg) {
-  if (window.IS_PREVIEW && msg.includes('Задание добавлено')) return; // На всякий случай
+  if (window.IS_PREVIEW) return; // Уведомления отключены внутри предпросмотра
   const tDiv = document.createElement('div');
   tDiv.className = 'toast';
   tDiv.textContent = msg;
@@ -1226,6 +1252,9 @@ function buildHTMLFile() {
         subColor: document.getElementById('cfgSubColor').value,
         bgColor: document.getElementById('cfgBgColor').value,
         nameInputBg: document.getElementById('cfgNameInputBg').value,
+        themeLabelColor: document.getElementById('cfgThemeLabelColor').value,
+        themeTextColor: document.getElementById('cfgThemeTextColor').value,
+        fullWordBg: document.getElementById('cfgFullWordBg').value,
         panelBg: document.getElementById('cfgPanelBg').value,
         panelGlow: document.getElementById('cfgPanelGlow').value,
         btnBg: document.getElementById('cfgBtnBg').value,
@@ -1473,7 +1502,7 @@ function renderTaskInput(task, area) {
 
   area.innerHTML = `
     <div class="task-box" style="text-align:center;">
-      <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px; text-shadow: 0 0 5px var(--neon-purple);">📝 ${t('themeWord')}: ${task.theme}</h3>
+      <h3 style="margin-bottom: 25px; text-shadow: 0 0 5px var(--theme-label-color);"><span style="color:var(--theme-label-color);">📝 ${t('themeWord')}:</span> <span style="color:var(--theme-text-color);">${task.theme}</span></h3>
       ${mediaHtml}
       <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">${t('insertLetter')}</p>
       <div class="word-slot dyn-ans" style="letter-spacing: 5px; margin-bottom: 20px;">
@@ -1514,7 +1543,7 @@ function renderTaskChoice(task, area) {
 
   let html = `
     <div class="task-box" style="text-align:center;">
-      <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px; text-shadow: 0 0 5px var(--neon-purple);">📝 ${t('themeWord')}: ${task.theme}</h3>
+      <h3 style="margin-bottom: 25px; text-shadow: 0 0 5px var(--theme-label-color);"><span style="color:var(--theme-label-color);">📝 ${t('themeWord')}:</span> <span style="color:var(--theme-text-color);">${task.theme}</span></h3>
       ${mediaHtml}
       <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 30px;">${t('chooseOption')}</p>
       <p class="dyn-q">${task.q}</p>
@@ -1557,7 +1586,7 @@ function renderTaskFullWord(task, area) {
 
   let html = `
     <div class="task-box" style="text-align:center;">
-      <h3 style="color:var(--neon-purple); font-size:1.3rem; margin-bottom: 25px; text-shadow: 0 0 5px var(--neon-purple);">📝 ${t('themeWord')}: ${task.theme}</h3>
+      <h3 style="margin-bottom: 25px; text-shadow: 0 0 5px var(--theme-label-color);"><span style="color:var(--theme-label-color);">📝 ${t('themeWord')}:</span> <span style="color:var(--theme-text-color);">${task.theme}</span></h3>
       ${mediaHtml}
       ${task.q ? `<p class="dyn-q">${task.q}</p>` : ''}
       <p style="font-size: 1.2rem; color: #a9d8e8; margin-bottom: 15px;">${t('typeWord')}</p>
